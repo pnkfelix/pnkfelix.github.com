@@ -13,7 +13,13 @@ Link<strike>ed</strike> List
 
 * [shu's iontrail repo](https://github.com/syg/iontrail)
 
+* [mozilla rust repo](https://github.com/mozilla/rust)
+
 * [pnkfx blog](http://blog.pnkfx.org/)
+
+* [babysteps (niko's blog)](http://www.smallcultfollowing.com/babysteps/)
+
+* [shu's home page (links to blog posts)](http://rfrn.org/~shu/)
 
 * [score keeper](http://keepscore.pnkfx.org/) (work-in-progress, such as it is.)
 
