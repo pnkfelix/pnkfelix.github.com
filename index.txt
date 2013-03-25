@@ -1,8 +1,6 @@
-<head>
-<html>
-<title>Felix Klock (pnkfelix) github page</title>
-</html>
-<body>
+% pnkfelix github page
+% Felix S. Klock II
+% March 2013
 
 Felix Klock (pnkfelix) github page
 ==================================
@@ -26,6 +24,3 @@ Link<strike>ed</strike> List
 The above is not meant to be anything but a list of bookmarks for
 things that Felix meant to go to when he typed his username and github
 into the location bar.
-
-</body>
-</html>
