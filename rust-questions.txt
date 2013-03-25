@@ -5,4 +5,4 @@
 Unsure what to do with the following 0.6 issues
 -----------------------------------------------
 
-* https://github.com/mozilla/rust/issues/3224
+* [#3224: Pattern-destructing a struct inside a ~-pointer violates linearity](https://github.com/mozilla/rust/issues/3224)
