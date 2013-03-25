@@ -8,3 +8,398 @@ Unsure what to do with the following 0.6 issues
 * [#3224: Pattern-destructing a struct inside a ~-pointer violates linearity](https://github.com/mozilla/rust/issues/3224)
 
 * [#3243: stack allocated vecs can be returned from functions](https://github.com/mozilla/rust/issues/3243)
+
+* [#3396: Possible memory corruption or vec misbehavior in metadata](https://github.com/mozilla/rust/issues/3243)
+
+* [#3476: Remove rtcalls in favor of lang items](https://github.com/mozilla/rust/issues/3476)
+
+* [#4134: Type use probably doesn't work right with overloaded operators](https://github.com/mozilla/rust/issues/4134)
+
+* [#4320: result::get() causes "Entry Point Not Found" on Windows](https://github.com/mozilla/rust/issues/4320)
+
+* [#4333: Segfault from using casted trait](https://github.com/mozilla/rust/issues/4333)
+
+* [#4904: Segfault with hashmap, boxes and pattern matching](https://github.com/mozilla/rust/issues/4904)
+
+Rust candidates for closing from 0.6 milestones
+-----------------------------------------------
+* [#3599: net_tcp read timeout](https://github.com/mozilla/rust/issues/3599)
+
+
+Rust candidates for Felix to attempt to fix
+-----------------------------------------------
+* [#3682: String concatenation with + only type-checks if the first operand is an owned pointer](https://github.com/mozilla/rust/issues/3682)
+
+* [#3723: Improve error message when type is unknown](https://github.com/mozilla/rust/issues/3723)
+
+* [#3726: Remove unneeded exports in syntax::parse::parser](https://github.com/mozilla/rust/issues/3726)
+
+* [#3970: Incorrect whitespace check in comment parser](https://github.com/mozilla/rust/issues/3970)
+
+* [#3986: Cross-crate private methods can be called](https://github.com/mozilla/rust/issues/3986)
+
+* [#3990: Internal compiler error on invalid field name in struct literal](https://github.com/mozilla/rust/issues/3990)
+
+* [#4063: Non-constant repeat count expr causes ICE](https://github.com/mozilla/rust/issues/4063)
+
+* [#4189: vec::raw::memcpy/memmove do not do bounds checks](https://github.com/mozilla/rust/issues/4189)
+
+* [#4202: Error when using cross-crate static methods exported from a private module via `pub...`](https://github.com/mozilla/rust/issues/4202)
+
+`* [#](https://github.com/mozilla/rust/issues/)`
+
+Remaining items on his semi-sorted 0.6 queue
+--------------------------------------------
+
+```
+pnkfelix :
+   1972: Bad file/lines in error (assert/fail/alt check) messages from inline functions [I-wrong] [A-diagnostics] 3
+   2338: Cannot move upvars through multiple closures [A-typesystem] [I-wrong] 1
+   2373: Reorganize llvm and clang libs and bindings [I-cleanup] [A-llvm] [A-build] [B-RFC] 4
+   2873: Rework the way test harness prints "test %s ..." [A-testsuite] [I-papercut] 3
+   2887: Use proper spans in ext::tt::transcribe [I-cleanup] [A-syntaxext]
+   2888: Possibly handle macros in fold [A-frontend] [I-completion] [A-syntaxext]
+   2914: Misleading resolve error with multiple imports [I-papercut] [A-resolve] 1
+   2959: vec::u3::is_ascii in documentation, not in language [A-docs] [E-easy] [I-wrong] [A-rustdoc] 2
+   2969: "assigning... prohibited due to outstanding loan" could be clearer [E-easy] [A-typesystem] [I-papercut] [A-regions] 1
+   3064: Better error message for "error: `break' outside of loop" inside of `do' inside of `for' [A-frontend] [E-easy] [I-papercut] 4
+   3080: "unsafe" on methods doesn't work [E-easy] [A-typesystem] [I-wrong] 5
+   3121: assertion failure in trans_alt when combining if, nested patterns [A-codegen] [I-ICE] 42
+   3224: Pattern-destructing a struct inside a ~-pointer violates linearity [A-typesystem] 14
+   3243: stack allocated vecs can be returned from functions [I-wrong] [I-crash] [A-regions] 5
+   3320: Remove bare function types, replace with inference [I-cleanup] [A-typesystem] 2
+   3321: Add `extern "abi" fn` type to represent C pointers [A-typesystem] [I-enhancement]
+   3392: language version markers [E-easy] [I-completion] [A-grammar] [A-versioning] @
+   3396: Possible memory corruption or vec misbehavior in metadata [I-wrong] [A-regions] [A-metadata] [A-versioning] @
+   3414: Bots should run with optimizations both enabled and disabled [I-wrong] [A-build] 1
+   3469: Using constants at compile time to define vector lengths [A-frontend] [I-completion] [E-hard] 8 @
+   3476: Remove rtcalls in favor of lang items [A-libs] [E-easy] [A-codegen]
+   3478: tests for cleanup in guards [I-completion] [A-codegen]
+   3599: net_tcp read timeout [A-libs] [I-wrong] 4
+   3612: iter map [A-docs] [A-libs] [I-papercut]
+   3631: rust 0.3.1 fails to compile with host clang installed [I-wrong] [A-linux] [A-build] 3
+   3682: String concatenation with + only type-checks if the first operand is an owned pointer [A-typesystem] [I-wrong] 2
+   3687: Add a way to link by git commit id [A-libs] [I-enhancement]
+   3692: Structs with missing fields list all the fields as missing in error messages. [A-frontend] [I-papercut] [A-diagnostics] 4
+   3723: Improve error message when type is unknown [A-typesystem] [I-papercut] [A-diagnostics]
+   3726: Remove unneeded exports in syntax::parse::parser [A-frontend] [I-cleanup]
+   3775: revert rust's clang iOS6 buildsystem hotpatch [I-wrong] [A-llvm] [A-build]
+   3867: operator overloading seg fault [I-crash] [A-codegen] [A-traits] 2
+   3888: region error "Cannot encode region variables" [A-regions] [I-ICE] 3
+   3970: Incorrect whitespace check in comment parser [I-wrong] [A-parser]
+   3986: Cross-crate private methods can be called [A-linkage] [I-wrong] [A-traits]
+   3990: Internal compiler error on invalid field name in struct literal [A-typesystem] [I-ICE]
+   4063: Non-constant repeat count expr causes ICE [I-ICE] 11
+   4082: pub/priv qualifiers on variants don't seem to get serialized [A-linkage] [I-wrong] 3
+   4102: Calling default methods on type parameters that are type parameterized traits does not work [I-wrong] [A-traits] 1
+   4104: Master branch failed at building on macos (assertion failure) [I-wrong] [A-macos] [A-build] [B-clarifying] [B-reproduce] 6
+   4134: Type use probably doesn't work right with overloaded operators [I-crash] [A-codegen]
+   4137: Replace ty_param_bound with trait_ref in AST [E-easy] [I-cleanup]
+   4189: vec::raw::memcpy/memmove do not do bounds checks [A-libs] [E-easy] [I-wrong] 5
+   4202: Error when using cross-crate static methods exported from a private module via `pub... [A-linkage] [I-wrong] [A-resolve] [A-traits] 2
+   4254: Not building immediately as Ubuntu PPA on Launchpad [I-wrong] [A-linux] [A-build] 3
+   4320: result::get() causes "Entry Point Not Found" on Windows [I-wrong] [A-windows] 2
+   4333: Segfault from using casted trait [I-crash] [A-codegen] [A-traits] 1
+   4407: rusti segfaults for trivial programs [I-crash] 1
+   4468: Avoid creating empty .so/.dylib/.dll files [A-build] [I-papercut] 2
+   4545: ICE with crate & polymorphic constructor function [A-linkage] [I-ICE] 1
+   4899: Bus error 10 on x86_64 platform [I-crash] [A-codegen] 2
+   4904: Segfault with hashmap, boxes and pattern matching [A-libs] [I-crash] [A-codegen] [A-regions]
+
+   *** Here is where Felix left off ***
+
+   4912: Finish removing inner-vector-mutability [A-libs] [A-frontend] [I-cleanup] [A-testsuite]
+   4972: Borrowed ptr to boxed trait exposes "uniq" type [I-wrong] [A-traits]
+   5036: Rename all .rc extensions to .rs [E-easy] [I-cleanup] 1
+   5153: ICE when calling method on trait object with incorrect self type [I-ICE] [A-traits]
+   5423: After snapshot, update the abi constants in syntax/abi.rs [E-easy] [I-cleanup] [A-codegen]
+jbclements :
+   3093: change + mode to pass by-value [I-wrong] [A-codegen] 3
+   3598: infer or permit declarations of variance for type parameters [A-typesystem] [B-RFC] [B-clarifying] 2
+   4335: lifetime cannot outlive unknown scope. Please report a bug... [I-wrong] [A-diagnostics] [A-regions] 2
+   2064: Rust<->C by-val ABI issues on 32bit [I-wrong] [A-codegen] 8 @
+   3816: Configure script provides no feedback during `git submodule update` [E-easy] [A-build] [I-enhancement] 3
+   3784: Merge def_mod and def_ty maybe [I-cleanup] [A-resolve]
+   723: Add support for #[deprecated] attribute [A-frontend] [E-easy] [I-completion] 5 @
+   3085: AST alt arms should take an expression instead of a block [A-frontend] [E-easy] [I-cleanup] 1
+   4339: Remove `move` and `copy` keywords [A-frontend] [I-cleanup]
+   3551: Invoke instructions kick us off the FastISel path [A-llvm] [I-slow] 5
+   3360: move parts of rustrt/core to std [A-libs] [I-cleanup]
+   3300: Allow items to be anonymous [A-frontend] [I-cleanup]
+   3945: Bad documentation for --emit-llvm and --save-temps compiler flags [A-docs] [A-driver] [I-papercut]
+   4425: De-mode core::stackwalk::frame_address [A-libs] [I-completion] 1
+   4228: Can't declare static fns in multiple anonymous implementations [I-wrong] [A-traits]
+   3379: adjust choice of rust nonterminals (and their names) in macro... [A-frontend] [E-easy] [I-cleanup] [A-syntaxext] [A-grammar] 3
+   3960: Building the manual fails incorrectly when node isn't installed [I-wrong] [A-build]
+   5164: Fix license attribute on crates [E-easy] [I-cleanup]
+   4740: Put experimental features behind Z-flags [A-frontend] [E-easy] [I-cleanup] 1
+   3369: Move all intrinsic declarations into intrinsic.rs. Document them [A-libs] [E-easy] [I-cleanup] 2
+   4193: remove check-fast driver [I-cleanup] [A-testsuite] [A-build] 1
+   3356: rename vec::from_slice and/or str::to_unique [A-libs] [E-easy] [I-cleanup] 1
+   3474: The crate store does not deduplicate used crates [A-linkage] [I-wrong] [A-metadata]
+   4377: Cross-crate calls to inherited methods don't work [I-completion] [A-traits] 1
+   4176: `self` should be a keyword [I-completion] [A-grammar] 6
+   3783: Merge type_span and type_def, and ditto with value_span and value_def [I-cleanup] [A-resolve]
+   3517: Rename lint to something else [I-cleanup] [A-lint]
+   4593: Mention in the tutorial that stack-allocated values are moved-by-default [A-docs] [I-completion]
+   3796: Incorrect warning about value assigned to variable not being used [A-typesystem] [I-wrong]
+   4183: Problem with `self` when inheriting generic traits. [I-wrong] [A-traits] 10
+   3053: rooting of boxes in borrowck fails to take moves into account [I-crash] [A-regions]
+   3730: Fix type of get_tydesc intrinsic in typeck::check::check_intrinsic_type [E-easy] [A-typesystem] [I-wrong]
+   3571: Rewrite fmt! for performance [A-libs] [A-frontend] [I-slow] [A-an-interesting-project] 1
+   2237: Move Rust's build logic into a Rust program [A-driver] [A-build] [E-hard] [I-enhancement] [A-an-interesting-project] 8 @
+   3403: Move creation and initialization of strings into a rt helper [I-enhancement] [A-codegen] [I-wishlist] 1
+   4492: ICE from regions (Cannot encode region variables) [A-regions] [I-ICE]
+   3658: Remove the pipe protocol compiler [A-frontend] [B-clarifying] 3
+   3167: Borrowed pointers in destructors enable use-after-free crashes [I-crash] [A-regions] 1
+   3127: More mysterious coretest races. [A-libs] [I-crash] [E-hard]
+   4000: document core::path [A-docs] [A-libs] [I-completion]
+   3461: Trying to put a named function into a twiddle box does weird thing [A-typesystem] [I-papercut] [A-regions] 2
+   3114: Macro import/export [I-completion] [A-syntaxext] 2
+   3617: Bad signature for `main` asserts [E-easy] [I-papercut] [A-diagnostics] 2
+   3441: document task scheduler [A-docs] [I-completion] 5
+   4439: Call to vec::filter causes segfault in rustdoc tests [I-crash] [A-regions] 1
+   4107: Questionable type inference fail using complex generics and static methods [I-wrong] [B-clarifying] [A-traits]
+   4983: wrong doc on core::run::run_program [A-docs] [I-wrong]
+   4161: pretty printer adds an extra space in borrowed pointer return type [E-easy] [I-wrong] [A-pretty]
+   3290: glue_drop and glue_take in bad order [I-crash] [A-codegen] 2
+   3275: rewrite core::either to not require so much T:copy [A-libs] [E-easy] [I-cleanup]
+   4325: "Cannot root managed value long enough" with recursion and returning borrowed pointers [I-papercut] [A-regions]
+   3738: Stop putting the ident interner in local storage [A-frontend] [I-completion] 1
+   3941: Rename core::info, etc. and modernize [A-libs] [E-easy] [I-papercut] [A-syntaxext] 2
+   3674: Crash "free(): invalid pointer" in sock.read() in a separate task [A-libs] [I-crash] [A-concurrency] 9
+   2429: "the type of this value must be known in this context" is fatal [A-typesystem] [I-papercut] 2
+   3678: Extern/native function reform [I-cleanup] [A-typesystem] [A-codegen] 4
+   2909: 'make clean' does not make clean enough [I-wrong] [A-build]
+tjc :
+   3747: Bad error message for random character before a "use" [A-frontend] [I-wrong] [A-diagnostics]
+   4120: early exit ICE [A-codegen] [I-ICE] 3
+   3988: "rustc has stopped working" on windows [I-crash] [A-windows] 1
+   2868: Remove redundant functions from  libraries [A-libs] [I-cleanup] [B-RFC] 1
+   4208: ICE with trait inheritance/generics [A-linkage] [I-ICE] [A-traits] 4
+   3989: lmodern.sty missing on Ubuntu 12.10 [A-docs] [I-wrong] [A-linux] [A-build]
+   5099: Internal compiler error: trait B < A > { fn a() -> A { self.a} } [I-ICE] [A-traits] 1
+   5226: make check broken on windows [I-wrong] [A-windows] [A-build]
+   4387: ICE when attempting to use arithmetic expression as fixed vector length [A-frontend] [I-ICE]
+   4636: Un-ignore range tests on Windows [I-wrong] [A-testsuite] [A-windows] 1
+   3793: vec::find should return a reference [A-libs] [I-wrong]
+   3283: Unconstrained region variables when making str-ptr-ptr hash and eq [I-wrong] [A-regions] 2
+   3285: Struct literals should use assignability for their fields [A-typesystem] [I-papercut]
+   4512: Segfault without using `unsafe` in this program extracted from the test suite [A-libs] [I-crash] [A-testsuite] 1
+   4074: flatpipes is (partly) unsafe without Pod kind [A-libs] [I-wrong] 2
+   4213: Incorrect type checking for trait inheritance [I-wrong] [A-traits] 2
+   3874: ref pattern nested inside let LHS causes LLVM assertion failure [A-codegen] [I-ICE] 3
+   3968: Race condition running test suite with -jX [I-wrong] [A-testsuite] [A-build]
+   4736: ICE initializing tuple-struct with field initializers [A-typesystem] [I-ICE] 2
+   3342: document lang attribute [A-docs] [I-completion] [A-attributes]
+   3991: Possibly bogus `illegal borrow unless pure` error [I-papercut] [A-diagnostics] [A-regions] 3
+   3614: Inner attributes on impls don't parse [I-wrong] [A-attributes] [A-parser]
+   3820: Operator overloading without implementing the respective trait [A-typesystem] [I-wrong] [I-ICE] 1
+   3556: formatting recursive enums seg faults [A-libs] [I-crash] 1
+   3317: Document core::io [A-docs] [I-completion]
+   4100: supertrait methods should be callable on object types [I-completion] [A-traits] 2
+   3984: Kind inheritance [I-completion] [A-typesystem]
+   5062: ICE: Autoderef but type not derefable on fmt!("%?", None) [A-typesystem] [I-ICE]
+   4241: internal compiler error: unexpected failure [A-codegen] [I-ICE]
+   3065: Syntax backtraces don't work for the new macro system [E-easy] [A-syntaxext]
+   2166: symbols versions are not mangled correctly [A-linkage] [I-wrong] [A-versioning] 6 @
+   4394: DNS: rustlang.org and rust-lang.com [I-wrong] [A-infrastructure]
+   3039: Box-enclosed destructors can't safely access other boxes. [A-typesystem] [I-crash] 7
+   4556: Core documentation about how the prelude is injected is wrong [A-docs] [I-wrong] 1
+   3907: XCrate typedef of trait makes ICE [A-linkage] [I-ICE] [A-traits] 1
+   4542: Segfault matching copy of dereferenced owned string [I-crash] [A-codegen] 6
+   4712: FIXME---support overloaded operators in expr_assign_op in the moves computation [I-completion] [A-regions]
+   4267: ICE on destructuring [A-typesystem] [A-diagnostics] [I-ICE] 2
+   3225: Installing multiple versions doesn't work well [A-build] [I-papercut] 2 @
+   4295: Error calling supertrait method via trait reference... [I-wrong] [A-traits] 1
+   3262: Constants for mutability that are useful for visitor api are in libsyntax... [A-libs] [E-easy] [I-cleanup] 2
+   4252: ICE with constrained generic types and Drop trait [I-ICE] [A-traits]
+   3066: `file!`, `line!` and `col!` (and possibly `module!`) do the Wrong Thing. [E-easy] [I-wrong] [A-syntaxext] 1
+   3660: Libraries installed on windows do not have expected symbols [I-wrong] [A-windows] 8
+   3944: Convert compiler to use Drop trait [I-cleanup] [A-traits] 1
+   3466: Remove `<-` and `<->` forms [A-frontend] [E-easy] [I-wrong] 5
+   4210: repr and/or reflection gets confused about box mutability [A-libs] [A-typesystem] [I-wrong] @
+   2891: Calculate a per-scheduler name in the constructor for rust_sched_loop [A-runtime] [I-cleanup]
+   4219: Rewrite core::int, etc. to use item macros. Remove #[merge] hack [A-libs] [E-easy] [I-cleanup] [A-syntaxext] 8
+   4257: structural_records warning [A-frontend] [I-cleanup] [A-lint] [A-syntaxext] 1
+   3361: Statically link the runtime to core [I-cleanup] [A-build]
+   3973: Impls should not allow methods not defined in the trait to be implemented [I-papercut] [A-diagnostics] [A-resolve] 1
+   5035: assert fail id.crate != ast::local_crate with trait inhertance and type synonyms [I-ICE] [A-traits]
+   4260: ICE with library crate [A-linkage] [I-ICE] [A-metadata] 2
+   3475: intrinsic and core's #[lang] attribute are redundant with one another [A-libs] [A-frontend] [E-easy] [I-cleanup] @
+   3170: Report const index out-of-bound condition earlier [E-easy] [I-cleanup] [I-completion] [A-diagnostics] 1
+   4265: cannot have static and instance methods with the same name [A-typesystem] [I-wrong] [B-clarifying] 3
+graydon :
+   910: Decide what to do when a resource destructor fails [A-runtime] [I-completion] [A-typesystem] [I-wrong] [B-clarifying] 4
+   3387: Borrow check does not detect moves in overloaded operators [A-typesystem] [I-crash] [A-regions] 2
+   3548: port the "autoref-arg" code used in overloaded operators to use the ptr adjustment table [I-cleanup] [A-typesystem] [A-codegen] 1
+   4306: "unable to find implementation of trait" with a combination of a generic trait & a static method [I-wrong] [A-traits] 1
+   4259: Upstream the llvm patches [I-completion] [A-llvm] 1
+   3355: Rename vec::to_mut/from_mut [A-libs] [E-easy] [I-cleanup] 3
+   4204: Add `uninit` intrinsic. Use in `core::vec` [A-libs] [E-easy] [A-codegen]
+   4541: Segfault when matching a copy of a owned box [A-runtime] [I-crash] [A-codegen] 3
+   3572: str::view interacts strangely with @str values [I-wrong] [A-regions] 1
+   3588: ICE: encode_symbol: id not found [I-ICE] [A-metadata] 3
+   4264: 'rustc --pretty typed' fails for hello world [A-frontend] [A-pretty] [I-ICE] 3
+   4773: ICE when macro expansion has free syntactic variable reference [A-syntaxext] [I-ICE] 1
+   3768: Reflection-based printing traverses cycles and runs out of stack [A-runtime] [I-crash] [A-pretty]
+   3899: Linking to static native libraries loses the native library debug info [A-linkage] [I-wrong] [A-debuginfo]
+   3111: Split core::ptr into modules for unsafe pointers and region pointers [A-libs] [E-easy] [I-cleanup]
+   3295: "foo() -> !" means something different in fns than in proto! [A-frontend] [A-syntaxext] [A-grammar] [I-wishlist] [A-concurrency]
+   3961: Incorrect mixing of character and byte positions in parser [I-wrong] [A-parser] 1
+   3319: rustc vs rustc.exe in PATH (Windows/MinGW) [I-cleanup] [A-windows] [A-build] 1
+   3216: Compiling "Hello World" can take a prohibitive amount of time [I-slow] [A-codegen] 2 @
+   4363: ICE on recursive type [E-hard] [A-codegen] [I-ICE] 7
+   2068: Try to eliminate "new" libstdc++ dependencies in rt and rustllvm [A-runtime] [A-linux] [A-build] @
+   4800: Make core::ops appear in the docs [A-docs] [A-libs] [I-wrong]
+   4517: Type errors still use old fixed-length vector syntax [E-easy] [I-papercut] [A-diagnostics]
+   3420: path empty [A-libs] [I-completion] [B-clarifying] 3
+   4075: Anonymous impls on traits do not work [I-wrong] [A-traits]
+   4508: Structure instantiation doesn't handle structure typedefs [B-clarifying] 1
+   3864: Add section on ~[], DVec, etc to the tutorial [A-docs] [E-easy] [I-completion] 2
+   4898: Inconsistency with 1-tuples [I-wrong] [A-grammar] [A-parser] 4
+   3083: Warn when a local is "mut" but clearly not mutated [E-easy] [I-enhancement] [A-lint] 8
+   3242: Include name in "unresolved name" error messages. [I-papercut] [A-resolve]
+   4464: Borrow check error with "unknown scope" region for callee's self parameter [A-regions] [I-ICE] 1
+   3266: unused variable / dead assignment warnings should have lint modes [I-papercut] [A-lint] 3
+   4850: Adding self parameter to trait causes code to segfault [I-crash] [A-codegen] [A-traits]
+   3437: Add a Repr trait that's distinct from ToStr (or a repr() method on ToStr) [A-libs] [E-easy] 1
+   4735: Finalizer not run on tuple-like structs [I-wrong] [A-codegen]
+   3131: core::iter tests are all commented out [A-libs] [E-easy] [I-cleanup] [A-testsuite] 1
+   3232: macro parser should back out of failed nonterminal parsing [I-wrong] [A-syntaxext] [A-parser] 4
+   3645: ICE when compiling vector literal with non-constant length [A-typesystem] [A-diagnostics] [I-ICE] 2
+   3346: crate name in log map is taken from name of output binary, not the crate name [E-easy] [A-linkage] [I-wrong] 2
+   3529: "Const" is confusing [A-frontend] [I-cleanup] [B-RFC] 4
+   4577: "newtype" structs fail to work across crates [A-typesystem] [A-linkage] [I-wrong] 1
+   2992: Type parameters that appear in a fn type should not require an owned bound [I-wrong] [A-regions] 4
+   3024: Borrow check needs to consider moves into patterns [A-typesystem] [I-wrong] [A-regions] 10
+   3938: rustc's test pass shouldn't generate calls to os::args [A-libs] [E-easy] [I-wrong] [A-syntaxext]
+   4033: Resolve doesn't report name conflicts between a module renaming and another module [I-wrong] [A-resolve]
+   2579: os::copy_file needs to copy the execution bit [A-libs] [I-wrong]
+   4494: Segmentation fault (core dump) in Rust 0.6 [I-crash] 1
+   3727: Remove front::intrinsic::get_tydesc [A-frontend] [I-cleanup] 2
+   4037: Segfault in reflection on enum variants [A-runtime] [A-libs] [I-crash]
+   4654: Move+return in a for loop "moving out of captured outer immutable variable in a stack closure" [I-papercut] [A-regions] 15
+   4760: LLVM assertion getting a reference out of tuple [A-codegen] [I-ICE] 2
+   3113: Record with only float fields cannot be passed by-value (++) to foreign code [A-codegen] [I-ICE]
+   4182: Import WriterUtil by default [A-libs] [I-papercut] 2
+   4350: test/run-pass/traits-default-method-self.rs fails with ICE in trans [I-ICE] [A-traits]
+   3428: GC bots [I-completion] [A-testsuite] [A-build]
+   3495: Eliminate the 'no debug symbols in executable' warning on mac [A-macos] [I-papercut] [A-diagnostics] 2
+   3843: str::buf_as_slice includes (and reads) uninitialized memory in the slice [A-libs] [I-wrong]
+nikomatsakis :
+   1603: Should rustc.exe be statically linked to libgcc etc.? [A-linkage] [A-windows] [E-hard] [I-enhancement] 3 @
+   3624: Eliminate move_it macros [A-libs] [E-easy] [I-cleanup] 3
+   4234: Tutorial needs better discussion of mutability and linearity [A-docs] [I-completion] [A-regions] 1
+   4406: trait that omits & on self type signals LLVM assertion failure [A-codegen] [I-ICE] [A-traits] 2
+   4220: inferred literals and integer-const expressions aren't overflow checked [E-easy] [A-typesystem] [I-papercut] 5
+   4185: rustc runs out of stack then asserts a leak and crashes [I-ICE]
+   4759: Segfault moving out of a struct and then calling a move-out-of-self method [I-crash] [A-regions] 1
+   4338: Using mod <name> in <name>.rs leads to "internal compiler error: unexpected failure" [A-frontend] [A-resolve] [I-ICE] 1
+   4547: Assertion failure causes wrong exit status [A-libs] [I-wrong] 2
+   4321: Error message for non-exhaustive pattern only shows part of missing case [A-typesystem] [I-papercut] [A-diagnostics]
+   3438: rand should not use boxed traits [A-libs] [E-easy] 2
+   4247: fatal error: 'new' file not found [I-wrong] [A-linux] [A-build]
+   3611: future module is confusing, as is relationship to task [A-docs] [A-libs] [I-cleanup] 3
+   4374: xfailed fully-qualified-type-name3, pptypedef, unsafe-fn-autoderef [I-wrong] [A-testsuite]
+   1879: support LLVM subtargets [A-llvm] [A-driver] [I-enhancement] [A-codegen] 1 @
+   4270: Type-directed method resolution does not work through pointers [I-wrong] [A-traits]
+   4319: closure type fails to be inferred properly for vec foldl method [A-typesystem] [I-wrong] 1
+   4855: ICE trying to borrow invalid borrowed-pointer subscript [A-regions] [I-ICE] 1
+   3494: Reduce the complexity around rust_sched_launcher [A-runtime] [I-cleanup]
+   4019: Rewrite tests.mk in Rust [I-cleanup] [A-testsuite] [A-build]
+   2478: returning an unconstrained, bound region should be an error [I-enhancement] [A-lint] [A-regions] 2
+   3171: Generic foreign fns (former crust functions) cause an ICE [A-typesystem] [A-codegen] [I-ICE]
+   4564: Using %? in fmt! broken on Windows 7 [A-linkage] [I-crash] [A-windows]
+   3496: Reduce the size of scheduler thread stacks [A-runtime] [E-easy] [I-slow] [A-concurrency]
+   4116: Reintroduce directory modules [E-easy] [B-RFC]
+   3778: LLVM assertion failure with self-referential struct [A-codegen] [I-ICE]
+   3352: circular imports [I-completion] [A-linkage] [C-postponed] 4
+   4294: can't find crate for `core` [A-build] [I-papercut] [A-diagnostics] 1
+   3770: Stop rebuilding crates during testing [I-slow] [A-build]
+   5008: cast to &Trait causes code to segfault on method call [I-crash] [A-traits] 2
+   908: Implement unwinding for Windows [A-runtime] [I-wrong] [A-llvm] [A-windows] [A-codegen] 2
+   5403: Stop building clang [A-llvm] 2
+   3804: unsafe-ness not visible in library reference doc [A-docs] [I-wrong] [A-rustdoc] 1
+   3695: Make recursing too deep a fatal runtime error and make the limit larger [A-runtime] [I-enhancement] 6
+   4665: Remove structural records from libcore, libstd, macros [A-libs] [I-cleanup] [A-syntaxext] 8
+   4131: Can't break to a labeled loop from inside a for loop [I-wrong] [A-codegen]
+   4364: De-mode libsyntax and librustc [I-cleanup] [A-codegen]
+   3137: Non exported paths can be imported from other crates if they are reachable [A-linkage] [I-wrong]
+   3756: Split Vim extensions into separate repository [I-cleanup] [A-tools] 3
+   2012: Rewrite debuginfo [I-wrong] [A-debuginfo] [E-hard] [A-codegen]
+   2525: allow classes/nominal types to be declared non-copyable [A-typesystem] [I-enhancement] [A-attributes] 2
+   3920: `init()` intrinsic is unsafe [A-typesystem] [I-wrong]
+   2361: Implement stack maps for unwinding [A-runtime] [I-completion] [A-llvm] [A-windows] [E-hard] [A-codegen] 13
+   3391: hardcoded paths in makefile prevent using checkinstall [I-wrong] [A-build]
+   3794: Casting to a trait doesn't auto-coerce to a &T type [A-typesystem] [I-wrong] [A-traits] 4
+   2994: Tweak error message to suggest adding an owned bound [A-typesystem] [I-papercut] [A-regions]
+   4396: Calls to generic inherited methods don't work, at least in default methods [I-completion] [A-traits]
+   2202: Regions and function types [I-completion] [A-regions] 13
+   4780: internal compiler error: unexpected failure [A-frontend] [I-ICE] 3
+   4767: Rename `core::private::global_data` [A-libs] [E-easy] [I-cleanup]
+   5344: 0.6 documentation [A-docs] [I-completion] 2
+   4678: Refactor typeck code handling `self` and type parameters [I-cleanup] [A-typesystem] [A-traits] 2
+   623: Encode/decode meta_name_values with non-string values [A-linkage] [I-wrong]
+   4223: Remove redundant vec implementations of iter traits [A-libs] [I-cleanup]
+   4355: double free with ~self [A-typesystem] [I-crash] [A-codegen] 1
+   4501: Swap return values of pipes::init() [A-libs] [E-easy] [I-cleanup] 1
+   2105: Make shootout benchmarks visible on website, post to alioth.debian.org [I-enhancement] [A-infrastructure] 4
+pcwalton :
+   4113: ICE on record update with "fail" as base record [E-easy] [A-codegen] [I-ICE] 2
+   4099: Incorrect inference for default methods on generic traits [I-wrong] [A-traits] 1
+   3850: Refactor region granularity [I-wrong] [A-regions]
+   2893: Do some esoteric Windows magic in lock_and_signal [A-runtime] [I-cleanup] [A-windows] 3
+   3812: Illegal instruction (core dumped) with function pointers [I-crash] [B-clarifying] [A-codegen] 3
+   3402: Trans refactor was major perf perturbance [I-slow] [A-codegen] 13
+   3554: Consider not running the verifier in non-debug builds [A-llvm] [I-slow]
+   4103: Cross-crate default methods through bounded typarams don't work [I-wrong] [A-traits]
+   4824: Import module is not working as expect if crate name is the same as module name inside it. [I-wrong] [A-diagnostics] [A-resolve] 1
+   4751: Documentation error for std::timer::sleep [A-docs] [A-libs] [I-wrong] [A-concurrency]
+   3558: io::println allocates on the GC heap [A-libs] [I-slow] 1
+   3547: the type_use code should consider ABI-specific classifications [I-wrong] [A-codegen] 2
+   5045: Export pipe traits (GenericChan, etc.) from prelude by default [A-libs] [E-easy] [I-cleanup] 1
+   3603: vec::consume/consume_mut are probably not failsafe. [A-libs] [E-easy] 8
+   3597: net_tcp doesn't use SO_REUSEADDR [A-libs] [I-wrong]
+   3235: Make "let" and "match" share the same trans code [I-crash] [A-codegen] 3
+   4036: Two test cases for incorrect region inference [A-regions] [I-ICE] 3
+   4846: New syntax for lifetimes [A-typesystem] [A-pretty] [E-hard] [I-enhancement] [A-regions] [A-parser]
+   3227: De-duplicate methods in core::path(2) when default trait methods work [A-libs] [E-easy] [I-cleanup] 1 @
+   5050: Can't find impl for type involving & [I-wrong] [A-traits]
+   3980: Numeric types should satisfy the Add trait [A-libs] [I-completion] [A-typesystem]
+   3636: doc tests should run with warnings as errors [A-docs] [I-cleanup] [A-testsuite]
+   3552: Destroying the LLVM Module is slow [A-llvm] [I-slow]
+   4227: Can't call a static method on an anonymous trait [I-wrong] [A-traits] 2
+   4293: crate-relative docs [A-docs] [I-completion]
+   3853: Convert constructors to new conventions [A-libs] [I-cleanup] 4
+   3999: EBNF formatting [A-docs] [E-easy] [I-cleanup]
+   4040: macro referencing unbound syntax variable causes ICE [A-syntaxext] [I-ICE]
+   3445: Windows split stack complications? [A-runtime] [I-wrong] [A-windows] [E-hard] 1
+   3480: Very bad error message for missing trait [A-typesystem] [I-wrong] [A-traits] 2
+   3549: Move dlist to std [A-libs] [I-cleanup] 3
+   4478: Too many tests trigger a valgrind internal assertion about function size [A-frontend] [I-wrong] [A-testsuite] 3
+   3921: std::rl is unsafe [A-libs] [I-wrong] 1
+   3627: Convert assert, log, fail to macros [A-frontend] [I-completion] 1
+   3159: rustdoc should handle impls differently [I-completion] [A-rustdoc]
+   4783: Failed to compile in OS X with a manually compiled GCC [I-wrong] [A-build] 3
+   3707: ICE when instance method calls static method [A-codegen] [I-ICE] [A-traits] 2
+   3120: Integrate c-ares with the runtime [A-runtime] [A-libs] [I-completion] 3
+   2034: Modularize handling of x64 ABI rules in native.rs [I-cleanup] [E-hard] [A-codegen] @
+   3667: Windows installer adds an extra bin directory filled with extra junk [I-cleanup] [A-windows] [A-build] 1
+   4603: Factor out code duplication in src/test/bench/core-map.rs [A-libs] [I-cleanup]
+   4094: Use statements do not shadow previous items [A-linkage] [I-wrong]
+   4031: Add a io::Writer wrapper that supports pushback [A-libs] [I-completion]
+   4318: Segfault with explicit self and vectors [I-crash] [A-codegen] [A-traits]
+   3347: rustc --ls is broken [I-wrong] [A-metadata]
+   2004: core::io cleanup [A-libs] [I-cleanup] 2 @
+   3566: Remove unnecessary logic in new_stack_fast [A-runtime] [I-cleanup]
+   4878: Segfault on trivial consumption of vector [I-crash] [A-codegen] 1
+   3604: We need an core::at_str library [A-libs] [I-completion] [B-clarifying] 4
+   3728: Allow constant expressions to refer to constants defined in other crates [A-frontend] [E-easy] [I-completion] [A-linkage]
+   3779: No check for infinitely sized structs [I-crash] [A-codegen] 1
+   3084: Warn when integer constant does not fit [A-frontend] [E-easy] [I-papercut] [A-lint]
+   4184: ICE with trait inheritance and generic constraints [I-ICE] [A-traits] 1
+   3694: Internal compiler error when using a trait with default implementations as a field in a struct [I-ICE] [A-traits] 1
+   4607: LLVM linking problem with incoming [I-wrong] [A-llvm] [A-build] 3
+   3239: crust functions passed as arguments can't be treated as *u8 [A-typesystem] [A-linkage] [I-wrong]
+```
