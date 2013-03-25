@@ -6,3 +6,5 @@ Unsure what to do with the following 0.6 issues
 -----------------------------------------------
 
 * [#3224: Pattern-destructing a struct inside a ~-pointer violates linearity](https://github.com/mozilla/rust/issues/3224)
+
+* [#3243: stack allocated vecs can be returned from functions](https://github.com/mozilla/rust/issues/3243)
