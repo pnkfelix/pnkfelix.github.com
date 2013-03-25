@@ -2,5 +2,7 @@
 % Felix S. Klock II
 % March 2013
 
-Felix Klock (pnkfelix) page of rust questions
-=============================================
+Unsure what to do with the following 0.6 issues
+-----------------------------------------------
+
+* https://github.com/mozilla/rust/issues/3224

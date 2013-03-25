@@ -2,9 +2,6 @@
 % Felix S. Klock II
 % March 2013
 
-Felix Klock (pnkfelix) github page
-==================================
-
 Link<strike>ed</strike> List
 
 * [all my github hosted projects](https://github.com/pnkfelix/)
@@ -12,6 +9,8 @@ Link<strike>ed</strike> List
 * [shu's iontrail repo](https://github.com/syg/iontrail)
 
 * [mozilla rust repo](https://github.com/mozilla/rust)
+
+* [pnkfelix rust Q's](rust-questions.html)
 
 * [pnkfx blog](http://blog.pnkfx.org/)
 
