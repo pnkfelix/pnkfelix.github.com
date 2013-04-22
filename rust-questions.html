@@ -16,6 +16,42 @@
 <h2 class="author">Felix S. Klock II</h2>
 <h3 class="date">March 2013</h3>
 </header>
+<h2 id="tjcs-list-of-issues-related-to-default-method-implementations">tjc's list of issues related to default method implementations</h2>
+<p>Felix's visitor refactoring will eventually require default methods to make much sense. But default methods are known to be flaky.</p>
+<ul>
+<li><p><a href="https://github.com/mozilla/rust/issues/5139">#5139: ICE with Default Methods on Traits</a></p></li>
+<li><p><a href="https://github.com/mozilla/rust/issues/4099">#4099: Incorrect inference for default methods on generic traits</a></p></li>
+<li><p><a href="https://github.com/mozilla/rust/issues/4102">#4102: Calling default methods on type parameters that are type parameterized traits does not work</a></p></li>
+<li><p><a href="https://github.com/mozilla/rust/issues/4396">#4396: Calls to generic inherited methods don't work, at least in default methods</a></p></li>
+<li><p><a href="https://github.com/mozilla/rust/issues/4350">#4350: test/run-pass/traits-default-method-self.rs fails with ICE in trans</a></p></li>
+<li><p><a href="https://github.com/mozilla/rust/issues/3694">#3694: Internal compiler error when using a trait with default implementations as a field in a struct</a></p></li>
+</ul>
+<p>As tjc said, &quot;Some of the above may need updating in order to work with incoming.&quot;</p>
+<h2 id="pnkfelixs-list-of-bugs-for-triage-week-2013apr22">pnkfelix's list of bugs for triage (week 2013apr22)</h2>
+<p>felix's 10 bugs for this week are:</p>
+<ul>
+<li><p><a href="http://github.com/mozilla/rust/issues/1928">#1928: Replace fail with session.bug in rustc</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2800">#2800: RFC: Make mean utf8 code unit, not unicode codepoint.</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2925">#2925: bitrot of code examples in docstrings</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3326">#3326: Build should create directories as needed</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2391">#2391: duplicate definition should report location of the definition</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/1677">#1677: Request for Thrift RPC support</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2181">#2181: Add method to obtain useful system hardware information</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3008">#3008: representable check fails if an enum references another enum that is cyclic</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2093">#2093: Allow parameter types to be omitted from closure expressions</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2217">2217: link_args attribute should be applicable to crates</a></p></li>
+</ul>
+<p>The mission:</p>
+<ul>
+<li>Search for duplicates and close the less-clear one if found</li>
+<li>Search for similar bugs and link them together if found (with a comment mentioning the #NNNN number of one bug in the other)</li>
+<li>Check the tags, title and description for clarity and precision</li>
+<li>Nominate for a milestone if it fits the milestone's criteria</li>
+<li>Add testcases, narrow them down or attempt to reproduce failures</li>
+<li>Provide suggestions on how to fix the bug</li>
+<li>Actually try to fix the bug, if it seems within reach</li>
+</ul>
+<h1 id="way-old-stuff-below">Way old stuff below</h1>
 <h2 id="unsure-what-to-do-with-the-following-0.6-issues">Unsure what to do with the following 0.6 issues</h2>
 <ul>
 <li><p><a href="https://github.com/mozilla/rust/issues/3224">#3224: Pattern-destructing a struct inside a ~-pointer violates linearity</a></p></li>
