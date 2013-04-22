@@ -55,7 +55,7 @@ felix's 10 bugs for this week are:
 
  * [#2093: Allow parameter types to be omitted from closure expressions][2093]
 
- * [2217: link_args attribute should be applicable to crates][2217]
+ * [#2217: link_args attribute should be applicable to crates][2217]
 
 The mission:
 
