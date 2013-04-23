@@ -79,6 +79,8 @@ The mission:
 [2093]:http://github.com/mozilla/rust/issues/2093
 [2217]:http://github.com/mozilla/rust/issues/2217
 
+For reference: The Rust ["Maturity Milestones"][1].
+
 Way old stuff below
 ===================
 
@@ -483,3 +485,5 @@ pcwalton :
    4607: LLVM linking problem with incoming [I-wrong] [A-llvm] [A-build] 3
    3239: crust functions passed as arguments can't be treated as *u8 [A-typesystem] [A-linkage] [I-wrong]
 ```
+
+[1]:https://github.com/mozilla/rust/issues/search?q=maturity
