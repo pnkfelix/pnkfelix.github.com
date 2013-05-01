@@ -27,19 +27,32 @@
 <li><p><a href="https://github.com/mozilla/rust/issues/3694">#3694: Internal compiler error when using a trait with default implementations as a field in a struct</a></p></li>
 </ul>
 <p>As tjc said, &quot;Some of the above may need updating in order to work with incoming.&quot;</p>
-<h2 id="pnkfelixs-list-of-bugs-for-triage-week-2013apr22">pnkfelix's list of bugs for triage (week 2013apr22)</h2>
+<h2 id="pnkfelixs-list-of-bugs-for-triage">pnkfelix's list of bugs for triage</h2>
 <p>felix's 10 bugs for this week are:</p>
 <ul>
-<li><p><a href="http://github.com/mozilla/rust/issues/1928">#1928: Replace fail with session.bug in rustc</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2800">#2800: RFC: Make mean utf8 code unit, not unicode codepoint.</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2925">#2925: bitrot of code examples in docstrings</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/3326">#3326: Build should create directories as needed</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2391">#2391: duplicate definition should report location of the definition</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/1677">#1677: Request for Thrift RPC support</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2181">#2181: Add method to obtain useful system hardware information</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/3008">#3008: representable check fails if an enum references another enum that is cyclic</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2093">#2093: Allow parameter types to be omitted from closure expressions</a></p></li>
-<li><p><a href="http://github.com/mozilla/rust/issues/2217">#2217: link_args attribute should be applicable to crates</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4531">Can't perform pointer casts in constant expressions</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4391">unit testing improperly ignores test funs that take args</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4621">Macros should be able to expand to methods</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3714">Rewrite serialization to use reflection</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/502">std::term needs better detection of color terminals</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2398">Test back::x86_64::get_target_strs on a 64-bit Windows machine</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3949">Rename &quot;Const&quot; trait to &quot;Freeze&quot;</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2355">recursive bounds do not work (a.k.a., f-bounded polymorphism)</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4711">at_exit test function fails</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4671">Can't use null unsafe pointers in const expressions</a></p></li>
+</ul>
+<p>Or perhaps these 10 (ha ha, duplicate script firing jokes):</p>
+<ul>
+<li><p><a href="http://github.com/mozilla/rust/issues/4782">Generated tests for trait impls</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4458">sha1::Sha1.result_str() can yield incorrect results</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2474">Implement &quot;fieldset&quot; optimization for record types</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/4724">Add Void typedef</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/5238">submodules can't access non-pub type names in parent modules</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3482">Lint pass to warn about catchall cases</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/5204">memory leak in stage1's libsyntax after disabling vecs_implicitly_copyable</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3742">Rewrite how trait-impl matching works in typeck</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/5362">borrow check doesn't distinguish different tuple elements in match expression</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/5387"><code>rust</code> should not be creating subprocesses for its commands</a></p></li>
 </ul>
 <p>The mission:</p>
 <ul>
@@ -51,7 +64,29 @@
 <li>Provide suggestions on how to fix the bug</li>
 <li>Actually try to fix the bug, if it seems within reach</li>
 </ul>
+<p>Previous weeks' bugs:</p>
+<ul>
+<li>(week 2013apr22)</li>
+<li><p><a href="http://github.com/mozilla/rust/issues/1928">#1928: Replace fail with session.bug in rustc</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2800">#2800: RFC: Make mean utf8 code unit, not unicode codepoint.</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2925">#2925: bitrot of code examples in docstrings</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3326">#3326: Build should create directories as needed</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2391">#2391: duplicate definition should report location of the definition</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/1677">#1677: Request for Thrift RPC support</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2181">#2181: Add method to obtain useful system hardware information</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/3008">#3008: representable check fails if an enum references another enum that is cyclic</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2093">#2093: Allow parameter types to be omitted from closure expressions</a></p></li>
+<li><p><a href="http://github.com/mozilla/rust/issues/2217">#2217: link_args attribute should be applicable to crates</a></p></li>
+</ul>
 <p>For reference: The Rust <a href="https://github.com/mozilla/rust/issues/search?q=maturity">&quot;Maturity Milestones&quot;</a>.</p>
+<h2 id="various-discussions-from-rust-dev">Various discussions from rust-dev</h2>
+<ul>
+<li><p><a href="https://mail.mozilla.org/pipermail/rust-dev/2012-March/001467.html">Arrays, vectors...</a> (Graydon, March 2012)</p></li>
+<li><p><a href="https://mail.mozilla.org/pipermail/rust-dev/2012-April/001742.html">Syntax of vectors, slices, etc</a> (Niko, April 2012)</p></li>
+<li><p><a href="https://mail.mozilla.org/pipermail/rust-dev/2012-April/001772.html">In favor of types of unknown size</a> (Niko, April 2012)</p></li>
+<li><p><a href="https://mail.mozilla.org/pipermail/rust-dev/2012-June/001951.html">a vision for vectors</a> (Niko, June 2012)</p></li>
+<li><p><a href="https://mail.mozilla.org/pipermail/rust-dev/2012-July/002114.html">Presentation of our vector/function/trait types</a> (Patrick, July 2012)</p></li>
+</ul>
 <h1 id="way-old-stuff-below">Way old stuff below</h1>
 <h2 id="unsure-what-to-do-with-the-following-0.6-issues">Unsure what to do with the following 0.6 issues</h2>
 <ul>

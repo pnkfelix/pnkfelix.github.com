@@ -31,11 +31,67 @@ As tjc said,
 "Some of the above may need updating in order to work with incoming."
 
 
-pnkfelix's list of bugs for triage (week 2013apr22)
----------------------------------------------------
+pnkfelix's list of bugs for triage
+----------------------------------
 
 felix's 10 bugs for this week are:
 
+   * [Can't perform pointer casts in constant expressions][4531]
+
+   * [unit testing improperly ignores test funs that take args][4391]
+
+   * [Macros should be able to expand to methods][4621]
+
+   * [Rewrite serialization to use reflection][3714]
+
+   * [std::term needs better detection of color terminals][502]
+
+   * [Test back::x86_64::get_target_strs on a 64-bit Windows machine][2398]
+
+   * [Rename "Const" trait to "Freeze"][3949]
+
+   * [recursive bounds do not work (a.k.a., f-bounded polymorphism)][2355]
+
+   * [at_exit test function fails][4711]
+
+   * [Can't use null unsafe pointers in const expressions][4671]
+
+Or perhaps these 10 (ha ha, duplicate script firing jokes):
+
+   * [Generated tests for trait impls][4782]
+
+   * [sha1::Sha1.result_str() can yield incorrect results][4458]
+
+   * [Implement "fieldset" optimization for record types][2474]
+
+   * [Add Void typedef][4724]
+
+   * [submodules can't access non-pub type names in parent modules][5238]
+
+   * [Lint pass to warn about catchall cases][3482]
+
+   * [memory leak in stage1's libsyntax after disabling vecs_implicitly_copyable][5204]
+
+   * [Rewrite how trait-impl matching works in typeck][3742]
+
+   * [borrow check doesn't distinguish different tuple elements in match expression][5362]
+
+   * [`rust` should not be creating subprocesses for its commands][5387]
+
+The mission:
+
+  * Search for duplicates and close the less-clear one if found
+  * Search for similar bugs and link them together if found
+    (with a comment mentioning the #NNNN number of one bug in the other)
+  * Check the tags, title and description for clarity and precision
+  * Nominate for a milestone if it fits the milestone's criteria
+  * Add testcases, narrow them down or attempt to reproduce failures
+  * Provide suggestions on how to fix the bug
+  * Actually try to fix the bug, if it seems within reach
+
+Previous weeks' bugs:
+
+ * (week 2013apr22)
  * [#1928: Replace fail with session.bug in rustc][1928]
 
  * [#2800: RFC: Make \xNN mean utf8 code unit, not unicode codepoint.][2800]
@@ -57,16 +113,27 @@ felix's 10 bugs for this week are:
 
  * [#2217: link_args attribute should be applicable to crates][2217]
 
-The mission:
+[4531]:http://github.com/mozilla/rust/issues/4531
+[4391]:http://github.com/mozilla/rust/issues/4391
+[4621]:http://github.com/mozilla/rust/issues/4621
+[3714]:http://github.com/mozilla/rust/issues/3714
+[502]:http://github.com/mozilla/rust/issues/502
+[2398]:http://github.com/mozilla/rust/issues/2398
+[3949]:http://github.com/mozilla/rust/issues/3949
+[2355]:http://github.com/mozilla/rust/issues/2355
+[4711]:http://github.com/mozilla/rust/issues/4711
+[4671]:http://github.com/mozilla/rust/issues/4671
 
-  * Search for duplicates and close the less-clear one if found
-  * Search for similar bugs and link them together if found
-    (with a comment mentioning the #NNNN number of one bug in the other)
-  * Check the tags, title and description for clarity and precision
-  * Nominate for a milestone if it fits the milestone's criteria
-  * Add testcases, narrow them down or attempt to reproduce failures
-  * Provide suggestions on how to fix the bug
-  * Actually try to fix the bug, if it seems within reach
+[4782]:http://github.com/mozilla/rust/issues/4782
+[4458]:http://github.com/mozilla/rust/issues/4458
+[2474]:http://github.com/mozilla/rust/issues/2474
+[4724]:http://github.com/mozilla/rust/issues/4724
+[5238]:http://github.com/mozilla/rust/issues/5238
+[3482]:http://github.com/mozilla/rust/issues/3482
+[5204]:http://github.com/mozilla/rust/issues/5204
+[3742]:http://github.com/mozilla/rust/issues/3742
+[5362]:http://github.com/mozilla/rust/issues/5362
+[5387]:http://github.com/mozilla/rust/issues/5387
 
 [3008]:http://github.com/mozilla/rust/issues/3008
 [1928]:http://github.com/mozilla/rust/issues/1928
@@ -80,6 +147,19 @@ The mission:
 [2217]:http://github.com/mozilla/rust/issues/2217
 
 For reference: The Rust ["Maturity Milestones"][1].
+
+Various discussions from rust-dev
+---------------------------------
+
+ * [Arrays, vectors...](https://mail.mozilla.org/pipermail/rust-dev/2012-March/001467.html) (Graydon, March 2012)
+
+ * [Syntax of vectors, slices, etc](https://mail.mozilla.org/pipermail/rust-dev/2012-April/001742.html) (Niko, April 2012)
+
+ * [In favor of types of unknown size](https://mail.mozilla.org/pipermail/rust-dev/2012-April/001772.html) (Niko, April 2012)
+
+ * [a vision for vectors](https://mail.mozilla.org/pipermail/rust-dev/2012-June/001951.html) (Niko, June 2012)
+
+ * [Presentation of our vector/function/trait types](https://mail.mozilla.org/pipermail/rust-dev/2012-July/002114.html) (Patrick, July 2012)
 
 Way old stuff below
 ===================
