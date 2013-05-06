@@ -36,47 +36,26 @@ pnkfelix's list of bugs for triage
 
 felix's 10 bugs for this week are:
 
-   * [Can't perform pointer casts in constant expressions][4531]
 
-   * [unit testing improperly ignores test funs that take args][4391]
+ * [4581: `|` with the `pat` macro fragment specifier][4581]
 
-   * [Macros should be able to expand to methods][4621]
+ * [3328: Automatic JIT testing][3328]
 
-   * [Rewrite serialization to use reflection][3714]
+ * [5500: ICE with invalid syntax][5500]
 
-   * [std::term needs better detection of color terminals][502]
+ * [3558: io::println allocates on the GC heap][3558]
 
-   * [Test back::x86_64::get_target_strs on a 64-bit Windows machine][2398]
+ * [4064: play.rust-lang.org][4064]
 
-   * [Rename "Const" trait to "Freeze"][3949]
+ * [4115: Serializing map types][4115]
 
-   * [recursive bounds do not work (a.k.a., f-bounded polymorphism)][2355]
+ * [3721: Offer nightly builds of master][3721]
 
-   * [at_exit test function fails][4711]
+ * [3597: net_tcp doesn't use SO_REUSEADDR][3597]
 
-   * [Can't use null unsafe pointers in const expressions][4671]
+ * [3445: Windows split stack complications?][3445]
 
-Or perhaps these 10 (ha ha, duplicate script firing jokes):
-
-   * [Generated tests for trait impls][4782]
-
-   * [sha1::Sha1.result_str() can yield incorrect results][4458]
-
-   * [Implement "fieldset" optimization for record types][2474]
-
-   * [Add Void typedef][4724]
-
-   * [submodules can't access non-pub type names in parent modules][5238]
-
-   * [Lint pass to warn about catchall cases][3482]
-
-   * [memory leak in stage1's libsyntax after disabling vecs_implicitly_copyable][5204]
-
-   * [Rewrite how trait-impl matching works in typeck][3742]
-
-   * [borrow check doesn't distinguish different tuple elements in match expression][5362]
-
-   * [`rust` should not be creating subprocesses for its commands][5387]
+ * [3566: Remove unnecessary logic in new_stack_fast][3566]
 
 The mission:
 
@@ -90,6 +69,48 @@ The mission:
   * Actually try to fix the bug, if it seems within reach
 
 Previous weeks' bugs:
+
+ * (week 2013apr29)
+
+ * [4531: Can't perform pointer casts in constant expressions][4531]
+
+ * [4391: unit testing improperly ignores test funs that take args][4391]
+
+ * [4621: Macros should be able to expand to methods][4621]
+
+ * [3714: Rewrite serialization to use reflection][3714]
+
+ * [502: std::term needs better detection of color terminals][502]
+
+ * [2398: Test back::x86_64::get_target_strs on a 64-bit Windows machine][2398]
+
+ * [3949: Rename "Const" trait to "Freeze"][3949]
+
+ * [2355: recursive bounds do not work (a.k.a., f-bounded polymorphism)][2355]
+
+ * [4711: at_exit test function fails][4711]
+
+ * [4671: Can't use null unsafe pointers in const expressions][4671]
+
+ * [4782: Generated tests for trait impls][4782]
+
+ * [4458: sha1::Sha1.result_str() can yield incorrect results][4458]
+
+ * [2474: Implement "fieldset" optimization for record types][2474]
+
+ * [4724: Add Void typedef][4724]
+
+ * [5238: submodules can't access non-pub type names in parent modules][5238]
+
+ * [3482: Lint pass to warn about catchall cases][3482]
+
+ * [5204: memory leak in stage1's libsyntax after disabling vecs_implicitly_copyable][5204]
+
+ * [3742: Rewrite how trait-impl matching works in typeck][3742]
+
+ * [5362: borrow check doesn't distinguish different tuple elements in match expression][5362]
+
+ * [5387: `rust` should not be creating subprocesses for its commands][5387]
 
  * (week 2013apr22)
  * [#1928: Replace fail with session.bug in rustc][1928]
@@ -112,6 +133,17 @@ Previous weeks' bugs:
  * [#2093: Allow parameter types to be omitted from closure expressions][2093]
 
  * [#2217: link_args attribute should be applicable to crates][2217]
+
+[4581]:http://github.com/mozilla/rust/issues/4581
+[3328]:http://github.com/mozilla/rust/issues/3328
+[5500]:http://github.com/mozilla/rust/issues/5500
+[3558]:http://github.com/mozilla/rust/issues/3558
+[4064]:http://github.com/mozilla/rust/issues/4064
+[4115]:http://github.com/mozilla/rust/issues/4115
+[3721]:http://github.com/mozilla/rust/issues/3721
+[3597]:http://github.com/mozilla/rust/issues/3597
+[3445]:http://github.com/mozilla/rust/issues/3445
+[3566]:http://github.com/mozilla/rust/issues/3566
 
 [4531]:http://github.com/mozilla/rust/issues/4531
 [4391]:http://github.com/mozilla/rust/issues/4391
