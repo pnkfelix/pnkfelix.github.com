@@ -6,17 +6,31 @@ Link<strike>ed</strike> List
 
 * [all my github hosted projects](https://github.com/pnkfelix/)
 
+* [github notifications](https://github.com/notifications/participating)
+
 * [shu's iontrail repo](https://github.com/syg/iontrail)
 
 * [mozilla rust repo](https://github.com/mozilla/rust)
 
+* [rust bors auto-merge+build queue](http://buildbot.rust-lang.org/bors/bors.html)
+
+* [rust buildbot](http://buildbot.rust-lang.org/grid?branch=auto&refresh=15)
+
+* [mozilla cross-reference for `mozilla-central`](http://mxr.mozilla.org/mozilla-central/search)
+
 * [pnkfelix rust Q's](rust-questions.html)
+
+* [enter a bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi)
+
+* [mozilla try server](https://tbpl.mozilla.org/?tree=Try)
 
 * [pnkfx blog](http://blog.pnkfx.org/)
 
 * [babysteps (niko's blog)](http://www.smallcultfollowing.com/babysteps/)
 
 * [shu's home page (links to blog posts)](http://rfrn.org/~shu/)
+
+* [PJS irc log](http://logbot.glob.com.au/?c=mozilla%23pjs)
 
 * [score keeper](http://keepscore.pnkfx.org/) (work-in-progress, such as it is.)
 
