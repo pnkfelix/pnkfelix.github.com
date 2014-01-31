@@ -8,7 +8,7 @@ Link<strike>ed</strike> List
 
 * [github notifications](https://github.com/notifications/participating)
 
-* [shu's iontrail repo](https://github.com/syg/iontrail)
+* [DXR](http://dxr.mozilla.org/), [MXR](http://mxr.mozilla.org/)
 
 * [mozilla rust repo](https://github.com/mozilla/rust)
 
