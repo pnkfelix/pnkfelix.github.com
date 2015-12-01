@@ -15,9 +15,9 @@
 <!-- -->
 <!-- <rect x=0 y=0 width="100%" height="100%" fill="url(#grid)"/> -->
 <!-- -->
-<text font-family="sans-serif" font-size="12" text-anchor="middle" x="50" y="20" dy=-"5" text-decoration="underline">Program</text>
-<text font-family="sans-serif" font-size="12" text-anchor="middle" x="200" y="20" dy=-"5" text-decoration="underline">Vec&lt;Widget, &amp;mut Allocator&gt;</text>
-<text font-family="sans-serif" font-size="12" text-anchor="middle" x="350" y="20" dy=-"5" text-decoration="underline">Allocator</text>
+<text font-family="sans-serif" font-size="12" text-anchor="middle" x="50" y="20" dy="-5" text-decoration="underline">Program</text>
+<text font-family="sans-serif" font-size="12" text-anchor="middle" x="200" y="20" dy="-5" text-decoration="underline">Vec&lt;Widget, &amp;mut Allocator&gt;</text>
+<text font-family="sans-serif" font-size="12" text-anchor="middle" x="350" y="20" dy="-5" text-decoration="underline">Allocator</text>
 <!-- -->
 <path d="M 45,20 V 450" stroke="green" fill="none" stroke-width="3" />
 <path d="M 345,50 V 450" stroke="green" fill="none" stroke-width="3" />
