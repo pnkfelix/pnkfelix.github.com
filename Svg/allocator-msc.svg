@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     id="demo_svg_defs" height="800" width="100%">
+     id="demo_svg_defs" height="800" width="600">
 <defs>
   <pattern id="grid_cell" width="10" height="10" patternUnits="userSpaceOnUse">
     <path d="M 0,0 v10 h10" fill="none" stroke="#aaa" stroke-width="1"/>
