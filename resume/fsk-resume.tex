@@ -1,0 +1,304 @@
+%______________________________________________________________________________________________________________________
+% @brief    LaTeX2e Resume for Felix S Klock II
+%\documentclass[margin,line,draft]{resume}
+\documentclass[margin,line,draft]{res}
+%\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+%\usepackage{bold-extra}
+
+%\usepackage{draftwatermark}
+%\SetWatermarkLightness{0.5}
+%\SetWatermarkScale{4}
+
+\def\noneed#1{}
+\def\coursetitle#1{\textsl{#1}}
+\def\coursenum#1{#1}
+\def\course#1#2{\coursenum{#1} \coursetitle{#2}}
+%\renewcommand{\mysidestyle}{\sc}
+\newcommand{\mysidestyle}{\sc}
+%______________________________________________________________________________________________________________________
+\begin{document}
+\name{\Large Felix S. Klock II}
+\address{36 rue Fondary, 75015 Paris, France\\phone: +1 857.472.3757\\
+%e-mail: {\tt pnkfelix@alum.mit.edu}
+e-mail: {\tt felix.klock@gmail.com}
+}
+\begin{resume}
+\pretolerance=500
+  \vspace{-7mm}
+
+    \section{\mysidestyle Objective}
+    Innovative software development,
+    leveraging my experience
+    in compiler and language runtime technology,
+    %unveiling the disguised interpreters/compilers.
+    in a challenging environment with
+    an enthusiastic, smart, and respected peer group.
+
+    %__________________________________________________________________________________________________________________
+    % Research Interests
+    \vspace{-4mm}
+    \section{\mysidestyle Software\\Development\\Skills \&\\Interests}
+    \begin{description}
+      \item[\rm Programming languages:] runtime design, memory management, JIT, static analysis
+        \vspace{-1ex}
+      \item[\rm Software engineering:] functional programming, \noneed{system modeling, }debugging tool design, CS~education%
+        \noneed{\\ Programming Language Design: Type and Effect Systems, Syntatic Extension}
+        \vspace{-1ex}
+      \item[\rm Languages:] C/C++, Scheme/Lisp, Java, Python, C\#, assembly (Intel x86, ARM), FORTH\noneed{, \LaTeXe}.
+    \end{description}
+    %__________________________________________________________________________________________________________________
+    % Education
+    \section{\mysidestyle Education}
+
+    \textbf{Northeastern University}, CCIS, Boston, MA \hfill \textbf{ 2003 -- 2010}\\%
+    \textsl{Doctor of Philosophy in Computer Science} \vspace{-2mm}\\\vspace{-2mm}%
+%    \begin{list2}
+%        \item Thesis\noneed{ on dynamic memory management}: ``Scalable Garbage Collection\noneed{ via Remembered Set Summarization and Refinement}'' 
+%              (advisor: Professor William D Clinger)
+%    \end{list2}\vspace{-1.5mm}
+
+    \textbf{Massachusetts Institute of Technology}, Cambridge, MA \hfill \textbf{1996 --  2001}\\%
+    \textsl{Bachelor of Science in Computer Science}, 2000 \\\vspace{-2mm}%
+    \textsl{Master of Engineering in Electrical Engineering and Computer Science}, 2001 \vspace{-2mm}\\%
+%    \begin{list2}
+%        \item Thesis\noneed{ on static resource management}: ``Architecture Independent Register Allocation'' 
+%              (advisor: Professor Martin Rinard)
+%    \end{list2}
+     \noneed{\vspace{-4mm}Received letters of commendation for performance in 
+     two courses: 
+     6.004: \coursetitle{Computation Structures}, and 
+     6.170: \coursetitle{Laboratory in Software Engineering}.}
+
+    %__________________________________________________________________________________________________________________
+    % Professional Experience
+    \section{\mysidestyle Professional\\Experience}
+
+    \textbf{Mozilla}, Paris, France \hfill \textbf{2012 -- present}\\\vspace{1mm}%
+    \textsl{Research Engineer, Rust language}
+\begin{description}
+\item[\rm Roles:] 
+  (1)~Resource cleanup (``sound {\tt Drop}''),
+  (2)~Control-flow graph and dataflow analysis,
+  and
+  (3)~Memory Management and Garbage Collection (GC) expert.
+\end{description}
+    \vspace{-2mm}
+    Project home page: {\tt https://www.rust-lang.org/} \\
+    Project history: {\tt http://github.com/rust-lang/rust/}
+
+    \textbf{Adobe Systems Incorporated}, Waltham, MA \hfill \textbf{2010 -- 2012}\\\vspace{1mm}%
+    \textsl{Computer Scientist, Actionscript 3 Virtual Machine (aka Tamarin) for Flash Runtime}
+\begin{description}
+\item[\rm Roles:] (1)~Memory Management and Garbage Collection (GC) expert,
+  (2)~JSON, Array, ByteArray libraries,
+  (3)~integration lead,
+  and
+  (4)~cross-platform build.
+\end{description}
+    \vspace{-2mm}
+    Project history through May 2012: {\tt http://hg.mozilla.org/tamarin-redux/}\\
+    Achievements: Improved telescoping GC inverse load-factor, reducing overhead from $20\times$ to $4\times$ mark/colns ratio. Implemented Native JSON integrated with AS3, and extended with serialization of public members of AS3 classes. Added JIT-support for efficient indexing of ``simple dense'' {\tt ArrayObject}, yielding 10--20\% speedup.
+%     \begin{list2}
+% 
+% \item \noneed{ Memory Management/GC maintenance and improvement: }
+%   \noneed{ In response to customer reports of performance regressions, }
+%   Improved robustness of telescoping GC inverse-load-factor,
+%   bringing worst-case mark overhead in massive heaps from $20\times$ to $4\times$ mark/cons.
+%   \noneed{ https://bugzilla.mozilla.org/show_bug.cgi?id=619885 }
+% 
+% \item \noneed{ Memory Management/GC maintenance and improvement: }
+%   Revised root allocation code so that multiply inheriting
+%   {\tt GCRoot} class in runtime code did not confuse the
+%   GC about the root's start and end addresses.
+%   \noneed{ Iteratively
+%   developed (potentially slow) iterative lookup and then added
+%   cache that hit practically 100\% of time. }
+%   \noneed{ https://bugzilla.mozilla.org/show_bug.cgi?id=663159 }
+%   \noneed{ https://bugzilla.mozilla.org/show_bug.cgi?id=681388 }
+% 
+% \item Implemented a high-performance Native JSON implementation in C++
+%   that integrates with AS3; extended ES5 JSON specification
+%   with serialization of public
+%   members of AS3 class instances.  Project was well-received by AS3
+%   community; see e.g. {\small \tt http://compiler.kaustic.net/lab/?p=55}
+% 
+% \item Maintained {\tt ArrayObject} library post dense-array rewrite, and
+%   added JIT-support for efficient indexing of\noneed{dynamically categorized}
+%   ``simple dense'' arrays;
+%   performance is 100\% -- 150\% faster for
+%   tightly looped array access, 10\% -- 20\% faster for more realistic
+%   non-contrived benchmarks.
+% 
+% \item Replaced linear GC pagemap with 3-level tree,
+%   with mechanisms for delay of tree construction and caching;
+%   GC metadata scales with client storage at
+%   negligible performance impact.
+% 
+% \item Added JIT compiler support for ECMAscript {\tt in} operator and
+%   improved string allocation and interning behavior when converting
+%   index-range integers to strings.
+% 
+% \noneed{
+% \item To address noisy micro-benchmark results: (1) added AS3-typed
+%   versions of untyped micro-benchmarks, and (2) investigated whether
+%   locking cpu frequency and setting cpu affinities on multicore could
+%   reduce benchmark noise; determined that locking frequency is more
+%   important than setting affinity.
+% }
+%   \end{list2}
+
+
+    \textbf{Northeastern University}, Boston, MA \hfill \textbf{2005 -- 2010}\\\vspace{1mm}%
+    \textsl{Developer and maintainer of Larceny Scheme compiler and runtime system} \\
+    Project home page: {\tt http://www.larcenists.org/} \\
+    Project history: {\tt http://github.com/larcenists/larceny/}\\
+    Achievements: Designed regional GC, with formal bounds on MMU. Revised Intel x86 backend to emit machine code in-heap. Developed and evaluated four alternative x86 calling conventions, yielding $\geq 10\%$ speed boost. Implemented dynamic in-heap .NET bytecode emission for Common Larceny.
+    \vspace{-2mm}
+%     \begin{list2}
+% \item
+% Designed and implemented regional garbage collector, 
+% eliminating pauses of
+% unbounded length and introducing formally proven guarantees for minimum 
+% mutator utilization (MMU).
+% \noneed{This GC scales with respect to throughput, footprint, and latency.}
+% \noneed{This is novel and important: related research products either make \emph{no} MMU 
+% guarantees at all, or \emph{only} provide MMU guarantees when coupled with a behavioral model.}
+% 
+% \item
+% Revised Intel x86 backend to emit machine code \emph{in-heap}, making compiler invocation seamless for end-user, easing experimentation
+% with code generation strategies, and improving system usability.
+% %  Without this enhancement, Larceny would not have expanded its
+% %  audience beyond SPARC users.
+% 
+% \item
+% Extended foreign function interface with procedure
+% marshaling and C~header processing\noneed{, enabling linkage to native host
+% libraries\noneed{ for graphics, networking, and file system
+% interaction}}.
+% 
+% \item
+% Developed and evaluated four alternative conventions for
+% Larceny x86 procedure invocation protocol, yielding $\geq 10\%$ 
+% speed boost over prior calling convention.
+% 
+% \item
+% Implemented dynamic in-heap .NET bytecode emission for Larceny.
+% Designed Scheme-based GUI toolkit 
+% and developed prototype source code editor and program debugger%
+% \noneed{, satisfying obligation of Microsoft grant}.
+% 
+% \item
+% Added automated build-test-benchmark infrastructure, replacing a
+% tedious and fragile manual procedure with regular nightly process
+% with web-based presentation of results.
+%     \end{list2}
+
+\newpage
+
+    \textbf{Northeastern University}, Boston, MA \hfill \textbf{2003 -- 2009}\\\vspace{1mm}%
+    \textsl{Instructor of Record/Teaching Assistant}
+%    \\
+%    Instructor\noneed{ of Record}, \course{CSG~111}{Principles of Programming Languages} (Spring~2008); 
+%    Instructor\noneed{ of Record}, \course{CSU~211}{Fundamentals of Computer Science I} (Spring~2006); 
+%    Assistant, \coursenum{CSU~211} (Fall 2003, 2005; Spring~2009)
+%    and \course{CSG~107/CS~5010}{Program Design Paradigms} (Fall 2008, 2009)
+
+    \textbf{Green Hills Software}, Santa Barbara, CA \hfill \textbf{2001 -- 2003}\\\vspace{1mm}%
+    \textsl{Software Engineer for End-User Compiler Product Development}
+% \begin{list2}
+% \item
+% Added \noneed{architecture-independent }graph-coloring with move
+% coalescing as prepass to legacy register allocator,
+% improving code size and speed while
+% avoiding effort and risk of replacing legacy codebase.
+% Move coalescing also decreased overhead in subsequent \noneed{compiler }passes,
+% reducing average overall compilation time.
+% 
+% \item
+% Implemented data-load optimization, improving compiler output's
+% performance to match performance of competitor's product.
+% 
+% \item
+% Implemented analysis reassigning zero-initialized and
+% uninitialized arrays to blank static segment of object code,
+% dramatically reducing object code size on client-provided benchmarks.
+% 
+% \item
+% Added peephole optimizations for ARM/Thumb backend, improving code
+% size and speed.
+% \end{list2}
+
+\noneed{
+    \textbf{ESP High School Studies Program}, Cambridge, MA \vspace{2mm}\\\vspace{1mm}%
+    \textsl{Instructor} \hfill \textbf{2001 -- 2001}\\
+    Volunteer Instructor M-20A: \coursetitle{Square Peg Solutions}
+    \noneed{Problem Solving via Decomposition, Visualization, and Abstraction}
+}
+
+    \textbf{Massachusetts Institute of Technology}, Cambridge, MA \hfill \textbf{2000 -- 2001} \\\vspace{1mm}%
+    \textsl{Teaching Assistant} \\
+    Assistant for 6.170, \coursetitle{Laboratory in Software Engineering},
+    Spring, Fall~2000, Spring~2001. {Head Teaching Assistant Fall~2000.}
+
+    \textbf{MIT Laboratory for Computer Science}, Cambridge, MA  \hfill \textbf{1999 -- 2001}\\\vspace{1mm}%
+    \textsl{Undergraduate Research Assistant for Computer Architecture Group}\\
+    Assisted with implementation of \emph{FLEX} compiler {for transforming
+    Java byte-code to machine code}
+    % designed 
+    %\noneed{Generic }data-flow analysis routines, StrongARM backend, and
+    %register allocation {infrastructure}
+    .
+
+    \textbf{MIT Media Laboratory}, Cambridge, MA \hfill \textbf{1997 -- 1998}\\\vspace{1mm}%
+    \textsl{Undergraduate Research Assistant for Software Agents Group} \\
+    Helped develop \emph{Footprints}, a tool for visualizing navigation of 
+    users on Web.
+    %Implemented hyperbolic graph display and path visualization
+    %tools.  Designed communication protocol between application 
+    %and central database.  Advised on backend database design.
+
+
+    %__________________________________________________________________________________________________________________
+    % Publications
+    \section{\mysidestyle Research Publications}
+
+    Felix S Klock II, ``A Declarative DSL for Customized Rendering of Text-Based Art'', in \textsl{Proceedings of the 2017 International Symposium on Practical Aspects of Declarative Languages}, PADL 2017, Paris, France January 2017.
+
+    Felix S Klock II and William D Clinger.  ``Bounded-latency regional garbage collection'', In \textsl{Proceedings of the 2011 Dynamic Languages Symposium}, DLS 2011, Portland, OR, 24 October 2011, pages 73-83.
+
+    William D Clinger and Felix S Klock II. ``Scalable Garbage Collection with Guaranteed MMU'', In \textsl{Proceedings of the 2009 Workshop on Scheme and Functional Programming}, Northeastern University, Boston, MA, 22 August 2009
+
+\vspace{-2mm}
+
+    Felix S Klock II, ``The Layers of Larceny's Foreign Function Interface'', 
+    In \textsl{Proceedings of the 2009 Workshop on Scheme and Functional Programming}, Victoria, British Columbia, 20 September 2008
+
+    \section{\mysidestyle Presentations}
+    ``Subtyping in Rust and Clarke's Third Law'' Rust Fest 2016\\ \verb|https://www.youtube.com/watch?v=fI4RG_uq-WU|\\
+    ``Rust: A type system you didn't know you wanted'' Curry On 2015\\ \verb|https://www.youtube.com/watch?v=Q7lQCgnNWU0&t=152s|\\
+    ``The Rust Language and Type System (Demo),'' ML Family Workshop 2014\\  \verb|https://www.youtube.com/watch?v=RvbkD5nRGA8|\\
+    ``Rust: Safe Systems Programming with the Fun of FP,'' Codemesh 2013\\ \verb|https://vimeo.com/85253071|
+    %__________________________________________________________________________________________________________________
+    % Honors and Awards
+    \section{\mysidestyle Honors and\\Awards} 
+
+    Teaching Award, Northeastern University, 2008 \vspace{1mm}\\%
+    Northern Telecom/BNR Digital Systems Laboratory Project Award, 2001
+
+
+    \section{\mysidestyle Interests}
+
+    Cooking; 
+    reading, especially historical discussions of mathematics, logic, 
+    and language development; 
+    skiing; 
+    graphics programming
+
+%______________________________________________________________________________________________________________________
+\end{resume}
+\end{document}
+
+
+%______________________________________________________________________________________________________________________
+% EOF
