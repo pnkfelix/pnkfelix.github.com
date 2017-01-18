@@ -1,4 +1,4 @@
-all: index.html rust-questions.html
+all: links.html rust-questions.html
 
 #%.html: %.txt
 #	perl Markdown_1.0.1/Markdown.pl $< > $@
