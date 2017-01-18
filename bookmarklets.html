@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Felix S Klock II (bookmarklet collection)</title>
+<link type="text/css" rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="box" id="intro_box">
+<a name="intro"></a>
+<h1 class="boxtitle">Bookmarklets</h1>
+<p>
+Bookmarklets (aka <a href="http://validator.w3.org/favelets.html">Favelets</a>)
+are little snippets of javascript that
+act on whatever webpage your browser is currently focused on.  
+The first ones Felix had seen did things like
+post urls to other sites 
+(such as the <a href="#post_del">"Post to del.icio.us" bookmarklet</a> he has copied below); 
+but in fact there are more useful private ones that do things like 
+<a href="#named_anchors">make named anchors</a> in a page explicit in the rendering of the document.
+</p>
+</div>
+
+
+<div class="box" id="doc_rendering_box">
+<a name="doc_rendering"></a>
+<h2 class="boxtitle">Document rendering</h2>
+<p>
+Several useful bookmarklets are collected at 
+<a href="https://www.squarefree.com/bookmarklets/">Jesse Ruderman's Bookmarklets Site</a>.
+Felix found that site when he was searching 
+for a plug-in to render named anchors on a webpage.
+</p>
+<p>
+He soon discovered that Jesse's code was close but not quite what he
+wanted, because Jesse's version only handles anchors that use
+the <code>name</code> attribute to name its anchors, but some pages
+use the <code>id</code> attribute for that purpose.
+</p>
+<p>
+With Dave Herman's help, Felix developed the following generalization of Jesse's code:
+<a name="named_anchors"
+href="javascript:(function(){var atags,i,name,a; anchs = document.getElementsByTagName('a'); for(i=0; i&lt;anchs.length; ++i) { a = anchs.item(i); if (false) { alert(a.id); } name = a.id || a.name; if (name) { a.appendChild(document.createTextNode(&quot;#&quot; + name)); a.style.border = &quot;1px solid&quot;; a.href = &quot;#&quot; + name; } } })();"
+>named anchors</a>.
+Feel free to click it to see the effect, and to drag it to your own bookmarks bar.
+</p>
+</div>
+<div class="box" id="link_sharing_box">
+<a name="link_sharing"></a>
+<h2 class="boxtitle">Link sharing</h2>
+<ul>
+<li><a name="post_del"
+href="javascript:location.href='http://del.icio.us/post?v=4;url='+encodeURIComponent(location.href)+';title='+encodeURIComponent(document.title)"
+>post del</a>: post link to the current page to your <a href="http://del.icio.us/">del.icio.us</a> collection.
+</li>
+<li>
+<a name="bit.lify"
+href="javascript:var%20d=document,w=window,enc=encodeURIComponent,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),s2=((s.toString()=='')?s:('%22'+enc(s)+'%22')),f='http://bit.ly/',l=d.location,p='?v=3&amp;u='+enc(l.href)%20+'&amp;s='+enc(d.title)+'%20'+s2,u=f+p;try%7Bif(!/%5E(.*%5C.)?tumblrzzz%5B%5E.%5D*$/.test(l.host))throw(0);tstbklt();%7Dcatch(z)%7Ba%20=function()%7Bif(!w.open(u))l.href=u;%7D;if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else%20a();%7Dvoid(0)"
+>bit.ly'fy</a>: register link to the current page in the <a href="http://bit.ly/">bit.ly</a> link shortening service.
+</li>
+<li>
+<a name="citeulike"
+href="javascript:location.href='http://www.citeulike.org/posturl?username=pnkfelix&amp;bml=nopopup&amp;url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title)"
+>citeulike</a>: post link to the current page to your (well, technically Felix's) <a href="http://www.citeulike.org/">cite-u-like</a> collection.
+</li>
+</ul>
+</div>
+
+</body>
+</html>
