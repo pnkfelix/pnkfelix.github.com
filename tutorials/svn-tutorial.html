@@ -1,0 +1,684 @@
+<html>
+<head>
+<title>Quick Introduction to SVN commands</title>
+<style>
+pre.old {
+    overflow:   auto;
+    background: rgb(230,230,230);
+    border:     solid;
+    border-width:   thin;
+    padding: 5px  10px;
+}
+pre.simple{
+  overflow: auto;
+  background:   transparent;
+  border:       none;
+  padding: 5px  10px;
+
+}  
+
+pre.border{
+  overflow: auto;
+  background:   transparent;
+  border:       solid;
+  border-width: thin;
+  padding: 5px  10px;
+}
+
+body { margin-left: 10px; margin-right: 10px;
+       font-family: Helvetica, sans-serif; 
+       }
+
+/* yellow color: csg111 bg = #ffffe0 */
+
+div.important {
+  background-color: rgb(204, 204, 255);
+}
+
+div.exercise {
+  background-color: rgb(255, 255, 153);
+  padding: 1px 1px;
+}
+
+img {/* vertical-align: middle; }*/
+  margin-top: 5px; margin-bottom: 5px;
+  margin-left: 5px; margin-right: 5px;
+}
+
+div.foot p {
+  margin-top: 0; margin-bottom: 0px;
+  margin-left: 0px; margin-right: 0px;
+  text-align: right;
+  font-size: 80%; color: #999 
+}
+div.foot table { margin-top: 0px; margin-bottom: 0px;
+         margin-left: 0px; margin-right: 0px; }
+div.foot table td.logos { text-align: left; vertical-align: bottom; }
+div.foot table td.modif { font-size: 80%; color: #999; text-align: right; }
+</style>
+</head>
+<body>
+<h1>Quick Introduction to SVN commands</h1>
+
+I will start with a quick overview of the commands you should know,
+and then I will demonstrate them via a transcript of some artificial
+work on an actual Subversion repository.
+
+<h2>Commands</h2>
+
+<ul>
+<li><code>svn help <em>[command-name]</em></code>  
+supplies help about how to use Subversion.
+<li><code>svn co <em>repository</em> <em>[dir-name]</em></code> 
+checks out <em>repository</em>.  
+If <em>dir-name</em> is supplied, then that is used as the name 
+for the freshly created directory holding the repository.  
+Otherwise uses the base name of the repository itself.
+<li><code>svn add <em>path</em></code> 
+schedules <em>path</em> in the working directory for addition at the next commit.
+<li><code>svn rm <em>path</em></code> 
+deletes <em>path</em> from the working direcory, 
+and schedules <em>path</em> to be removed from the repository at the next commit.
+<li><code>svn commit</code> commit changes from working directory.  It will try to
+bring up your choice of editor to make a log message, or you can use the <code>-m</code>
+option to pass a log message on the command line.  (This is what I do in the transcript below.)
+<li><code>svn up</code> updates the working directory 
+to the latest revision in the central repository, attempting to merge changes when it can.  
+<p>status notifications:
+<ul>
+<li> <code>A</code>: If a file is added by this process, its name is printed 
+with an <em>added</em> notification <code>A</code>.
+<li> <code>D</code> If a file is deleted by this process, its name is printed 
+with an <em>deleted</em> notification <code>D</code>.
+<li> <code>U</code> If a locally-unchanged file is updated by this process, its name is printed with
+an <em>updated</em> notification <code>U</code>.
+<li> <code>G</code> If a locally-changed file is "successfully" merged with changes made in the 
+central repository, its name is printed with a <em>merged</em> notification <code>G</code>.
+<li> <code>C</code> If a change has been made to a line of a file, and you also changed that line in your copy of the file, then:
+<ol><li>the file is marked as having a <em>conflict</em>, denoted by <code>C</code>
+    <li>a copy of your local version of the file is saved as <code><em>file</em>.mine</code>
+    <li>a copy of the original version of the file 
+    (from when you last successfully updated) 
+    is saved as <code><em>file</em>.r<em>number-of-revision</em></code>
+    <li>a copy of the repository's version of the file 
+    (that you tried to update to) is saved 
+    as <code><em>file</em>.r<em>number-of-revision</em></code>
+    <li>the <em>file</em> itself is also modified; it has the conflicting areas marked up
+     annotations describing the working version and the repository version (so that 
+     you can review it directly and attempt to do the merge by hand on the file itself).
+</ol>
+</ul>
+<li><code>svn status</code> summarizes the status of changes to the working directoy; if there
+are no changes from the revision you checked out, then no output is printed.
+If a file was marked as having a conflict that has not been resolved, its name is printed
+with the conflict marker <code>C</code>.  Otherwise, if a file is locally modified, its name is printed with the modified marker <code>M</code>.
+<li><code>svn resolved <em>file</em></code> 
+removes the conflict mark from <em>file</em>, 
+and removes the three copies of the variants of <em>file</em> 
+that were generated when you performed the <code>svn update</code> (see above).
+<li><code>svn diff <em>[file]</em></code> summarizes the changes you have made to files 
+in the working directory.
+<li><code>svn revert <em>path</em></code> reverts <em>path</em> to the form it
+had when you checked it out from the repository. 
+(It does <em>not</em> update it to the latest version, though.)
+</ul>
+
+<h2>Transcript</h2>
+
+<p>What follows is an annotated transcript of a series of shell commands that 
+I executed to demonstrate the commands above.</p>
+
+<p>You should look carefully at the portion of the 
+transcript where I attempt to do <code>svn commit -m "Adding everyone to salutation."</code>.
+That section illustrates a subversion conflict, shows the
+four files that are generated by the <code>svn update</code> that revealed
+the conflict, and illustrates how to use the <code>svn resolved</code>
+command to remove the conflict marking after one has fixed the problem.
+</p>
+
+<pre>
+pnkfelix% export REPOSITORY_ROOT=svn+ssh://pnkfx.org/Users/pnkfelix/SvnRoot/WorkLog/test
+pnkfelix% svn co $REPOSITORY_ROOT test-1
+Checked out revision 50.
+pnkfelix% ls test-1
+pnkfelix% ls -a test-1
+.	..	.svn
+pnkfelix% cd test-1
+test-1% cat > file.txt
+Hi there.  The first line.
+This is the second line.
+And a third line.
+
+
+</pre>
+
+<p>I will now switch to a tabular format, so that you can see how
+changes to two distinct checkouts (named <code>test-1</code> and
+<code>test-2</code>) propagate up to the repository and down to the
+checkouts.
+</p>
+
+<p>(I apologize for the width of the presentation.  
+The most important thing to read is the sequence of shell commands, 
+to see what messages Subversion delivers, 
+and how one invokes commands to deal with updates and conflicts.)
+</p>
+
+
+<table>
+<tr><th align="left">repository <code>file.txt</code></th> <th align="left">test-1 <code>file.txt</code></th> <th align="left">test-2 <code>file.txt</code></th> <th align="left">shell commands</th></tr>
+<tr><td>(nothing)</td>       <td><pre>Hi there.  The first line.
+This is the second line.
+And a third line.</pre></td><td>(nothing)</td><td></td>
+</tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn add file.txt 
+A         file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn commit -m "Committing file to demonstrate svn commands." file.txt 
+Adding         file.txt
+Transmitting file data .
+Committed revision 51.
+
+</pre></td></tr><tr><td><pre>
+Hi there.  The first line.
+This is the second line.
+And a third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ..
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% svn co $REPOSITORY_ROOT test-2
+A    test-2/file.txt
+Checked out revision 51.
+</pre></td></tr><tr><td></td><td></td><td><pre>
+Hi there.  The first line.
+This is the second line.
+And a third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% ls test-1
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% ls test-2
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% ls -a test-1
+.		..		.svn		file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% ls -a test-1/.svn
+.		entries		prop-base	text-base
+..		format		props		tmp
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% ls -a test-2
+.		..		.svn		file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+pnkfelix% cd test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt 
+Hi there.  The first line.
+This is the second line.
+And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat > file.txt
+Hello there.  The first line.
+This is the second line.
+And a third line.
+</pre></td></tr><tr><td></td><td></td><td><pre>
+Hello there.  The first line.
+This is the second line.
+And a third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn diff file.txt 
+Index: file.txt
+===================================================================
+--- file.txt	(revision 51)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hi there.  The first line.
++Hello there.  The first line.
+ This is the second line.
+ And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn commit -m "Changed Hi to Hello in first line." file.txt
+Sending        file.txt
+Transmitting file data .
+Committed revision 52.
+</pre></td></tr><tr><td><pre>
+Hello there.  The first line.
+This is the second line.
+And a third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cd ../test-1
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Hi there.  The first line.
+This is the second line.
+And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn up
+U    file.txt
+Updated to revision 52.
+</pre></td></tr><tr><td></td><td><pre>Hello there.  The first line.
+This is the second line.
+And a third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt
+Hello there.  The first line.
+This is the second line.
+And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat > file.txt
+Hello there.  The first line.
+This is a second line.
+And a third line.
+</pre></td></tr><tr><td></td><td><pre>Hello there.  The first line.
+This is a second line.
+And a third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Hello there.  The first line.
+This is a second line.
+And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 52)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+ Hello there.  The first line.
+-This is the second line.
++This is a second line.
+ And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ../test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn up
+At revision 52.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat > file.txt
+Hello there.  The first line.
+This is the second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td><pre>Hello there.  The first line.
+This is the second line.
+And the third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 52)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+ Hello there.  The first line.
+ This is the second line.
+-And a third line.
++And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn commit -m "A small change to the third line." file.txt 
+Sending        file.txt
+Transmitting file data .
+Committed revision 53.
+</pre></td></tr><tr><td><pre>Hello there.  The first line.
+This is the second line.
+And the third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cd ../test-1
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 52)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+ Hello there.  The first line.
+-This is the second line.
++This is a second line.
+ And a third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+M      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn up
+G    file.txt
+Updated to revision 53.
+</pre></td></tr><tr><td></td><td><pre>Hello there.  The first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 53)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+ Hello there.  The first line.
+-This is the second line.
++This is a second line.
+ And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt
+Hello there.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn commit -m "a small change to the second line." file.txt 
+Sending        file.txt
+Transmitting file data .
+Committed revision 54.
+</pre></td></tr><tr><td><pre>Hello there.  The first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat > file.txt 
+Hello there.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td><pre>Hello there.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff file.txt 
+Index: file.txt
+===================================================================
+--- file.txt	(revision 54)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hello there.  The first line.
++Hello there.  Great first line.
+ This is a second line.
+ And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ../test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn up
+U    file.txt
+Updated to revision 54.
+</pre></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt 
+Hello there.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat > file.txt 
+Hello there everyone.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td><pre>Hello there everyone.  The first line.
+This is a second line.
+And the third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 54)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hello there.  The first line.
++Hello there everyone.  The first line.
+ This is a second line.
+ And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cd ../test-1
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 54)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hello there.  The first line.
++Hello there.  Great first line.
+ This is a second line.
+ And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn commit -m "deliberate changing first line to conflict w/ test-2"
+Sending        file.txt
+Transmitting file data .
+Committed revision 55.
+</pre></td></tr><tr><td><pre>Hello there.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ../test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt 
+Hello there everyone.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 54)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hello there.  The first line.
++Hello there everyone.  The first line.
+ This is a second line.
+ And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn commit -m "Adding everyone to salutation." 
+Sending        file.txt
+Transmitting file data .svn: Commit failed (details follow):
+svn: Out of date: '/test/file.txt' in transaction '1l'
+</pre></td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn up
+C    file.txt
+Updated to revision 55.
+</pre></td></tr><tr><td></td><td></td><td><pre><<<<<<< .mine
+Hello there everyone.  The first line.
+=======
+Hello there.  Great first line.
+>>>>>>> .r55
+This is a second line.
+And the third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt	file.txt.mine	file.txt.r54	file.txt.r55
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt.mine 
+Hello there everyone.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt.r54 
+Hello there.  The first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt.r55 
+Hello there.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt
+<<<<<<< .mine
+Hello there everyone.  The first line.
+=======
+Hello there.  Great first line.
+>>>>>>> .r55
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat > file.txt
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td><pre>Hello there everyone.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt	file.txt.mine	file.txt.r54	file.txt.r55
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+?      file.txt.mine
+?      file.txt.r54
+?      file.txt.r55
+C      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn commit -m "Adding everyone to salutation." 
+svn: Commit failed (details follow):
+svn: Aborting commit: '/Users/pnkfelix/test-2/file.txt' remains in conflict
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt	file.txt.mine	file.txt.r54	file.txt.r55
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+?      file.txt.mine
+?      file.txt.r54
+?      file.txt.r55
+C      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn resolved file.txt
+Resolved conflicted state of 'file.txt'
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn commit -m "Adding everyone to salutation." 
+Sending        file.txt
+Transmitting file data .
+Committed revision 56.
+</pre></td></tr><tr><td><pre>Hello there everyone.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cd ../test-1
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn up
+U    file.txt
+Updated to revision 56.
+</pre></td></tr><tr><td></td><td><pre>Hello there everyone.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat > file.txt
+Whoops I'm trampling
+all over the file
+whhooaooaoaaoaoaaaa
+</pre></td></tr><tr><td></td><td><pre>Whoops I'm trampling
+all over the file
+whhooaooaoaaoaoaaaa</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Whoops I'm trampling
+all over the file
+whhooaooaoaaoaoaaaa
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn diff
+Index: file.txt
+===================================================================
+--- file.txt	(revision 56)
++++ file.txt	(working copy)
+@@ -1,3 +1,3 @@
+-Hello there everyone.  Great first line.
+-This is a second line.
+-And the third line.
++Whoops I'm trampling
++all over the file
++whhooaooaoaaoaoaaaa
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn revert file.txt 
+Reverted 'file.txt'
+</pre></td></tr><tr><td></td><td><pre>Hello there everyone.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% rm file.txt 
+</pre></td></tr><tr><td></td><td>(nothing)</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+!      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn revert file.txt
+Reverted 'file.txt'
+</pre></td></tr><tr><td></td><td><pre>Hello there everyone.  Great first line.
+This is a second line.
+And the third line.</pre></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cat file.txt 
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn rm file.txt
+D         file.txt
+</pre></td></tr><tr><td></td><td>(nothing)</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% ls
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+D      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ../test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn up
+At revision 56.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cat file.txt 
+Hello there everyone.  Great first line.
+This is a second line.
+And the third line.
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% cd ../test-1
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+D      file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn commit -m "show that svn rm needs to be committed."
+Deleting       file.txt
+
+Committed revision 57.
+</pre></td></tr><tr><td>(nothing)</td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-1% cd ../test-2
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+file.txt
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn up
+D    file.txt
+Updated to revision 57.
+</pre></td></tr><tr><td></td><td></td><td>(nothing)</td><td></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% svn status
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% ls
+</pre></td></tr><tr><td></td><td></td><td></td><td><pre>
+test-2% 
+</pre></td></tr>
+</table>
+<pre>
+
+
+
+<address>
+<a href="mailto:pnkfelix@ccs.neu.edu">Felix S Klock II</a>
+</address>
+</body>
+</html>

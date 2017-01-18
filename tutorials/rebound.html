@@ -1,0 +1,1326 @@
+<!-- This is a comment in the HTML language 
+  -->
+
+<!-- Comments in HTML begin with a four character sequence:
+         less-than exclamation-point dash dash
+     and end with a three character sequence:
+         dash dash greater-than
+     (thus they can span multiple lines).
+     Be careful: you can't wrap a comment around another comment.
+  -->
+
+<!-- So whenever you see a comment, realize that its a note
+     that Felix has put in, probably because he thinks you may
+     want to read it at some point. 
+     
+     (XXX Exceptions to this are marked with ``XXX''; those
+      are notes that Felix is making to himself as he writes. XXX)
+  -->
+
+<!-- HTML documents are written using a ``markup language'' 
+     (that's the ML in HTML).
+     The markup is written by surrounding ``normal text'' with
+     tags, written like ``<tag key1="val1" key2="val2">normal text</tag>''
+     (the idea is that we've marked the text with the particular tag ``tag'',
+      along with the additional (key,value) attributes added with it.)
+     
+     Every use of markup has to have start and an end.
+     The start is marked with a tag like <foo>, and the end with </foo>
+
+     Examples of markup: 
+     * adding emphasis with the <em> tag, 
+     * making some text into a link with 
+       the <a href="http://www.google.com/"> tag
+     * marking some text as a Javascript program with 
+       the <script language="Javascript"> tag
+
+     Some tags are not markup content, but rather are just single
+     elements of content on their own.  Examples of this are images
+     (the <img /> tag) and horizontal rules (the <hr /> tag)
+     
+     Felix has put a list of *all* the tags he uses in this document
+     at the end of this file; it is a make-shift glossary.
+  -->
+
+<!-- Below I've written a complete webpage, so that you can 
+     open this file in a web browser and try it out.  
+
+     But to learn anything from this, you need to read through the
+     source code (this file) and see what you can glean from it.
+
+     Since our focus is on Javascript, I'll try to stick to that
+     area; but to do anything interesting, you'll probably have
+     to learn more about HTML and the ``Document Object Model''
+     (aka DOM).  
+
+     The DOM is a scary name for a simple idea: web browsers have
+     standardized the way they represent web pages internally after
+     they have sucked in the HTML source code and rendered the page,
+     and you can *dynamically* alter that object model, thus creating
+     content that changes dynamically in response to what a user does.
+     (Felix believes this is secret behind most interesting Javascript
+     programs.)
+  -->
+
+<html> 
+  <head>
+    <title>Rebound: an example game</title>
+    <!-- The <style> tag defines details about how elements of the
+	 page are supposed to be rendered.  These details are
+	 collectively called a ``style sheet.''
+
+	 (The principle is that you separate presentation details from
+	 the meaningful content of the page itself.  Felix is not
+	 familiar with the philosophy beyond that.)
+
+	 For more information on this topic, do a Google search
+	 for ``Cascading Style Sheets.''
+	 
+	 style tags are written in their own language that looks
+	 nothing like HTML.  Felix does not know the history behind
+	 its development.  
+
+	 Anyway, feel free to skip over this <style> tag for now; but
+	 you'll probably need to review it later as you hack the code.
+	 
+	 Note that if you remove this style tag (by deleting it or
+	 enclosing it in a comment tag) the appearance of the page
+	 will change dramatically.  The Javascript may stop working,
+	 too.
+      -->
+    <style>
+      #playingArea_element{
+      position: relative;
+      /* top: 240; */
+      /* left: 100; */
+      margin: 1em auto;
+      border: 1px solid black;
+      width: 500;
+      height: 500;
+      background-color: rgb(192,192,192);
+      }
+      #paddle_element{
+      position: absolute;
+      top: 470;
+      left: 258;
+      width: 64;
+      height: 16;
+      }
+      #ball_element{
+      position: absolute;
+      top: 4;
+      left: 200;
+      width: 16;
+      height: 16;
+      }
+      #score_element{
+      position: absolute;
+      top: 486;
+      left: 0;
+      width: 500;
+      height: 14;
+      font-size: 10pt;
+      color: white;
+      background-color: rgb(32,128,64);
+      }      
+    </style>
+    <!-- This <script> defines most of the JavaScript that our game uses.  
+	 
+	 Note again that within the <script> tag, there is a
+	 completely different language from HTML (and also different
+	 from the language used within the <style> tag).
+      -->
+    <script language="JavaScript">
+      // This is a comment in JavaScript.
+      // Comments in JavaScript start where you see 
+      // slash slash
+      // and end at the end of the line.
+      // (thus unlike comments in HTML, they *don't* span multiple lines,
+      //  at least not without you writing slash slash at the start of 
+      //  each line)
+      
+      // We can define named boxes (variables) that will hold objects 
+      // used in our code.  Here are definitions for the boxes
+      // named ``ball'', ``paddle'', and ``score''
+      var ball;
+      var paddle;
+      var score;
+      
+      var dp = 0; // velocity of the paddle
+      var dx = 6; // initial speed of ball along x-axis (delta-x, aka dx)
+      var dy = 6; // initial speed of ball along y-axis (delta-y, aka dy)
+      var currentScore = 0;
+
+      // ``timeout id'' that we're waiting for next (never actually used,
+      // but a future extension might need to invoke clearTimeout on this)
+      var timer;  
+      
+      // initial conditions for ball and paddle.
+      var paddleLeft = 258;
+      var ballLeft   = 200;
+      var ballTop    = 4;
+
+      // This is a FUNCTION definition in JavaScript.
+      // This function takes no arguments; it will be used to 
+      // set up initial state when the page loads
+      // (see the onLoad attribute in the <body> tag below)
+      // Felix does not know much more about how to use
+      // document.getElementById; he's just following the 
+      // example code in the devx.com article.
+      function init() {
+	// set up objects corresponding to HTML elements
+	ball   = document.getElementById('ball_element');
+	paddle = document.getElementById('paddle_element');
+	score  = document.getElementById('score_element');
+
+        // setup key event listener (see below)
+	document.onkeydown = keyDownListener;
+	document.onkeyup = keyUpListener;
+	
+	// start the game loop
+	start();
+        
+        // OOH reflection!
+        // alert(allprops("window", window));
+        // alert(allprops("document", document));
+      }
+     
+      function allprops(name, obj) {
+          property_list = "The properties of " + name + " are:\n{ ";
+          for (prop in obj)
+            property_list += prop + " ";
+          property_list += "}";
+	  return property_list;
+      }
+      
+      // Here's another JavaScript function definition.
+      // This one takes a single argument, the key stroke
+      // event, which the browser passes to the listener.
+      // (Although apparently Microsoft Internet Explorer's 
+      //  behavior is different from Mozilla's, so one needs
+      //  to compensate for that.)
+      function keyDownListener( key_event ) {
+	if (! key_event ) { // if key_event wasn't passed to us
+	  // then we must be in Internet Explorer, and need
+	  // to pull the event explicitly out of browser window.
+	  key_event = window.event;
+	}
+	// keyCode 37 is left arrow
+	if (key_event.keyCode == 37) {
+          dp = -4;
+        }
+	// keyCode 39 is right arrow
+	if (key_event.keyCode == 39) {
+          dp = +4;
+        }
+        // FYI - keyCode 38 is up arrow, 40 is down arrow.
+      }
+
+      function keyUpListener(e) {
+	dp = 0;
+      }
+
+      function start(){
+	// game loop
+	detectCollisions();
+	render();
+	difficulty();
+	
+	// end conditions
+	if (ballTop < 470) {
+	  // still in play - keep the loop going
+	  timer = setTimeout('start()',50);
+	} else {
+	  gameOver();
+	}
+      }      
+
+      function detectCollisions(){
+	// just reflect the ball on a collision
+	// a more robust engine could change trajectory of 
+	// the ball based on where the ball hits the paddle
+	if (collisionX())
+	  dx = dx * -1;
+	if (collisionY())
+	  dy = dy * -1;
+      }
+        
+      // The command ``return E'' means that the whole function
+      // invocation should evaluate to the value of E
+      function collisionX(){
+	// check left and right boundaries
+	if (ballLeft < 4 || ballLeft > 480)
+	  return true;
+	return false;
+      }
+      
+      function collisionY(){
+	// check if at top of playing area
+	if (ballTop < 4)
+	  return true;
+	// check to see if ball collided with paddle
+	if (ballTop > 450){
+	  if (ballLeft > paddleLeft && 
+	      ballLeft < paddleLeft + 64)
+	    return true;
+	}
+	return false;
+      }
+        
+      function render(){
+	moveBall();
+        movePaddle();
+	updateScore();
+      }
+        
+      function moveBall(){
+	ballLeft += dx;
+	ballTop += dy;
+	ball.style.left = ballLeft;
+	ball.style.top = ballTop;
+      }
+
+      function movePaddle() {
+        if (paddleLeft > 0 && paddleLeft < 436) { // XXX magic nums?
+          paddleLeft = paddleLeft + dp;
+          // 'px' is the unit of measure (pixels)
+          paddle.style.left = paddleLeft + 'px';
+        }
+      }
+	  
+      function updateScore(){
+	currentScore += 5;
+	score.innerHTML = 'Score: ' + currentScore;
+      }
+        
+      function difficulty(){
+	// as the game progresses, increase magnitude of the 
+	// vertical speed
+	if(currentScore % 1000 == 0){
+	  if(dy > 0)
+	    dy += 1;
+	  else
+	    dy -= 1;
+	}
+      }
+        
+      function gameOver(){
+	// end the game by clearing the timer and modifying 
+	// the score label
+	clearTimeout(timer);
+	score.innerHTML += "   Game Over";
+	score.style.backgroundColor = 'rgb(128,0,0)';
+      }
+    </script>
+  </head>
+  <body onLoad="init()">
+    <h1>Rebound: an example game</h1>
+    <h2>With example HTML and Javascript for William Klock</h2>
+    <h3>
+      (based on the tutorial at
+      <a href="http://www.devx.com/webdev/10MinuteSolution/27134">devx.com</a>)
+    </h3>
+    last updated, November 15th, 9:15 AM
+    <hr />
+    <hr />
+    <h2>The Product</h2>
+    (hit the left and right arrow keys to move the paddle.)
+    <div id="playingArea_element">
+      <div id="paddle_element"><img src="paddle.gif" /></div>
+      <div id="ball_element"><img src="ball.gif" /></div>
+      <div id="score_element">Score: 0</div>
+    </div>
+
+    <hr />
+    <hr />
+    <h2>Work Log</h2>
+    <p>
+      Felix wrote down the changes he made to this
+      document as he made them, so that you can first read the
+      document as rendered to see how Felix wrote the script, 
+      and then you
+      can look at the HTML source to learn more about how it all fits
+      together.
+    </p>
+    <p>Felix recommends that you, like him,
+      take notes as you work your way through this tutorial.
+      <br /><strong>Save your work into new files as you progress,
+	and keep track of these files in your notes!</strong><br />
+      That way when you
+      run into problems, you (and others) can retrace your steps 
+      to see how you got there.
+    </p>
+    <hr />
+    <p>I. First Felix followed the <code>devx.com</code> directions and made a
+      text (named "rebound.html") file with the following content.
+    </p>
+    <p>
+      (Felix understood essentially what this was.  If you look at
+       the source for this document, you will see comments
+       attempting to explain HTML to a novice).
+    </p>
+
+    <!-- Felix did decide to rename the values assigned to
+	 the <code>id</code> attributes in the <code>div</code> tags, so
+	 that it would be clearer in the code when he is referring to an
+	 HTML element versus when he is referring to a JavaScript object.
+	 (But this is a small detail that you can ignore, unless you are
+	 trying to compare Felix's code to the
+	 <code>divx.com</code> code.) 
+      -->
+    
+    <textarea readonly="true" cols="80" rows="13">
+<html>
+  <head>
+    <title>Rebound</title>
+  </head>
+  <body>
+  <h1>Rebound</h1>
+  <div id="playingArea_element">
+    <div id="paddle_element"><img src="paddle.gif" /></div>
+    <div id="ball_element"><img src="ball.gif" /></div>
+    <div id="score">Score: 0</div>
+  </div>
+  </body>
+</html>      
+    </textarea>
+
+    <p>After typing this into a file and saving it, Felix
+      opened the file up in a web browser to make sure that 
+      it looked sane (as in, is there text?  A couple of 
+      images?  A score of 0?).
+    </p>
+    
+    <hr />
+    <p>II. Then Felix blindly added the style sheet as directed by 
+      <code>devx.com</code>.  This was a matter of adding the following
+      <code>style</code> section to the 
+      <code>head</code> section he had written above.
+      (Felix is totally unfamiliar with style sheets, 
+       though he thinks he should start learning more about them.)
+    </p>
+    <p>There might be a way to rewrite this script so
+      that you do not need the <code>style</code> section, 
+      but Felix is not sure how to do it, so it is safest
+      for now to just use the <code>style</code> section
+      as instructed.
+    </p>
+    <p>(Felix did have to continually adjust the value of the 
+      <code>top</code> attribute for the
+      <code>#playingArea</code> section below as he modified
+      other parts of the HTML source.  This 
+      probably reflects a mistake by the original
+      author in using absolute positioning,
+      but again, Felix does not know enough about style sheets
+      to do any better at the moment.  <em>In step IX below, 
+      Felix learned how to do it better.</em>)
+    </p>
+
+    <textarea readonly="true" cols="80" rows="35">
+    <style>
+      #playingArea_element{
+      position: absolute;
+      top: 240; 
+      left: 100;
+      border: 1px solid black;
+      width: 500;
+      height: 500;
+      background-color: rgb(192,192,192);
+      }
+      #paddle_element{
+      position: absolute;
+      top: 470;
+      left: 258;
+      width: 64;
+      height: 16;
+      }
+      #ball_element{
+      position: absolute;
+      top: 4;
+      left: 200;
+      width: 16;
+      height: 16;
+      }
+      #score_element{
+      position: absolute;
+      top: 486;
+      left: 0;
+      width: 500;
+      height: 14;
+      font-size: 10pt;
+      color: white;
+      background-color: rgb(32,128,64);
+      }      
+    </style>
+    </textarea>
+
+    <p>Again, after performing this step, Felix reloaded the page
+      in his web browser.  This time he did it not as a sanity
+      check, but rather because he was actually curious
+      to know what sort of difference these style sheets
+      have on the document.
+    </p>
+
+    <hr />
+    <p>III. Then Felix added the JavaScript code as directed by
+      <code>devx.com</code>.  This was a matter of adding a
+      <code>script</code> tag in the <code>head</code>,
+      below the <code>style</code> tag added above.
+    </p>
+    <p>
+      (Felix understood essentially what this was, and added more 
+      comments to make it clearer for you.)
+    </p>
+    <p>There are four key concepts introduced in this code 
+      (and in many programming languages) that
+      we will present now.
+      <ol>
+	<li><em>Values</em> can include
+	  simple things like:
+	  <ul>
+	    <li>numbers
+	  (<code>0</code>, 
+	   <code>6</code>,
+	   <code>258</code>, 
+	   <code>-4</code>, etc),
+	   </li>
+	   <li>
+	   responses to yes-or-no questions like
+	   "is 3 greater than 6?"
+	   (these responses are named <code>true</code>
+	   and <code>false</code> and are collectively 
+	   called <em>booleans</em>; ask your parents),
+	   </li>
+           <li>
+           bits of text (called <em>strings</em>), which 
+           are written by surrounding the text with 
+           quote marks, like so: <code>'this is a string'</code>, 
+           <code>'and this is also a string'</code>
+           </li>
+	   <li>
+	   or complex things like pieces of the web
+	   document (the ball element on the page, 
+	   the paddle element on the page, etc;
+	   these are often called "document objects").
+	   </li>
+	  </ul>
+	  <p></p>
+	<li><em>Expressions</em> are commands you use
+	  to tell the browser to compute some value.
+	  If you want to add <code>1</code> and <code>3</code>,
+	  you can write the expression <code>(1 + 3)</code>.
+	  If the browser reaches that expression, it will
+	  add the two numbers to produce the value <code>4</code>.
+	  <p>
+	  This effort (to figure out what
+	  an expression means) is often called
+	  <em>evaluating</em> the expression.
+	  </p>
+	  <p>
+	  You can build up complex expressions by combining
+	    smaller expressions together.  
+	    For example, you can 
+	    write the expression <code>((1 + 3) * (7 - 2))</code>
+	    and the browser will work through the problem 
+	    the same way that you might: by first figuring
+	    out what "<code>(1 + 3)</code>" is (<code>4</code>),
+            then replacing "<code>(1 + 3)</code>" with <code>4</code>
+            in the above expression: <code>(4 * (7 - 2))</code>.
+            A similar calculation will yield <code>(4 * 5)</code>,
+            and that finally evaluates to <code>20</code>.
+	  So the whole expression 
+	  <code>((1 + 3) * (7 - 2))</code>
+	  evaluates to <code>20</code>.
+	  </p>
+	<li><em>Variables</em> in JavaScript
+	  are like named boxes that hold
+	  values for the program to use.  
+	  <p>You put a value into the box by using the
+	    operation <code>=</code>, which is 
+	    sometimes pronounced
+	    "gets".  So <code>z = 3</code> is pronounced
+	    "zee gets three".  If you say "zee equals three",
+	    people won't always realize that you're describing
+	    something that is <em>changing</em> the meaning
+	    of <code>z</code>.  That is why some people
+	    prefer to pronounce <code>=</code> in JavaScript
+	    (and some other languages) as "gets".
+	  </p>
+	  <p>
+	  In JavaScript, the boxes don't care whether the 
+	  values are simple or
+	  complex; you say <code>x = <em>value</em></code>
+	  and the box for <code>x</code> will contain <em>value</em>,
+	  whatever it may be.
+	  </p>
+	  <p>Variables are a kind of expression.  Therefore,
+	    <em>anywhere</em> that you can put an expression, you can put 
+	    a variable.  
+	  </p>
+	  <p>So you can write <code>((x + 3) * (7 - y))</code>
+	    and the browser will start by looking
+	    for a number in the <code>x</code>
+	    box to figure out what it should add to 3 in <code>(x + 3)</code>.
+	</li>
+	<li><em>Functions</em> in JavaScript 
+	  (as well as many other languages) are sequences
+	  of commands that have been packaged up into a value.
+	  Functions can have <em>parameters</em>, which are
+	  just boxes of values again.
+	  You can run the sequence of commands in a function
+	  by <em>invoking</em> the function; when you do this,
+	  you usually need to plug in values for the function's 
+	  parameters.  If a function <code>f</code> has
+	  two parameters, you invoke <code>f</code> on the 
+	  values <code>1</code> and <code>2</code> by writing
+	  <code>f(1,2)</code>.
+	  <p>More generally, you can put expressions in as 
+	    the parameters in function invocations:
+	    <code>f( (x+3), (7-y) )</code>.
+	  </p>
+	  <p>Function invocations are themselves
+	    expressions: if you have functions
+	    <code>f</code> and <code>g</code>
+	    that each take two parameters, this is a legal
+	    expression:
+	    <blockquote>
+	      <code>f( f(1, x), g( 4, f(y, 2)) )</code>
+	    </blockquote>
+	    and so is this:
+	    <blockquote>
+	      <code>f(1, x) + g(y, 7)</code>.
+	    </blockquote>
+	    (But you won't see this usage very often 
+	    in the code below, which makes Felix sad.)
+	    <!-- The only place Felix sees it is in the definition
+		 of detectCollisions(), where the results of 
+		 collisionX() and collisionY() are used as the
+		 test in an if statement.
+	      -->
+	  </p>
+	  <p>To define your own functions, you
+	    write the functon definition as 
+	    <blockquote>
+	      <code>function <em>name</em>(<em>param-1, param-2, ...</em>) { 
+		<em>command-1; command-2; ...</em>
+		}</code>
+	      </blockquote>
+	    (See the code below for a concrete example
+	    of a function definition.)
+	  </p>
+	</li>
+      </ol>
+    </p>
+    <p>So, after all that exposition, here is the code
+      itself:</p>
+    <textarea readonly="true" cols="80" rows="44">
+    <script language="JavaScript">
+      // This is a comment in JavaScript.
+      // Comments in JavaScript start where you see 
+      // slash slash
+      // and end at the end of the line.
+      // (thus unlike comments in HTML, they *don't* span multiple lines,
+      //  at least not without you writing slash slash at the start of 
+      //  each line)
+      
+      // We can define named boxes (variables) that will hold objects 
+      // used in our code.  Here are definitions for the boxes
+      // named ``ball'', ``paddle'', and ``score''
+      var ball;
+      var paddle;
+      var score;
+
+      var dx = 6; // initial speed of ball along x-axis (delta-x, aka dx)
+      var dy = 6; // initial speed of ball along y-axis (delta-y, aka dy)
+      var currentScore = 0;
+
+      // ``timeout id'' that we're waiting for next (never actually used,
+      // but a future extension might need to invoke clearTimeout on this)
+      var timer;  
+      
+      // initial conditions for ball and paddle.
+      var paddleLeft = 258;
+      var ballLeft   = 200;
+      var ballTop    = 4;
+
+      // This is a FUNCTION definition in JavaScript.
+      // This function takes no arguments; it will be used to 
+      // set up initial state when the page loads
+      // (see the onLoad attribute in the <body> tag below)
+      // Felix does not know much more about how to use
+      // document.getElementById; he's just following the 
+      // example code in the devx.com article.
+      function init() {
+	// set up objects corresponding to HTML elements
+	ball   = document.getElementById('ball_element');
+	paddle = document.getElementById('paddle_element');
+	score  = document.getElementById('score_element');
+      }
+
+    </script>
+    </textarea>
+
+    <p>Felix also had to change the HTML source
+      so that the web browser will invoke the above
+      <code>init</code> function when the brower <em>loads</em>
+      the web page.  One tells the web browser to do 
+      this by adding an <code>onLoad</code> attribute 
+      (with the value <code>"init()"</code>, since that
+       is the code we want the browser to run when it 
+       loads the body) to the <code>body</code> 
+      tag of the HTML document.
+    </p>
+    <textarea readonly="true" cols="80" rows="1">  <body onLoad="init()">
+    </textarea>
+
+    <hr />
+    <p>IV. Next Felix had to add a JavaScript function that would
+      listen for when the user hits the keyboard.
+    </p>
+    <p>This function introduces a couple new things.
+      <ol>
+	<li>
+	  <p>
+	    One is the use of <code>==</code> to compare 
+	    values for equality.  <code>x == y</code> is pronounced
+	    "Does <code>x</code> equal <code>y</code>" and it 
+	    produces either the value <code>true</code> or the
+	    value <code>false</code>.
+	    </p>
+	  <p>There are also the <code>&gt;</code> and 
+	    <code>&lt;</code> operators, pronounced 
+	    "greater than" and "less than". 
+	  </p>
+	  <p>There is also
+	    the <code>!</code> operator, pronounced "not"; 
+	    <code>! true</code> is <code>false</code>, 
+	    and <code>! false</code> is <code>true</code>.
+	  </p>
+	</li>
+	<li>
+	  <p>
+	    Another is the use of <code>&&</code> (pronounced "and") 
+	    to combine boolean values.
+	  <ul>
+	    <li><code>true  && true</code>  evaluates to <code>true</code></li>
+	    <li><code>true && false</code>  evaluates to <code>false</code></li>
+	    <li><code>false && true</code>  evaluates to <code>false</code></li>
+	    <li><code>false && false</code> evaluates to <code>false</code></li>
+	  </ul>
+	  </p>
+	</li>
+	<li>
+	  <p>
+	  Another is the <code>if</code> statement.
+	  The statement
+	  <blockquote>
+	    <code>if (<em>test</em>) { 
+	      <em>then commands</em> 
+	      } else { <em>else commands</em> 
+	      }</code>
+	  </blockquote>
+	  first evaluates <em>test</em>.  
+	  If the value of <em>test</em> is <code>true</code> then we run
+	  the <em>then commands</em>.
+	  If it is <code>false</code> then we run
+	  the <em>else commands</em>.
+	  </p>
+	</li>
+	<li>
+	  <p>
+	  Finally there are some expressions
+	  that use a period ("<code>.</code>", often
+	  pronounced "dot") in funny
+	  ways, 
+	  sometimes pulling the numeric 
+	  <code>keyCode</code> out of 
+	  a <code>key_event</code> 
+	  with an expression like 
+	  <code>key_event.keyCode</code>
+	  and other times
+	  using <code>=</code> ("gets") with a left-hand
+	  side that looks like <code>paddle.style.left</code>.
+	  Felix is not going to discuss these things in this
+	  tutorial; he encourages you to investigate 
+	  them on your own.
+	  </p>
+	</li>
+      </ol>
+    </p>
+    <textarea readonly="true" cols="80" rows="25">
+      // Here's another JavaScript function definition.
+      // This one takes a single argument, the key stroke
+      // event, which the browser passes to the listener.
+      // (Although apparently Microsoft Internet Explorer's 
+      //  behavior is different from Mozilla's, so one needs
+      //  to compensate for that.)
+      function keyListener( key_event ) {
+	if (! key_event ) { // if key_event wasn't passed to us
+	  // then we must be in Internet Explorer, and need
+	  // to pull the event explicitly out of browser window.
+	  key_event = window.event;
+	}
+	// keyCode 37 is left arrow
+	if (key_event.keyCode == 37 && paddleLeft > 0) {
+          paddleLeft = paddleLeft - 4;
+          paddle.style.left = paddleLeft + 'px';
+        }
+	// keyCode 39 is right arrow
+	if (key_event.keyCode == 39 && paddleLeft < 436) {
+          paddleLeft = paddleLeft + 4;
+          paddle.style.left = paddleLeft + 'px';
+        }
+        // FYI - keyCode 38 is up arrow, 40 is down arrow.
+      }
+    </textarea>
+    <p>Felix also add to hook the above <code>keyListener</code> into
+      the web page itself.  Instead of editing the HTML (like we did
+      to hook in the <code>init</code> function), this time we hook
+      up the
+      <code>keyListener</code> by modifying the <code>init</code>
+      function.
+    </p>
+    <textarea readonly="true" cols="80" rows="2">
+        // setup key event listener (see below)
+	document.onkeydown = keyListener;
+    </textarea>
+
+    <hr />
+    <p>V. At this time, Felix reloaded his page and checked if 
+      hitting the arrow keys caused any change to the 
+      page.  Unfortunately, hitting the keys seemed to have 
+      no effect.  
+    </p>
+    <p>At first he pressed on to the remainder of the tutorial,
+      hypothesizing that maybe the code is not intended to 
+      "work" yet, and hoping that maybe this problem
+      would be resolved later.
+    </p>
+    <p>But at some point Felix decided that he should 
+      double-check this theory.  He did this by downloading
+      the original script made by the "real JavaScript coders" 
+      at <code>devx.com</code>, deleting everything
+      that would be added later in the tutorial, and then loading
+      that file and seeing if the paddle responded to key strokes.
+      The <code>devx.com</code> paddle did respond to key strokes,
+      and Felix was sad.
+    </p>
+    <p>Felix spent a while trying out different changes, trying
+      to track down what he had done wrong.  Eventually, he
+      discovered his bug: he had typed the following in his script:
+    </p>
+      <textarea readonly="true" cols="80" rows="10">
+	// keyCode 37 is left arrow
+	if (key_event.keyCode == 37 && paddleLeft > 0) {
+          paddleLeft = paddleLeft - 4;
+          paddle.style.left = paddleLeft + 'px';
+        }
+	// keyCode 37 is left arrow
+	if (key_event.keyCode == 37 && paddleLeft < 436) {
+          paddleLeft = paddleLeft + 4;
+          paddle.style.left = paddleLeft + 'px';
+        }
+      </textarea>
+    <p>This code has a subtle but significant bug that 
+      causes the paddle to never move in response to 
+      key strokes.  Can you find it?
+      (You may need to do a line-by-line comparison against the 
+       <code>keyListener</code> code written above, which 
+       <em>does</em> correctly make the paddle move.)
+    </p>
+    <p>Felix is relaying this story to you for two reasons:
+      <ol>
+	<li>To tell you that even experts make mistakes</li>
+	<li>To stress that every non-comment character you type
+	  might matter, so you need to have a sharp eye while
+	  debugging.  Do not stay up all night doing it.</li>
+      </ol>
+    </p>
+
+    <hr />
+    <p>VI. Felix followed the next bit of instructions at 
+      <code>devx.com</code>, and added the following JavaScript
+      code to the <code>script</code> tag in the <code>head</code>.
+    </p>
+    <textarea readonly="true" cols="80" rows="14">
+      function start(){
+	// game loop
+	detectCollisions();
+	render();
+	difficulty();
+	
+	// end conditions
+	if (ballTop < 470) {
+	  // still in play - keep the loop going
+	  timer = setTimeout('start()',50);
+	} else {
+	  gameOver();
+	}
+      }      
+    </textarea>
+    <p>But Felix was not happy about doing this, because he
+      really didn't know much about the functions 
+      <code>detectCollisions</code>, <code>render</code>,
+      <code>difficulty</code>, <code>setTimeout</code>,
+      or <code>gameOver</code> (because the <code>devx.com</code>
+      author did not explain them at this point in the article).
+    </p>
+    <p>Here are his initial guesses as to what these functions mean:
+      <ul>
+	<li><code>detectCollisions</code> is going to check whether
+	  the bouncing ball has hit the paddle or the wall, and 
+	  change the ball's "speed" (really "vector"; ask your parents)
+	  accordingly.  If the ball has not collided with anything,
+	  then its "speed" will be unchanged.</li>
+	<li><code>render</code> is going to update the position
+	  of the <code>ball</code> after one unit of time has 
+	  passed.</li>
+	<li>Felix has no idea what <code>difficulty</code> is going to
+	  do.  He is tempted to comment out that line until he has
+	  read further.</li>
+	<li><code>setTimeout</code> is a built-in function
+	  provided by JavaScript.  It is also the source
+	  for a great trick in JavaScript:
+	  when you want a function (like <code>start</code>) to be
+	  invoked some time in the future,
+	  you pass some text holding an invocation expression
+	  to <code>setTimeout</code>, along with
+	  the amount of time to wait before evaluating the invocation.
+	  (Okay, Felix admits that he had heard of the <code>setTimeout</code>
+	  function before.)
+	<li><code>gameOver</code> will tell the user that the game 
+	  has ended.</li>
+      </ul>
+    </p>
+    <p>The original article does provide a couple of English paragraphs
+      to explain all this, which I'll copy here for completeness, but
+      if you do not understand all of the jargon it uses, that is okay.
+      <blockquote>
+	The game continues until the user misses the ball.  At that
+	point, the <code>ballTop</code> variable will be
+	larger than 470
+	(just over the height of the gameplay surface minus the height
+	of the paddle plus the height of the ball) . . .
+
+	The main game loop does all the work. It makes calls to detect
+	whether the ball has collided with a boundary, renders objects
+	to the screen, adjusts the difficulty of the game, and
+	determines if the ball is still in play. If the ball is still
+	within the acceptable playing area, it calls 
+	<code>setTimeout()</code>. The
+	<code>start()</code> function is quasi-recursive; 
+	<code>setTimeout()</code> returns
+	immediately so <code>start()</code> 
+	isn't "classically" recursive -- but the
+	effect is the same. Using <code>setTimeout()</code>
+	has the added benefit
+	of allowing control over the frame rate of the game. I used a
+	delay of 50 ms. You can adjust the overall speed of the game
+	by manipulating that parameter.
+      </blockquote>
+    <p>Oh yes; in addition to adding the definiton of the 
+      <code>start</code> function to the script, Felix also had 
+      to add an initial invocation of the <code>start</code> function.
+      (After the first time <code>start</code> is invoked, it will
+       set up a timer to ensure that it will be invoked again in the 
+      future, as mentioned above in Felix's hypothesized purpose
+      of <code>setTimeout</code>.  But someone has to get <code>start</code>
+      to happen initially.)
+      The initial invocation of <code>start</code> will happen
+      at the end of the <code>init</code> function.
+    </p>
+    <textarea readonly="true" cols="80" rows="2">
+	// start the game loop
+	start();
+    </textarea>
+
+    <hr />
+    <p>VII. Once again, Felix decided to try reloading the page,
+      just like he did after he added the <code>keyListener</code>
+      This time he <em>knew</em> there was no way the code he 
+      added would "work", because he had no definitions for 
+      the functions
+      <code>detectCollisions</code>,
+      <code>render</code>, 
+      <code>difficulty</code>, or
+      <code>gameOver</code>.
+      But he wanted to know how the web browser would react.
+    </p>
+    <p>Felix does not know how your web browser will react.
+      <ul>
+	<li>For Felix, Safari just silently ignores the faulty 
+	  <code>start</code> function:
+	  The ball does not move, but the paddle continues to respond
+	  to left and right key strokes.
+	</li>
+	<li>
+	  Also, the Firefox browser also ignores the faulty
+	  <code>start</code> function, but if you turn on
+	  <em>Firebug</em> (a JavaScript debugger built into FireFox)
+	  then it will actually tell you that an error occurred, with
+	  the message: 
+	  <font color="red">detectCollisions is not defined</font>; 
+	  and when you click on the message, it takes you to the 
+	  place in your source code where the error occurred.
+	  <p>
+	  So you may
+	  want to consider using Firefox with Firebug turned on
+	  for your JavaScript development; it seems very nice.
+	  </p>
+	</li>
+      </ul>
+    </p>
+    
+    <hr />
+    <p>VIII. Finally, we have to write those four functions that 
+      Felix mentioned above.
+      Felix essentially cut-and-pasted these from the 
+       <code>devx.com</code> article.
+       (He would not have been able to come up with this
+       code very quickly on his own; Felix is not an expert
+       JavaScript programmer.)
+    </p>
+    <textarea readonly="true" cols="80" rows="68">
+      function detectCollisions(){
+	// just reflect the ball on a collision
+	// a more robust engine could change trajectory of 
+	// the ball based on where the ball hits the paddle
+	if (collisionX())
+	  dx = dx * -1;
+	if (collisionY())
+	  dy = dy * -1;
+      }
+      
+      // The command ``return E'' means that the whole function
+      // invocation should evaluate to the value of E              
+      function collisionX(){
+	// check left and right boundaries
+	if (ballLeft < 4 || ballLeft > 480)
+	  return true;
+	return false;
+      }
+      
+      function collisionY(){
+	// check if at top of playing area
+	if (ballTop < 4)
+	  return true;
+	// check to see if ball collided with paddle
+	if (ballTop > 450){
+	  if (ballLeft > paddleLeft && 
+	      ballLeft < paddleLeft + 64)
+	    return true;
+	}
+	return false;
+      }
+        
+      function render(){
+	moveBall();
+	updateScore();
+      }
+        
+      function moveBall(){
+	ballLeft += dx;
+	ballTop += dy;
+	ball.style.left = ballLeft;
+	ball.style.top = ballTop;
+      }
+	  
+      function updateScore(){
+	currentScore += 5;
+	score.innerHTML = 'Score: ' + currentScore;
+      }
+        
+      function difficulty(){
+	// as the game progresses, increase magnitude of the 
+	// vertical speed
+	if(currentScore % 1000 == 0){
+	  if(dy > 0)
+	    dy += 1;
+	  else
+	    dy -= 1;
+	}
+      }
+        
+      function gameOver(){
+	// end the game by clearing the timer and modifying 
+	// the score label
+	clearTimeout(timer);
+	score.innerHTML += "   Game Over";
+	score.style.backgroundColor = 'rgb(128,0,0)';
+      }    
+    </textarea>
+    <p>
+      Notice that the code is changing the browser's 
+       object for the web page at certain points, such 
+       as the line
+       <blockquote><code>score.innerHTML = 'Score: ' + currentScore;</code>
+	 </blockquote>
+       The <code>score_element</code> of our page
+       was originally 
+       <blockquote>
+	 <code>&lt;div id="score_element"&gt;Score: 0&lt;/div&gt;</code>
+	 </blockquote>
+       This line of code is dynamically changing the inner
+	 text over time (at first its "Score: 0", then "Score: 5",
+	 then "Score: 10", etc).  
+       </p>
+    <p>
+       Likewise the lines in the <code>moveBall()</code> function
+       are changing the <code>left</code> and <code>top</code> 
+       attributes for the <code>ball_element</code> so that it 
+       moves around on the playing area.
+       This is a very nice hack.
+    </p>
+    <p>Felix would like to point out that he 
+      does not think that the
+      code above is entirely correct; he suspects
+      (based on interactions in his browser) that there
+      are situations where the ball will not bounce
+      properly off the paddle, but instead hops 
+      up and down across the top surface of the paddle.
+      (Its an interesting effect but probably not 
+      intended by the original author.)
+    </p>
+    <hr />
+    <p>IX.
+    Some friends at Felix's lab explained a bit more 
+    about CSS to him.  They explained that the stylesheet
+    should not have been using absolute position for
+    all of its elements; only the ones below the 
+    <code>playingArea_element</code>.
+    </p>
+    <p>They suggested the following change to the style
+    of <code>playingArea_element</code>:
+    </p>
+    <textarea readonly="true" cols="80" rows="10">
+      #playingArea_element{
+      position: relative;
+      /* top: 240; */
+      /* left: 100; */
+      margin: 1em auto;
+      border: 1px solid black;
+      width: 500;
+      height: 500;
+      background-color: rgb(192,192,192);
+      }    
+    </textarea>
+    <p>Felix thinks he understands the philosophy 
+    behind this change, but 
+    it will take too long to explain it here.
+    </p>
+    <hr />
+    <p>X. Lets work around the problem with holding down the 
+      arrow keys not actually causing a repeated key event.
+      We do this by responding to the <code>keydown</code>
+      and <code>keyup</code> events separately.  
+      When we see a <code>keydown</code>, we assign a non-zero velocity
+      to the paddle, and when we see a <code>keyup</code>,
+      we reset the velocity to zero.
+    </p>
+    <p>First we add a variable that will hold the paddle's current velocity.
+    </p>
+    <textarea readonly="true" cols="80" rows="1">
+      var dp = 0; // velocity of the paddle
+    </textarea>
+    <p>Then we add a function that will update the position of the paddle
+      based on its velocity.  This is analogous to the <code>moveBall</code>
+      function.
+    </p>
+    <textarea readonly="true" cols="80" rows="6">
+      function movePaddle() {
+        if (paddleLeft > 0 && paddleLeft < 436) {
+          paddleLeft = paddleLeft + dp;
+          paddle.style.left = paddleLeft + 'px';
+        }
+      }
+    </textarea>
+    <p>Next we add an invocation of <code>movePaddle</code> function.
+    </p>
+    <textarea readonly="true" cols="80" rows="5">
+      function render(){
+	moveBall();
+        movePaddle();
+	updateScore();
+      }
+    </textarea>
+    <p>Next we rewrite the key down listener so that it does not
+       move the paddle immediately, but rather adjusts the 
+       velocity.  We also add a key <em>up</em> listener 
+       that resets the paddle's velocity to zero.
+    </p>
+    <textarea readonly="true" cols="80" rows="20">
+      function keyDownListener( key_event ) {
+	if (! key_event ) { // if key_event wasn't passed to us
+	  // then we must be in Internet Explorer, and need
+	  // to pull the event explicitly out of browser window.
+	  key_event = window.event;
+	}
+	// keyCode 37 is left arrow
+	if (key_event.keyCode == 37) {
+          dp = -4;
+        }
+	// keyCode 39 is left arrow
+	if (key_event.keyCode == 39) {
+          dp = +4;
+        }
+        // FYI - keyCode 38 is up arrow, 40 is down arrow.
+      }
+
+      function keyUpListener(e) {
+	dp = 0;
+      }
+    </textarea>
+    <p>Finally we need to actually hook in our new <code>keyUpListener</code>.
+    </p>
+    <textarea readonly="true" cols="80" rows="3">
+        // setup key event listener (see below)
+	document.onkeydown = keyDownListener;
+	document.onkeyup = keyUpListener;
+    </textarea>
+    <p>
+    </p>
+    <hr />
+    <hr />
+    <h2>Things to ponder</h2>
+    <h3>Questions</h3>
+    <p>Here are some questions you should see if you
+      can answer about the code above.  They are
+      meant to provoke discussion, rather than be simple
+      yes/no questions.
+      <ol>
+	<li><p>
+	    We used an operation above, <code>||</code>
+	    (pronounced "or") in the definition of <code>collisionX()</code>.
+	    What do you think it does?  What is its relationship
+	    to the operation <code>&&</code> ("and").
+	    (Hint: look up George Boole, for whom the "booleans" are so named.)
+	  </p>
+	</li>
+        <li><p>
+            Why did we need to pass a string as the first argument
+            to <code>setTimeout</code>, instead of writing 
+            the expression <code>start()</code> directly 
+            without surrounding it in quote marks?
+          </p>
+        </li>
+	<li><p>
+	    Why do we need both an <code>init</code> and a <code>start</code>
+	    function?  Why can't we just pass <code>init</code> to 
+	    <code>setTimeout</code> and get rid of <code>start</code> 
+	    entirely?
+	  </p>
+	</li>
+	<li><p>
+	    Why are <code>collisionX()</code> and <code>collisionY()</code>
+	    the only functions that have return statements?
+	    (Hint:
+	    see what happens if you remove the return statements from
+	    <code>collisionX()</code> or <code>collisionY()</code>.)
+	  </p>
+	</li>
+      </ol>
+    </p>
+    <h3>Exercises</h3>
+    <p>
+      Here are some things 
+      that Felix thinks would make good exercises for extending the
+      code above.
+      (These are questions and tasks
+      that an expert JavaScript programmer
+      could probably figure out very quickly.
+      Felix, a novice JavaScript programmer, can only
+      guess that they are do-able; he does not know how
+      to do them himself.)
+      <ol>
+	<li><p>Add a button to the page that resets the game to the 
+	    way it was at the start.  
+	    </p>
+	  <p>(Felix thinks the <code>init</code> function
+	    already does the job of "resetting"
+	    for us.  The hard part will probably be 
+	    learning enough about HTML to add the button somewhere).
+	  </p>
+	</li>
+	<li><p>Add support for a second paddle at the top or side 
+	  of the screen, controlled by different keys.  
+	  Then have players compete to try to 
+	  get the ball past the other player's paddle.
+	  (a la "Pong"; ask your parents what "Pong" is).
+	  </p>
+	</li>
+	<li><p>Make the ball bounce at different angles depending
+	  on where it hits the paddle, as if the paddle were 
+	  slightly curved rather than perfectly flat.
+	  (Doing this properly requires some trigonometry; talk
+	  to your parents or to Julie for help with this.)
+	  </p>
+	</li>
+	<li><p>Add support for mouse clicks; when the user clicks
+	    the mouse in the playing area, the ball jumps there and
+	    starts falling.
+	  </p>
+	</li>
+	<li>Add rows of bricks to the top of the screen.
+	When the ball hits a brick, the brick disappears.
+	  <p>
+	    This is actually a very advanced problem that
+	    Felix doesn't actually intend for you to solve.
+	    </p>
+	  <p>
+	    (There are different approaches to this problem.
+	    One is an ugly brute-force approach where 
+	    you, as the coder, have to write out a new HTML element
+	    for every single brick, and handle each one
+	    individually.  Avoid this approach.
+	    The other approach is to create all of the bricks
+	    dynamically and treat them uniformly; doing this
+	    well requires that you go back and first learn 
+	    how to process "collections" of data, which is
+	    beyond the scope of this tutorial (and beyond
+	    Felix's current knowledge of JavaScript).
+	  </p>
+	</li>
+      </ol>
+    </p>
+  </body>
+</html>
+
+<!-- Felix is going to list the tags he uses in this document here;
+     It is a makeshift glossary.
+     (A more complete list is available at http://www.w3schools.com/tags/ )
+     
+     <a>          Tags the text as an ``anchor''; creates links and bookmarks
+       href         The url of page to link to
+       id           The anchor's name
+     <blockquote> Marks a long quotation
+     <body>       Holds the content of the page.
+       onLoad       Command to evalutate when the page loads
+     <br />       Inserts a single line break
+     <code>       Marks a block as computer code text
+     <div>        Marks a block as a division/section of the document
+       id           the section's name
+     <em>         Marks a block as emphasized
+     <font>       Marks a block to be rendered in a particular font
+       color        String naming color to use for the text
+     <h1>         Tags the text as a header (h1 is the largest)
+     <h2>         Tags the text as a header (second largest) 
+     <h3>         Tags the text as a header (third largest)
+     <head>       Holds meta-info for the page like its title or its style
+     <hr />       Draws a line across the width of the page
+     <html>       Surrounds the entire HTML code for a web page.
+     <img />      Draw an image in the document
+       src          The file (or url) to find the image at
+     <li>         Marks an item in a list (see <ol> and <ul> tags)
+     <ol>         Marks an ordered list (see <li> and <ul> tags)
+     <p>          Mark a block as a paragraph
+     <script>     Marks a block as holding script (in different language)
+     <strong>     Marks a block as strongly emphasized
+     <style>      Marks a block as holding style sheet (in different language)
+     <title>      Tags the text as the title of the page
+     <textarea>   Defines a text-area (multiple lines of unmarked text)
+       readonly     Boolean indicating if readers can edit the text-area
+       cols         Number of columns for text-area
+       rows         Number of rows for text-area
+     <ul>         Marks an unordered list (see <li> and <ol> tags)
+  -->
+
