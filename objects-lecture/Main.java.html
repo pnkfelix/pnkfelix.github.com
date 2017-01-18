@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>Main.java</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #0000ff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #a020f0;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #bc8f8f;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #228b22;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #b8860b;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Main</span> 
+{
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Tree</span> <span class="function-name">leaf</span>() { <span class="keyword">return</span> Tree.leaf(); }
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Tree</span> <span class="function-name">node</span>( <span class="type">Tree</span> <span class="variable-name">l</span>, <span class="type">Tree</span> <span class="variable-name">r</span>, <span class="type">Object</span> <span class="variable-name">v</span> ) {
+        <span class="keyword">return</span> Tree.node(l,r,v);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">void</span> <span class="function-name">main</span>( <span class="type">String</span>[] <span class="variable-name">args</span> ) {
+        <span class="type">Queue</span> <span class="variable-name">q1</span> = Queue.empty();
+        System.out.println(<span class="string">"&gt; q1.toString():\n"</span> + q1.toString());
+        <span class="type">Queue</span> <span class="variable-name">q2</span> = q1.addElem(<span class="string">"a"</span>).addElem(<span class="string">"b"</span>).addElem(<span class="string">"c"</span>);
+        System.out.println(<span class="string">"&gt; q2.toString():\n"</span> + q2.toString());
+        System.out.println(<span class="string">"&gt; q2.tail().toString():\n"</span> + q2.tail().toString());
+
+        <span class="type">Tree</span> <span class="variable-name">t1</span> = leaf();
+        System.out.println(<span class="string">"&gt; t1.toString():\n"</span> + t1.toString());
+        <span class="type">Tree</span> <span class="variable-name">t2</span> = node( node( leaf(), leaf(), <span class="string">"p"</span>), 
+                        node( node( leaf(), leaf(), <span class="string">"q"</span>),
+                              node( leaf(), leaf(), <span class="string">"r"</span>),
+                              <span class="string">"s"</span> ),
+                        <span class="string">"t"</span> );
+
+        System.out.println(<span class="string">"&gt; t2.toString():\n"</span> + t2.toString());
+
+        System.out.println(<span class="string">"&gt; t2.isLeaf():\n"</span> 
+                           +  t2.isLeaf() );
+        System.out.println(<span class="string">"&gt; t2.right().isLeaf():\n"</span> 
+                           +  t2.right().isLeaf() );
+        System.out.println(<span class="string">"&gt; t2.left().isLeaf():\n"</span> 
+                           +  t2.left().isLeaf() );
+        System.out.println(<span class="string">"&gt; t2.left().nodeValue():\n"</span> 
+                           +  t2.left().nodeValue() );
+        System.out.println(<span class="string">"&gt; t2.right().toString():\n"</span> 
+                           +  t2.right().toString() );
+        System.out.println(<span class="string">"&gt; q2.addAll(t2).toString():\n"</span>
+                           +  q2.addAll(t2).toString() );
+    }
+}
+</pre>
+  </body>
+</html>

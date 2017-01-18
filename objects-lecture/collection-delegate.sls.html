@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>collection-delegate.sls</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-comment">;; This file defines an abstract Collection "class"
+</span><span class="quack-pltish-paren">(</span>library <span class="quack-pltish-paren">(</span>obj-lecture collection-delegate<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span>export base-collection isEmpty addElem anyElem addAll toList<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>rnrs base<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; A Collection is a (Msg -&gt; Procedure)
+</span>  <span class="quack-pltish-comment">;; where Msg is one of:
+</span>  <span class="quack-pltish-comment">;; - 'is-empty        =&gt; (Self -&gt; Boolean)
+</span>  <span class="quack-pltish-comment">;; - 'add-elem        =&gt; (Self * Value -&gt; Collection)
+</span>  <span class="quack-pltish-comment">;; - 'some-elem       =&gt; (Self -&gt; (list Value Collection))
+</span>  <span class="quack-pltish-comment">;; - 'add-all-elems   =&gt; (Self * Collection -&gt; Collection)
+</span>  <span class="quack-pltish-comment">;; - 'to-list         =&gt; (Self -&gt; Listof[Value])
+</span>
+  <span class="quack-pltish-comment">;; In this file, Collection is only partially 
+</span>  <span class="quack-pltish-comment">;; implemented (the concrete method implementations
+</span>  <span class="quack-pltish-comment">;; are for add-all-elems and to-list).  It is the 
+</span>  <span class="quack-pltish-comment">;; responsbility of our subclasses to supply the 
+</span>  <span class="quack-pltish-comment">;; remaining three method implementations.
+</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">isEmpty</span> c<span class="quack-pltish-paren">)</span>   <span class="quack-pltish-paren">((</span>c <span class="quack-pltish-selfeval">'is-empty</span><span class="quack-pltish-paren">)</span>  c<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">addElem</span> c v<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">((</span>c <span class="quack-pltish-selfeval">'add-elem</span><span class="quack-pltish-paren">)</span>  c v<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">anyElem</span> c<span class="quack-pltish-paren">)</span>   <span class="quack-pltish-paren">((</span>c <span class="quack-pltish-selfeval">'some-elem</span><span class="quack-pltish-paren">)</span> c<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">addAll</span> c c2<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">((</span>c <span class="quack-pltish-selfeval">'add-all-elems</span><span class="quack-pltish-paren">)</span> c c2<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">toList</span> c<span class="quack-pltish-paren">)</span>    <span class="quack-pltish-paren">((</span>c <span class="quack-pltish-selfeval">'to-list</span><span class="quack-pltish-paren">)</span> c<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; concrete-&gt;object : -&gt; Collection
+</span>  <span class="quack-pltish-comment">;; abstract constructor for making a new collection
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">concrete-&gt;object</span><span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>sym<span class="quack-pltish-paren">)</span>
+      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+        <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'add-all-elems</span><span class="quack-pltish-paren">)</span>
+         add-all-elems-impl<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'to-list</span><span class="quack-pltish-paren">)</span>
+         to-list-impl<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span>
+         <span class="quack-pltish-paren">(</span>error <span class="quack-pltish-selfeval">'unimplemented-message</span> <span class="quack-pltish-paren">(</span>symbol-&gt;string sym<span class="quack-pltish-paren">))))))</span>
+
+  <span class="quack-pltish-comment">;; base-collection : -&gt; Collection
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">base-collection</span><span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>concrete-&gt;object<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; add-all-elems-impl : Self Collection -&gt; Collection
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">add-all-elems-impl</span> self other-collection<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">if</span> <span class="quack-pltish-paren">(</span>isEmpty other-collection<span class="quack-pltish-paren">)</span>
+        self
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let*</span> <span class="quack-pltish-paren">((</span>val-and-other-rest <span class="quack-pltish-paren">(</span>anyElem other-collection<span class="quack-pltish-paren">))</span>
+               <span class="quack-pltish-paren">(</span>val           <span class="quack-pltish-paren">(</span>list-ref val-and-other-rest <span class="quack-pltish-selfeval">0</span><span class="quack-pltish-paren">))</span>
+               <span class="quack-pltish-paren">(</span>other-rest    <span class="quack-pltish-paren">(</span>list-ref val-and-other-rest <span class="quack-pltish-selfeval">1</span><span class="quack-pltish-paren">)))</span>
+          <span class="quack-pltish-paren">(</span>addAll <span class="quack-pltish-paren">(</span>addElem self val<span class="quack-pltish-paren">)</span> other-rest<span class="quack-pltish-paren">))))</span>
+
+  <span class="quack-pltish-comment">;; to-list-impl : Self -&gt; Listof[Value]
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">to-list-impl</span> self<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">if</span> <span class="quack-pltish-paren">(</span>isEmpty self<span class="quack-pltish-paren">)</span>
+        '<span class="quack-pltish-paren">()</span>
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let*</span> <span class="quack-pltish-paren">((</span>val-and-other-rest          <span class="quack-pltish-paren">(</span>anyElem self<span class="quack-pltish-paren">))</span>
+               <span class="quack-pltish-paren">(</span>val        <span class="quack-pltish-paren">(</span>list-ref val-and-other-rest <span class="quack-pltish-selfeval">0</span><span class="quack-pltish-paren">))</span>
+               <span class="quack-pltish-paren">(</span>other-rest <span class="quack-pltish-paren">(</span>list-ref val-and-other-rest <span class="quack-pltish-selfeval">1</span><span class="quack-pltish-paren">)))</span>
+          <span class="quack-pltish-paren">(</span>cons val <span class="quack-pltish-paren">(</span>toList other-rest<span class="quack-pltish-paren">))))))</span>
+</pre>
+  </body>
+</html>

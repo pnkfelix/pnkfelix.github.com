@@ -1,0 +1,943 @@
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>
+Object Systems and Object Oriented Programming
+</title>
+<link type="text/css"
+      rel="stylesheet"
+      href="csg111.css" />
+<style type="text/css">
+<!--
+  .nobr { 
+    white-space: nowrap; 
+  }
+-->
+</style>
+</head>
+
+
+<body>
+
+<h1>
+Objects, OOP
+</h1>
+
+<p>
+Object oriented programming (OOP) gets a lot of hype.
+This lecture explores what OOP is, why it generates so
+much excitement, where it works well, and where it does not.
+</p>
+
+<h3>What are Objects?  What is Object Oriented Programming?</h3>
+
+<p>
+Practitioners associate the term Object Oriented Programming 
+with a wide variety of concepts.
+Part of the reason that OOP gets so much hype is that
+some developers think that you <em>need</em> object-oriented 
+programming to reap certain benefits.
+Here are some concepts associated with OOP:
+</p>
+<dl>
+<dt>Encapsulation</dt>
+<dd>Cluster procedures with the data that they process, and 
+  <em>ensure</em> that <em>only</em> procedures in the cluster 
+  have access to the data.
+</dd>
+<dt>Dispatch</dt>
+<dd>Tie a group of procedures up into a bundle 
+  (potentially with the data that the procedures process as well), 
+  and pass around this bundle as a first class value.
+  The bundle of procedures should adhere to some well-defined
+  <em>interface</em>; then client code can invoke 
+  the procedures by treating them as black-box implementations 
+  of the interface, and developers are free to add new variant
+  implementations, as long as the variants adhere to the specification.
+  (Related term: <em>Message Passing</em>)
+</dd>
+<dt>Delegation</dt>
+<dd>This is an extension of dispatch: in addition to tying the procedures
+  into a bundle, every procedure in the bundle adheres to a protocol 
+  where the bundle is itself passed as an argument.
+  The particular formal parameter that corresponds to the bundle is
+  often referred to as the <em>self</em> or <em>this</em> parameter
+  (and is often associated with special syntax in an Object Oriented 
+  programming language, e.g. <code>this</code> in Java or C#).
+  Then each procedure definition can choose whether it is appropriate to 
+  use methods from the bundle to accomplish subtasks.
+</dd>
+<dt>Hierarchical Design, Take 1: Implementation Inheritance</dt>
+<dd>Explicitly name the classes of data (within the language, not in comments).
+  Relate the classes according to an explicitly indicated <em>subclass</em> 
+  relationship.
+  Group common code patterns high in the class hierarchy tree, 
+  delegating to another method where appropriate.
+  (Related term: <em>Subclassing</em>)
+</dd>
+<dt>Hierarchical Design, Take 2: Type Inheritance</dt>
+<dd>Explicitly name the classes of data (within the language, not in comments).
+  Relate the classes according to a subtype relation.
+  Clients write their code to the interface of classes high in the tree, so that
+  it can be used with all of the classes that conform to that interface.
+  (Related term: <em>Subtyping</em>)
+</dd>
+</dl>
+
+<p>
+I will try address all of the ideas above during this lecture.
+</p>
+
+<blockquote>
+<p>You can find a similar list (with some differences in terminology 
+and perspective) at the start of 
+Jonathan Rees's 
+<a href="http://mumble.net/~jar/articles/oo.html"
+>"Object-Oriented" article</a>.
+</p>
+</blockquote>
+<blockquote>
+<p>Stephen Kell has his own 
+<a href="http://www.cl.cam.ac.uk/~srk31/thoughts/nature-of-oop.html"
+>list</a>
+of what composes OOP.  
+(I may add more commentary as I reflect further.)
+</p>
+</blockquote>
+
+<hr/>
+
+<p>
+Lets set the stage by reviewing our usual
+development methodology: "Applicative Programming"; then 
+I will discuss how that contrasts with development in an 
+object-oriented language.
+</p>
+
+<h3>Applicative Programming (see also Functional Programming)</h3>
+<ul>
+<li>A fixed data representation, potentially with invariants and
+  an <em>interpretation</em>.
+</li>
+<li>A set of functions that manipulate the data.
+  Developers are free to extend this set by defining new functions.
+  The structure of these functions can often "follow the grammar" 
+  used to define the data.
+</li>
+</ul>
+
+<p>
+An applicative programming style has two main stages: 
+we first determine what the data definition is, and then we
+write functions that manipulate that data.
+</p>
+
+<p>
+This strategy makes sense for a class on programming languages,
+where most functions process abstract-syntax trees for a particular language: 
+interpreters, type-checkers, and various program transformers.
+Often programming language developers will be working with a fixed
+grammar for the language in question; the language is fixed, but the
+set of operations we want to perform on terms in the language 
+is growing over time.
+</p>
+
+<p>
+Note that this strategy makes it difficult to change the data
+definitions later; every change to the data definition may require
+review of all the functions that process instances of that data.
+</p>
+
+<h3>Data Abstraction</h3>
+
+<p>
+A data type consists of two parts:
+</p>
+<ul class="darker">
+<li>interface</li>
+<li>implementation</li>
+</ul>
+
+<p>
+For an <em>abstract data type</em>, the interface consists
+of a set of operations that clients are allowed to use when
+manipulating values of the abstract data type.
+With abstract data types, clients do not need to know how
+the data is represented.  That means the representation can
+be changed without breaking any client code.
+In other words, client code is <em>representation-independent</em>.
+</p>
+
+<h3>A concrete example: a Queue abstraction</h3>
+
+<p>
+A <em>queue</em> represents a sequence of values that 
+are delivered in "first-in first-out" (FIFO) order;
+the first element enqueued will be the first element 
+removed, the second element enqueued will be the second
+element removed, and so on.
+</p>
+
+<p>
+We will write a sequence of values mathematically
+using the notation 
+<span class="nobr"><code>[</code><em>a, b, c, &hellip;, x, y, z</em><code>]</code></span>; 
+thus we will denote an implementation's
+<em>representation</em> of such a sequence
+using the notation
+<span class="nobr">&#x2308;<code>[</code><em>a, b, c, &hellip;, x, y, z</em><code>]</code>&#x2309;</span>.
+(Note that the ellipses notation is somewhat informal;
+one important detail is that 
+we use <code>[</code><em>a, &hellip;, k</em><code>]</code> to denote a
+<em>potentially empty</em> sequence,
+but <code>[</code><em>a, b, &hellip;, k</em><code>]</code> 
+and <code>[</code><em>a, &hellip;, k, l</em><code>]</code> 
+both denote non-empty sequences.)
+</p>
+
+<blockquote class="darker">
+<code>empty   : &rarr; Queue</code> <br/>
+<code>snoc    : Queue &times; Val &rarr; Queue</code> <br/>
+<code>isEmpty : Queue &rarr; Boolean</code> <br/>
+<code>head    : Queue &rarr; Val</code> <br/>
+<code>tail    : Queue &rarr; Queue</code> <br/>
+<br/>
+<code>(empty)</code> = &#x2308; <code>[]</code>  &#x2309; <br/>
+<br/>
+<code>
+(snoc </code> 
+ &#x2308;<code>[</code><em>a, &hellip;, w</em><code>]</code>&#x2309; 
+ x<code>)</code> 
+= &#x2308; <code>[</code><em>a, &hellip;, w, x</em><code>]</code>  &#x2309; <br/>
+<br/>
+<code>(isEmpty </code> &#x2308;<code>[]</code>&#x2309;<code>)</code> = <code>#t</code> <br/>
+<br/>
+<code>(isEmpty </code> &#x2308;<code>[</code><em>a, b, &hellip;, w</em><code>]</code>&#x2309;<code>)</code> = <code>#f</code> <br/>
+<br/>
+<code>(head </code> &#x2308;<code>[</code><em>a, b, &hellip;, w</em><code>]</code>&#x2309;<code>)</code> = <em>a</em> <br/>
+<br/>
+<code>(tail </code> &#x2308;<code>[</code><em>a, b, &hellip;, w</em><code>]</code>&#x2309;<code>)</code> = &#x2308;<code>[</code><em>b, &hellip;, w</em><code>]</code>&#x2309; <br/>
+</blockquote>
+
+<h4>First applicative queue implementation</h4>
+
+<p>
+Here is a one queue implementation: 
+<a href="queue1.sls.html">queue1 ("simple")</a>.
+What are its features?  What are its drawbacks?
+</p>
+
+<p>Features: </p>
+<ul>
+<li>Every sequence has a uniquely defined representation.</li>
+<li>Implementation is very simple; "obviously correct."</li>
+</ul>
+<p>Drawbacks: </p>
+<ul>
+<li>Slow!  Every <code>snoc</code> takes O(n) time!</li>
+</ul>
+
+<h4>Second applicative queue implementation</h4>
+
+<p>
+Here is another queue implementation: 
+<a href="queue2.sls.html">queue2 ("fast")</a>.
+What are its features?  What are its drawbacks?
+</p>
+
+<p>Features:</p>
+<ul>
+<li>Implementation is still reasonably simple<br/>
+  (note however that some sequences are not uniquely represented).</li>
+<li>Worst case O(1) time for <code>snoc</code> and <code>head</code>.</li>
+<li>Amortized O(1) time for all operations, <em>if</em> the queue is used <em>linearly</em> 
+  (in <a href="http://www.eecs.usma.edu/webs/people/okasaki/pubs.html">Okasaki</a>'s terms, 
+   the O(1) bound holds only if the queue is used <em>ephemerally</em>, 
+   in a single-threaded fashion).
+</li>
+</ul>
+<p>Drawbacks:</p>
+<ul>
+<li>Worst-case O(<em>n</em>) time for <code>tail</code>.</li>
+<li>
+  If the queue is used 
+  <em><a href="http://en.wikipedia.org/wiki/Persistent_data_structure">persistently</a></em>, 
+  where we can continue to
+  refer to old queues even after dequeuing elements
+  via <code>tail</code>, then this queue representation does <em>not</em> have
+  amortized O(1) time for all operations.
+</li>
+</ul>
+
+<h4>Taking a step back</h4>
+
+<p>There do exist (even more complex) queue implementations
+  that can achieve:</p>
+<ul>
+<li>
+  amortized O(1) time for all operations, even when the queue is used persistently, or
+</li>
+<li>
+  worst-case O(1) time for all operations.
+</li>
+</ul>
+
+<p>But, should the client care how queues are implemented? 
+  <!-- Note that the right answer here is "maybe..." -->
+</p>
+<p>
+  Can we write our client in a manner so that it does not care
+  how queues are implemented?
+  (See for example 
+   <a href="queue-tests.sps.html">these <em>black-box</em> queue tests</a>.)
+</p>
+
+<p>(We can edit the first <code>import</code> of the script
+    to change which queue implementation we want to use in the
+    test program.)</p>
+
+<p>Here is the output from that test suite on the first and 
+second queue implementations (after installing them as libraries).</p>
+<pre>
+% plt-r6rs queue-tests.sps
+success
+success
+success
+success
+success
+success
+</pre>
+
+<h2>Encapsulating a Queue implementation</h2>
+
+<p>I have structured the code above in a manner such that 
+I can run the tests importing either queue implementation.</p>
+
+<p>However, I took special care when writing 
+my <em>test suite</em> code to make sure that it 
+never attempted to look at the internal representation of 
+queues.
+</p>
+
+<p>Here is another 
+<a href="queue-tests-rep-exposed.sps.html">("white-box") test suite</a> 
+that was not written to the abstract specification.
+In particular, it assumes that queues have been implemented 
+using the <a href="queue1.sls.html">first representation</a>.
+Compare: a run using the first implementation:
+</p>
+<pre>
+% plt-r6rs queue-tests-rep-exposed.sps
+success
+success
+success
+success
+success
+success
+</pre>
+
+<p>but if we edit the testing script to use the second implementation,
+by changing the import to start with:
+<br/>
+<code>(import (obj-lecture queue1-encapsulated) ...)</code>:</p>
+<pre>
+% plt-r6rs queue-tests-rep-exposed.sps
+FAILURE (empty)
+   should be: ()
+     but got: (() ())
+FAILURE (snoc (empty) 'a)
+   should be: (a)
+     but got: ((a) ())
+success
+FAILURE (snoc (snoc (empty) 'a) 'b)
+   should be: (a b)
+     but got: ((a) (b))
+FAILURE (tail (snoc (snoc (empty) 'a) 'b))
+   should be: (b)
+     but got: ((b) ())
+FAILURE (tail (tail (tail (snoc (snoc (snoc (snoc (snoc (empty) 'a) 'b) 'c) 'd) 'e))))
+   should be: (d e)
+     but got: ((d e) ())
+</pre>
+
+<p>Note that these failures are not particularly illuminating;
+it is not obvious from the failure messages
+why the actual and expected values do not match.</p>
+
+<p>The problem is that the client (in this case, the test suite) 
+has <em>violated</em> the Queue abstraction; it has relied on the particular
+representation used for queues, but a proper client should only 
+interact with the data by using the appropriate procedures defined
+in the abstraction.
+</p>
+
+<hr/>
+
+<p>
+One can <em>enforce</em> an abstraction by properly modularizing 
+the code.  Most modern languages provide facilities for defining
+modules as collections of related procedures, and rules for
+what procedures have access to the internal representation of 
+an abstraction.
+</p>
+
+<p>
+Here is a revision, 
+<a href="queue1-encapsulated.sls.html">queue1 (encapsulated)</a>, 
+of the first (slow but simple) queue implementation
+that illustrates one way to control access to a representation, 
+and thus enforces modularity.
+</p>
+<p>This is only meant to illustrate
+one way to achieve this effect; as stated above, most modern languages
+provide more convenient facilities for defining access rules.
+</p>
+
+<p>If we now change our script to import the encapsulated library:</p>
+<pre>
+% plt-r6rs queue-tests.sps
+success
+success
+success
+success
+success
+success
+% plt-r6rs queue-tests-rep-exposed.sps
+FAILURE (empty)
+   should be: ()
+     but got: #&lt;procedure:an-abstract-queue&gt;
+FAILURE (snoc (empty) 'a)
+   should be: (a)
+     but got: #&lt;procedure:an-abstract-queue&gt;
+success
+FAILURE (snoc (snoc (empty) 'a) 'b)
+   should be: (a b)
+     but got: #&lt;procedure:an-abstract-queue&gt;
+FAILURE (tail (snoc (snoc (empty) 'a) 'b))
+   should be: (b)
+     but got: #&lt;procedure:an-abstract-queue&gt;
+FAILURE (tail (tail (tail (snoc (snoc (snoc (snoc (snoc (empty) 'a) 'b) 'c) 'd) 'e))))
+   should be: (d e)
+     but got: #&lt;procedure:an-abstract-queue&gt;
+</pre>
+
+<p>
+Now the failure messages are a bit clearer: the tests are failing because
+the client (the test writer) wrote down that the code expected values such as 
+the list <code>(a)</code>
+but the actual values we receive are abstract queues.
+</p>
+
+<p>
+Even if the client wanted to break the abstraction by trying to
+apply the returned procedure, they would be foiled (illustrated
+below).
+</p>
+
+<pre>
+% larceny -err5rs -path .. 
+Larceny v0.963 "Fluoridation" (Jul 29 2008 20:26:38, precise:Posix Unix:unified)
+larceny.heap, built on Tue Jul 29 20:28:40 EDT 2008
+ERR5RS mode (no libraries have been imported)
+
+&gt; (import (rnrs))
+Autoloading (rnrs)
+Autoloading (rnrs enums)
+Autoloading (rnrs lists)
+Autoloading (rnrs syntax-case)
+Autoloading (rnrs conditions)
+Autoloading (err5rs records procedural)
+Autoloading (rnrs exceptions)
+Autoloading (rnrs hashtables)
+Autoloading (rnrs arithmetic bitwise)
+Autoloading (rnrs programs)
+Autoloading (rnrs files)
+Autoloading (rnrs io ports)
+Autoloading (larceny deprecated)
+Autoloading (rnrs records syntactic)
+Autoloading (rnrs records procedural)
+Autoloading (rnrs control)
+Autoloading (rnrs sorting)
+Autoloading (rnrs bytevectors)
+Autoloading (rnrs unicode)
+
+&gt; (import (obj-lecture queue1-encapsulated))
+Autoloading (obj-lecture queue1-encapsulated)
+
+&gt; (define my-queue (snoc (snoc (empty) 'a) 'b))
+
+&gt; my-queue
+#&lt;PROCEDURE&gt;
+
+&gt; (my-queue 'attempting-to-get-inside!)
+
+
+Error: queue1-encapsulated: unauthorized-access-attempt
+Entering debugger; type "?" for help.
+debug&gt; 
+</pre>
+
+<p>This <em>encapsulation</em> of the internal representation, exposing
+only operations that know how to properly manipulate the data and 
+preserve invariants of the representation, is often considered a 
+key benefit of object-oriented programming.
+</p>
+<p>
+Furthermore, with a sufficiently expressive language, 
+the most common attempts to violate encapsulation
+can be detected <em>statically</em>; the program
+can be rejected before you run it.  (The technique
+illustrated above is detecting the encapsulation
+violation <em>dynamically</em>, so the system
+does not signal an error until 
+we run the code for the 
+<a href="queue-tests-rep-exposed.sps.html">white-box test suite</a> 
+that violates the encapsulation.)
+</p>
+<p>However, encapsulation is <em>not</em>
+a benefit that is provided by only object-oriented languages.
+Many non-object-oriented languages do support modular 
+program definitions where representations are hidden;
+after all, I just demonstrated one way to accomplish the task
+in Scheme!
+</p>
+<p>
+On top of that, you can write
+code in Java or C# where the internal representation is 
+exposed as a set of <code>public</code> fields; it is up 
+to the programmer to decide how to use the features of the 
+language to achieve their desired system design.
+</p>
+<p>
+Still, many practitioners will list <em>encapsulation</em> as a reason
+that they use object-oriented languages for their systems development.
+</p>
+
+<h2>Dispatch in a Queue implementation</h2>
+
+<p>
+In the above demonstrations, I chose between the
+<a href="queue1.sls.html">queue1 ("simple")</a>, 
+<a href="queue2.sls.html">queue2 ("fast")</a>, and
+<a href="queue1-encapsulated.sls.html">queue1 ("encapsulated")</a>
+implementations; it is
+not legal with the code above to mix-and-match queue implementations.
+</p>
+<p>
+That is, the client code can be ignorant of which queue abstraction it
+is using, but it still needs to be linked against a <em>single</em> 
+queue implementation, or else there are likely to be serious consequences.
+</p>
+<p>
+We can see some of the bad effects of trying to link against several
+of the above queue implementations with this script, 
+<a href="queue-mixing.sps.html">queue-mixing.sps</a>.
+</p>
+<pre>
+% plt-r6rs queue-mixing.sps
+B? b
+mcar: expects argument of type &lt;mutable-pair&gt;; given a
+A? 
+</pre>
+
+<p>Maybe that's a PLT bug; let's try Larceny.</p>
+<pre>
+% larceny -path .. -r6rs -program queue-mixing.sps
+B? b
+A? 
+Error: no handler for exception #&lt;record &amp;compound-condition&gt;
+Compound condition has these components: 
+#&lt;record &amp;assertion&gt;
+#&lt;record &amp;who&gt;
+    who : "car"
+#&lt;record &amp;message&gt;
+    message : " a is not a pair.\n"
+
+Terminating program execution.
+</pre>
+
+<p>No, Larceny agrees with PLT Scheme on this point.</p>
+
+<p>Something is definitely wrong with how 
+<a href="queue-mixing.sps.html">queue-mixing.sps</a>
+attempts to use the queues.</p>
+<blockquote>You can see other "fun" results if you avoid the runtime
+error by commenting out the three lines grouped with the
+<span class="nobr"><code>(display "A? ")</code></span> expression and try 
+running the script again.</blockquote>
+
+<hr/>
+
+<p>
+If you want to be able to use different implementations of the same interface
+at the same time, you need a more sophisticated way of mapping 
+the operations you want to perform with the actual code that performs 
+those operations.
+</p>
+
+<p>By representing our data in a different way, we can interact with 
+it by passing a <em>message</em> asking it to perform a particular 
+operation.</p>
+<p>Here are translations of
+the first, <a href="queue1-dispatch.sls.html">queue1 ("dispatch")</a>, and 
+second, <a href="queue2-dispatch.sls.html">queue2 ("dispatch")</a>, 
+implementations
+into a message-passing style.
+</p>
+<blockquote>
+<p>
+As a quick aside: the R<sup>6</sup>RS library system actually helped my presentation
+here, since I was able to layer the dispatching implementations on top
+of the core implementations of <code>queue1</code> and <code>queue2</code>.
+</p>
+<p>When I gave this lecture previously, I 
+based the code on R<sup>5</sup>RS Scheme;
+but the R<sup>5</sup>RS does not provide a library system.
+So I had to choose between using 
+<code>load</code> + <code>define</code> tricks to get the above
+effect, or 
+copying the implementations of <code>queue1</code> 
+and <code>queue2</code> into the dispatching implementations.</p>
+<p>In that presentation, I chose to copy the implementations, 
+but that meant that
+the details of the individual queue implementations were distracting
+the reader of the code from the core ideas of dispatch.  In this 
+version, the <code>library</code> system lets me focus on the
+relevant details to dispatch alone.</p>
+</blockquote>
+<p>
+Now we can load one version, use it, load another version, use that as
+well, and the values we constructing with the first version continue 
+to work, as in this <a href="queue-mixing-dispatch.sps.html">script</a>:
+</p>
+<pre>
+% plt-r6rs queue-mixing-dispatch.sps
+B? b
+A? a
+Y? y
+X? x
+</pre>
+
+<p>The code
+for <a href="queue1-dispatch.sls.html">queue1-dispatch</a> and 
+<a href="queue2-dispatch.sls.html">queue2-dispatch</a>
+ illustrates <em>dynamic dispatch</em> 
+(or sometimes <em>single dispatch</em>,
+ or sometimes just <em>dispatch</em>).
+</p>
+<p>
+Dispatch can provide a strong separation between
+interface and implementation, because one typically
+defines the interface when one is developing the 
+set of messages that will be passed around.
+The actual code that implements the desired behavior
+associated with the messages can be developed 
+long after the interface has been conceived.
+</p>
+<p>
+But there is a piece missing, and understanding 
+<em>what</em> the missing piece is requires that we 
+take another step back.
+</p>
+
+<h2>Queues in a larger context: classes and classifications</h2>
+
+<p>
+A queue abstraction can be useful for 
+certain algorithms that require a FIFO order
+on element delivery and <em>do not</em> require
+any other sort of order of fast access to enqueued
+elements.
+</p>
+
+<p>
+But some clients may not require a strict FIFO order;
+some clients will be happy to consume an 
+element from anywhere in the queue.
+</p>
+
+<p>
+And other clients may require fast access to both
+the most-recently inserted <em>and</em> least-recently 
+inserted elements.
+</p>
+
+<p>
+It would be useful to categorize our implementations according
+to what capabilities they have; that is, what operations they
+can support.  If we were to classify our various interfaces 
+into a hierarchy, then our clients could clearly state their 
+requirements by choosing the interface appropriate to their
+needs.
+</p>
+
+<p>
+For my examples in this lecture, I will use a simple
+hierarchy.  Here is its interface (not implementation):
+</p>
+<pre>
+Collection supports methods
+  isEmpty : Collection -> Bool
+  addElem : Collection * Value -> Collection
+  anyElem : Collection -> (list Value Collection) ;; only non-empty works!
+  addAll  : Collection * Collection -> Collection
+  toList  : Collection -> Listof[Value]
+
+Queue extends Collection and adds methods
+  snoc    : Queue * Value -> Queue
+  head    : Queue -> Value                        ;; only non-empty works!
+  tail    : Queue -> Queue                        ;; only non-empty works!
+
+Tree extends Collection and adds methods
+  isLeaf    : Tree -> Bool
+  nodeValue : Tree -> Value                       ;; only non-leaf works!
+  left      : Tree -> Tree                        ;; only non-leaf works!
+  right     : Tree -> Tree                        ;; only non-leaf works!
+
+The base Queue constructor is 
+  empty : -> Queue
+
+The base Tree constructors are
+  leaf  : -> Tree
+  node  : Tree * Tree * Value -> Tree
+</pre>
+
+<h2>Implementation Inheritance</h2>
+
+<p>
+There may be a lot of potential code sharing amongst the different
+implementations.  A <code>Collection</code> class might implement
+a method, <code>addAll</code>, where one collection <em>c1</em> 
+consumes another collection <em>c2</em>
+of elements and produces the union of the two by iteratively 
+invoking the <em>c1</em><code>.add</code> method on each element
+it can get out of <em>c2</em>.
+</p>
+
+<p>
+This is a common code pattern that we would like to put into one place,
+into the <code>Collection</code> class.  Extensions of the 
+<code>Collection</code> will be responsible for properly implementing
+its <code>add</code> method, but once that is in place, then
+all of the extensions immediately support the <code>addAll</code>
+method.  (At least in principle; there are caveats here.)
+</p>
+
+<h3>Delegation in a Queue implementation</h3>
+
+<p>
+The crucial idea to support implementation inheritance: pass
+your<em>self</em> around as another parameter!
+Then, when you need to invoke a method, pass a message 
+<em>to yourself</em>!
+</p>
+<p>
+(This may sound absurd; why would this accomplish anything?)
+</p>
+<p>
+This is the heart of delegation; pass a special <em>self</em> parameter
+around; for any method that you want to allow your subclasses
+to handle in their implementation, you perform the invocation
+by passing a message to <em>self</em>.
+</p>
+
+<p>
+(Felix finds it fascinating that this notion of <em>self-reference</em>,
+the key to delegation, is also the key for implementing recursive
+functions in languages like PROC.  But that is just an aside.)
+</p>
+
+<h3>Scheme code illustrating Delegation</h3>
+
+<p>Here is the relevant code that illustrates delegation,
+using Scheme as the implementation language so that the
+<em>self</em> parameter is explicit in the code.</p>
+<ul>
+<li><a href="collection-delegate.sls.html">collection ("delegate")</a>
+</li>
+<li><a href="queue1-delegate.sls.html">queue1 ("delegate")</a>
+</li>
+<li><a href="tree-delegate.sls.html">tree ("delegate")</a>
+</li>
+</ul>
+
+And here is a 
+<a href="demo-delegation.sps.html">script</a> that demonstrates it:
+<pre>
+% plt-r6rs  demo-delegation.sps
+{}:                 ()
+{a b c}:            (a b c)
+{b c}:              (b c)
+{}:                 ()
+{p q r s t}:        (p t q s r)
+t2 a leaf?          #f
+t2.rgt leaf?        #f
+t2.lft leaf?        #f
+t2.lft.value:       p
+t2.rgt as list:     (q s r)
+q2 and t2 as list:  (a b c p t q s r)
+t2 and q2 as list:  (c b a p t q s r)
+</pre>
+
+<h3>Java code illustrating Delegation</h3>
+
+<p>And <em>here</em> is the big punch-line: the above bits of Scheme code, but encoded 
+as Java classes! (plus a <code>Main</code> program that tests them).</p>
+<ul>
+<li><a href="Collection.java.html">Collection.java</a>
+</li>
+<li><a href="Queue.java.html">Queue.java</a>
+</li>
+<li><a href="Tree.java.html">Tree.java</a>
+</li>
+<li><a href="Main.java.html">Main.java</a>
+</li>
+</ul>
+
+<pre>
+% javac Collection.java Queue.java Tree.java Main.java
+% java Main
+> q1.toString():
+( )
+> q2.toString():
+( a b c )
+> q2.tail().toString():
+( b c )
+> t1.toString():
+( )
+> t2.toString():
+( p t q s r )
+> t2.isLeaf():
+false
+> t2.right().isLeaf():
+false
+> t2.left().isLeaf():
+false
+> t2.left().nodeValue():
+p
+> t2.right().toString():
+( q s r )
+> q2.addAll(t2).toString():
+( a b c p t q s r )
+</pre>
+
+<p>(Does the output of <code>Main</code> look familiar?)</p>
+
+<h2>Type Inheritance</h2>
+
+<h3>Subclassing versus Subtyping.</h3>
+
+<h4>When subclassing is not subtyping, part 1: a contrived example.</h4>
+
+<pre>
+class A {
+  /* specification of four: must always return 4. */
+  public int four() { return 4; }
+  /* specification of five: must always return 5. */
+  public int five() { return 5; }
+}
+
+class B {
+  public int four() { return five() + 2; }
+}
+</pre>
+<p>
+Above is <em>subclassing</em> 
+(since we are inheriting the implementation 
+of the <code>five()</code> method and
+using it within the definition of the <code>B</code> class)
+but it is not <em>subtyping</em>.
+</p>
+
+<h4>When subclassing is not subtyping, part 2: a real-world example.</h4>
+
+<p>
+Consider the <code>Object.equals</code> 
+<a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#equals(java.lang.Object)">method</a> 
+in Java.
+</p>
+
+<p>
+In particular, consider the constraint that specfication
+puts on its subclasses with respect to whether they 
+need to implement the 
+<code>Object.hashCode</code>
+<a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html#hashCode()">method</a>.
+</p>
+
+<p>Is this class, <code>C</code>, a subtype of <code>Object</code>?</p>
+<pre>
+class C { 
+  int hashCode() { return 42; }
+}
+</pre>
+
+<p>How about <code>D</code>?</p>
+<pre>
+class D {
+  boolean equals(Object d) { return (d instanceof D); }
+}
+</pre>
+
+<hr />
+
+<h2>Reference (code from in this lecture)</h2>
+
+<ul>
+<li>R6RS Scheme libraries (<code>.sls</code> files)
+  <ol>
+<li><a href="collection-delegate.sls">collection-delegate.sls</a></li>
+<li><a href="queue-dispatch-interface.sls">queue-dispatch-interface.sls</a></li>
+<li><a href="queue1.sls">queue1.sls</a></li>
+<li><a href="queue1-delegate.sls">queue1-delegate.sls</a></li>
+<li><a href="queue1-dispatch.sls">queue1-dispatch.sls</a></li>
+<li><a href="queue1-encapsulated.sls">queue1-encapsulated.sls</a></li>
+<li><a href="queue2.sls">queue2.sls</a></li>
+<li><a href="queue2-dispatch.sls">queue2-dispatch.sls</a></li>
+<li><a href="test-syntax.sls">test-syntax.sls</a></li>
+<li><a href="tree-delegate.sls">tree-delegate.sls</a></li>
+  </ol>
+</li>
+<li>R6RS Scheme programs (<code>.sps</code> files)
+  <ol>
+<li><a href="demo-delegation.sps">demo-delegation.sps</a></li>
+<li><a href="queue-mixing.sps">queue-mixing.sps</a></li>
+<li><a href="queue-mixing-dispatch.sps">queue-mixing-dispatch.sps</a></li>
+<li><a href="queue-tests.sps">queue-tests.sps</a>
+  (note that this file is meant to be modified; 
+  in particular, you can (and should) vary the choice of
+  queue implementation by changing the <code>import</code>
+  at the top)
+</li> 
+<li><a href="queue-tests-rep-exposed.sps">queue-tests-rep-exposed.sps</a></li>
+  </ol>
+</li>
+<li>Java classes (<code>.java</code> files)
+  <ol>
+    <li><a href="Collection.java">Collection.java</a></li>
+    <li><a href="Main.java">Main.java</a></li>
+    <li><a href="Queue.java">Queue.java</a></li>
+    <li><a href="Tree.java">Tree.java</a></li>
+  </ol>
+</li>
+</ul>
+
+<p>
+Last updated 22 October 2008.
+</p>
+
+<p>
+    <a href="http://validator.w3.org/check/referer"><img
+       style="border:0;width:88px;height:31px"
+       src="http://www.w3.org/Icons/valid-xhtml10-blue"
+       alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+</p>
+
+</body>
+
+</html>

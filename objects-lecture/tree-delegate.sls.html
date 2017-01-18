@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>tree-delegate.sls</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-comment">;; This file defines the Tree "class" that implements Collection
+</span><span class="quack-pltish-paren">(</span>library <span class="quack-pltish-paren">(</span>obj-lecture tree-delegate<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span>export leaf left right isLeaf nodeValue node<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>obj-lecture collection-delegate<span class="quack-pltish-paren">)</span>
+          <span class="quack-pltish-paren">(</span>rnrs base<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; A Tree is a (Msg -&gt; Procedure)
+</span>  <span class="quack-pltish-comment">;; where Msg is one of:
+</span>  <span class="quack-pltish-comment">;; - 'left
+</span>  <span class="quack-pltish-comment">;; - 'right 
+</span>  <span class="quack-pltish-comment">;; - 'is-leaf
+</span>  <span class="quack-pltish-comment">;; - 'node-val 
+</span>  <span class="quack-pltish-comment">;; - 'make-node
+</span>
+  <span class="quack-pltish-comment">;; plus the abstract methods that Collection needs implemented:
+</span>  <span class="quack-pltish-comment">;; - 'is-empty
+</span>  <span class="quack-pltish-comment">;; - 'add-elem
+</span>  <span class="quack-pltish-comment">;; - 'some-elem
+</span>
+  <span class="quack-pltish-comment">;; (when viewing Trees as collections, the values are held at the
+</span>  <span class="quack-pltish-comment">;;  nodes; leaves have no values and thus are the empty collections.)
+</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">leaf</span><span class="quack-pltish-paren">)</span>           <span class="quack-pltish-paren">(</span>leaf-&gt;object<span class="quack-pltish-paren">))</span> <span class="quack-pltish-comment">;; constructor implemented below
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">left</span> t<span class="quack-pltish-paren">)</span>         <span class="quack-pltish-paren">((</span>t <span class="quack-pltish-selfeval">'left</span><span class="quack-pltish-paren">)</span> t<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">right</span> t<span class="quack-pltish-paren">)</span>        <span class="quack-pltish-paren">((</span>t <span class="quack-pltish-selfeval">'right</span><span class="quack-pltish-paren">)</span> t<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">isLeaf</span> t<span class="quack-pltish-paren">)</span>       <span class="quack-pltish-paren">((</span>t <span class="quack-pltish-selfeval">'is-leaf</span><span class="quack-pltish-paren">)</span> t<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">nodeValue</span> t<span class="quack-pltish-paren">)</span>    <span class="quack-pltish-paren">((</span>t <span class="quack-pltish-selfeval">'node-val</span><span class="quack-pltish-paren">)</span> t<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">node</span> t1 t2 val<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">((</span>t1 <span class="quack-pltish-selfeval">'make-node</span><span class="quack-pltish-paren">)</span> t1 t2 val<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; abstract-tree : -&gt; Tree
+</span>  <span class="quack-pltish-comment">;; constructs handler for Collection methods in terms of Tree methods.
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">abstract-tree</span><span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-comment">;; Our "superclass" is Collection, so make one to handle any messages
+</span>    <span class="quack-pltish-comment">;; we do not know about
+</span>    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let</span> <span class="quack-pltish-paren">((</span>super <span class="quack-pltish-paren">(</span>base-collection<span class="quack-pltish-paren">)))</span>
+      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>sym<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+          <span class="quack-pltish-comment">;; Three "methods" we must implement to claim to be 
+</span>          <span class="quack-pltish-comment">;; a concretely implemented subclass of Collection
+</span>          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'is-empty</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>isLeaf self<span class="quack-pltish-paren">)))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'add-elem</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self v<span class="quack-pltish-paren">)</span>
+                                 <span class="quack-pltish-paren">(</span>node self <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> v<span class="quack-pltish-paren">)))</span> <span class="quack-pltish-comment">;; make new node+leaf
+</span>          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'some-elem</span><span class="quack-pltish-paren">)</span>
+           <span class="quack-pltish-comment">;; (This is a bit tricker than Felix would like...)
+</span>           <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span>
+             <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span> 
+               <span class="quack-pltish-paren">((</span>isLeaf self<span class="quack-pltish-paren">)</span>
+                <span class="quack-pltish-paren">(</span>error <span class="quack-pltish-selfeval">'some-elem</span> <span class="quack-pltish-selfeval">"cant-use-some-elem-on-empty-trees!"</span><span class="quack-pltish-paren">))</span>
+               <span class="quack-pltish-paren">((</span>isLeaf <span class="quack-pltish-paren">(</span>left self<span class="quack-pltish-paren">))</span>   <span class="quack-pltish-comment">;; [() x B] -&gt; (x B)
+</span>                <span class="quack-pltish-paren">(</span>list <span class="quack-pltish-paren">(</span>nodeValue self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>right self<span class="quack-pltish-paren">)))</span>
+               <span class="quack-pltish-paren">((</span>isLeaf <span class="quack-pltish-paren">(</span>right self<span class="quack-pltish-paren">))</span>  <span class="quack-pltish-comment">;; [A x ()] -&gt; (x A)
+</span>                <span class="quack-pltish-paren">(</span>list <span class="quack-pltish-paren">(</span>nodeValue self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>left self<span class="quack-pltish-paren">)))</span>
+               <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span>                   <span class="quack-pltish-comment">;; [[A x B] -&gt; (y [C x B]) 
+</span>                                       <span class="quack-pltish-comment">;; where (y C) = someElem of A
+</span>                <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let*</span> <span class="quack-pltish-paren">((</span>val-and-rest <span class="quack-pltish-paren">(</span>anyElem <span class="quack-pltish-paren">(</span>left self<span class="quack-pltish-paren">)))</span>
+                       <span class="quack-pltish-paren">(</span>lft-val  <span class="quack-pltish-paren">(</span>list-ref val-and-rest <span class="quack-pltish-selfeval">0</span><span class="quack-pltish-paren">))</span>
+                       <span class="quack-pltish-paren">(</span>lft-rest <span class="quack-pltish-paren">(</span>list-ref val-and-rest <span class="quack-pltish-selfeval">1</span><span class="quack-pltish-paren">)))</span>
+                  <span class="quack-pltish-paren">(</span>list lft-val <span class="quack-pltish-paren">(</span>node lft-rest
+                                      <span class="quack-pltish-paren">(</span>right self<span class="quack-pltish-paren">)</span>
+                                      <span class="quack-pltish-paren">(</span>nodeValue self<span class="quack-pltish-paren">))))))))</span>
+
+          <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span>        <span class="quack-pltish-comment">;; For any other messages, we pass the buck up to 
+</span>           <span class="quack-pltish-paren">(</span>super sym<span class="quack-pltish-paren">)</span> <span class="quack-pltish-comment">;; parent class and ask it what it wants to do
+</span>           <span class="quack-pltish-paren">)))))</span>
+
+  <span class="quack-pltish-comment">;; node-fields-&gt;object : Tree Tree Value -&gt; Tree
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">node-fields-&gt;object</span> lft rgt val<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let</span> <span class="quack-pltish-paren">((</span>super <span class="quack-pltish-paren">(</span>abstract-tree<span class="quack-pltish-paren">)))</span>
+      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>sym<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'is-leaf</span><span class="quack-pltish-paren">)</span>    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">#f</span><span class="quack-pltish-paren">))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'left</span><span class="quack-pltish-paren">)</span>       <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> lft<span class="quack-pltish-paren">))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'right</span><span class="quack-pltish-paren">)</span>      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> rgt<span class="quack-pltish-paren">))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'node-val</span><span class="quack-pltish-paren">)</span>   <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> val<span class="quack-pltish-paren">))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'make-node</span><span class="quack-pltish-paren">)</span>
+           <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self t2 val<span class="quack-pltish-paren">)</span>
+             <span class="quack-pltish-paren">(</span>node-fields-&gt;object self t2 val<span class="quack-pltish-paren">)))</span>
+
+          <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span>         <span class="quack-pltish-comment">;; For any other messages, we pass the buck up to 
+</span>           <span class="quack-pltish-paren">(</span>super sym<span class="quack-pltish-paren">))</span> <span class="quack-pltish-comment">;; parent class and ask it what it wants to do
+</span>          <span class="quack-pltish-paren">))))</span>
+
+  <span class="quack-pltish-comment">;; leaf-&gt;object : -&gt; Tree
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">leaf-&gt;object</span><span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let</span> <span class="quack-pltish-paren">((</span>super <span class="quack-pltish-paren">(</span>abstract-tree<span class="quack-pltish-paren">)))</span>
+      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>sym<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'is-leaf</span><span class="quack-pltish-paren">)</span>   <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">#t</span><span class="quack-pltish-paren">))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'left</span><span class="quack-pltish-paren">)</span>      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>error <span class="quack-pltish-selfeval">'left</span> <span class="quack-pltish-selfeval">"I'm a leaf"</span><span class="quack-pltish-paren">)))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'right</span><span class="quack-pltish-paren">)</span>     <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>error <span class="quack-pltish-selfeval">'right</span> <span class="quack-pltish-selfeval">"I'm a leaf"</span><span class="quack-pltish-paren">)))</span>
+          <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'make-node</span><span class="quack-pltish-paren">)</span> 
+           <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>self t2 val<span class="quack-pltish-paren">)</span>
+             <span class="quack-pltish-paren">(</span>node-fields-&gt;object self t2 val<span class="quack-pltish-paren">)))</span>
+
+          <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span>         <span class="quack-pltish-comment">;; For any other messages, we pass the buck up to
+</span>           <span class="quack-pltish-paren">(</span>super sym<span class="quack-pltish-paren">))</span> <span class="quack-pltish-comment">;; parent class and ask it what it wants to do
+</span>          <span class="quack-pltish-paren">)))))</span>
+</pre>
+  </body>
+</html>

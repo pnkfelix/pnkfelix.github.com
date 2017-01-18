@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>demo-delegation.sps</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-comment">;; Demonstrates the Collection/Queue/Tree object hierarchy implemented
+;; in (obj-lecture collection-delegate), (obj-lecture queue1-delegate),
+;; and (obj-lecture tree-delegate)
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>obj-lecture collection-delegate<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>except <span class="quack-pltish-paren">(</span>obj-lecture queue1-delegate<span class="quack-pltish-paren">)</span> isEmpty<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>obj-lecture tree-delegate<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>rnrs<span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-comment">;; check : String Value -&gt; Unspecified
+;; displays a message and a value
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">check</span> msg val<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let*</span> <span class="quack-pltish-paren">((</span>tgt-msg-length <span class="quack-pltish-selfeval">20</span><span class="quack-pltish-paren">)</span>
+         <span class="quack-pltish-paren">(</span>pad <span class="quack-pltish-paren">(</span>make-string <span class="quack-pltish-paren">(</span>max <span class="quack-pltish-selfeval">0</span> <span class="quack-pltish-paren">(</span>- tgt-msg-length
+                                     <span class="quack-pltish-paren">(</span>string-length msg<span class="quack-pltish-paren">)))</span>
+                           <span class="quack-pltish-selfeval">#\space</span><span class="quack-pltish-paren">))</span>
+         <span class="quack-pltish-paren">(</span>msg+pad <span class="quack-pltish-paren">(</span>string-append msg pad<span class="quack-pltish-paren">)))</span>
+    <span class="quack-pltish-paren">(</span>display msg+pad<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>write val<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>newline<span class="quack-pltish-paren">)))</span>
+
+<span class="quack-pltish-comment">;; An empty Queue (which is also a Collection)
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">q1</span> <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"{}:"</span> 
+       <span class="quack-pltish-paren">(</span>toList q1<span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-comment">;; A Queue with three elements
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">q2</span> <span class="quack-pltish-paren">(</span>addElem <span class="quack-pltish-paren">(</span>addElem <span class="quack-pltish-paren">(</span>addElem q1 <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'c</span><span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"{a b c}:"</span> 
+       <span class="quack-pltish-paren">(</span>toList q2<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"{b c}:"</span> 
+       <span class="quack-pltish-paren">(</span>toList <span class="quack-pltish-paren">(</span>tail q2<span class="quack-pltish-paren">)))</span>
+
+<span class="quack-pltish-comment">;; An empty Tree 
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">t1</span> <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"{}:"</span> 
+       <span class="quack-pltish-paren">(</span>toList t1<span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-comment">;; A Tree with five elements
+</span><span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">t2</span> <span class="quack-pltish-paren">(</span>node <span class="quack-pltish-paren">(</span>node <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'p</span><span class="quack-pltish-paren">)</span>
+                 <span class="quack-pltish-paren">(</span>node <span class="quack-pltish-paren">(</span>node <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'q</span><span class="quack-pltish-paren">)</span>
+                       <span class="quack-pltish-paren">(</span>node <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>leaf<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'r</span><span class="quack-pltish-paren">)</span>
+                       <span class="quack-pltish-selfeval">'s</span><span class="quack-pltish-paren">)</span>
+                 <span class="quack-pltish-selfeval">'t</span><span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"{p q r s t}:"</span>
+       <span class="quack-pltish-paren">(</span>toList t2<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2 a leaf?"</span>
+       <span class="quack-pltish-paren">(</span>isLeaf t2<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2.rgt leaf?"</span>
+       <span class="quack-pltish-paren">(</span>isLeaf <span class="quack-pltish-paren">(</span>right t2<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2.lft leaf?"</span>
+       <span class="quack-pltish-paren">(</span>isLeaf <span class="quack-pltish-paren">(</span>left t2<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2.lft.value:"</span>
+       <span class="quack-pltish-paren">(</span>nodeValue <span class="quack-pltish-paren">(</span>left t2<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2.rgt as list:"</span>
+       <span class="quack-pltish-paren">(</span>toList <span class="quack-pltish-paren">(</span>right t2<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"q2 and t2 as list:"</span>
+       <span class="quack-pltish-paren">(</span>toList <span class="quack-pltish-paren">(</span>addAll q2 t2<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>check <span class="quack-pltish-selfeval">"t2 and q2 as list:"</span>
+       <span class="quack-pltish-paren">(</span>toList <span class="quack-pltish-paren">(</span>addAll t2 q2<span class="quack-pltish-paren">)))</span>
+</pre>
+  </body>
+</html>

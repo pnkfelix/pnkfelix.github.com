@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>queue-mixing-dispatch.sps</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-comment">;; This file attempts to mix and match the queue implementations.
+</span>
+<span class="quack-pltish-comment">;; (the example is a bit more mysterious in a language where
+;;  the bindings (for the queue operations) can be over-written;
+;;  such as R5RS Scheme.)
+</span>
+<span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>only <span class="quack-pltish-paren">(</span>prefix <span class="quack-pltish-paren">(</span>obj-lecture queue1-dispatch<span class="quack-pltish-paren">)</span> q1:<span class="quack-pltish-paren">)</span> q1:empty<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>only <span class="quack-pltish-paren">(</span>prefix <span class="quack-pltish-paren">(</span>obj-lecture queue2-dispatch<span class="quack-pltish-paren">)</span> q2:<span class="quack-pltish-paren">)</span> q2:empty<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>obj-lecture queue-dispatch-interface<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>rnrs<span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">an-important-queue-abc</span>
+  <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>q1:empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'c</span><span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-selfeval">"B? "</span><span class="quack-pltish-paren">)</span>
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>tail an-important-queue-abc<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>newline<span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-selfeval">"A? "</span><span class="quack-pltish-paren">)</span>
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-paren">(</span>head an-important-queue-abc<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>newline<span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">another-important-queue-xyz</span>
+  <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>q2:empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'x</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'y</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'z</span><span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-selfeval">"Y? "</span><span class="quack-pltish-paren">)</span>
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>tail another-important-queue-xyz<span class="quack-pltish-paren">)))</span>
+<span class="quack-pltish-paren">(</span>newline<span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-selfeval">"X? "</span><span class="quack-pltish-paren">)</span>
+<span class="quack-pltish-paren">(</span>display <span class="quack-pltish-paren">(</span>head another-important-queue-xyz<span class="quack-pltish-paren">))</span>
+<span class="quack-pltish-paren">(</span>newline<span class="quack-pltish-paren">)</span>
+</pre>
+  </body>
+</html>

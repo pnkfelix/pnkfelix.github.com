@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>Tree.java</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #b22222;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #5f9ea0;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #0000ff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #a020f0;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #bc8f8f;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #228b22;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #b8860b;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="type">Tree</span> <span class="keyword">extends</span> <span class="type">Collection</span> 
+{
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">boolean</span> <span class="function-name">isLeaf</span>();
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">Tree</span>    <span class="function-name">left</span>();      <span class="comment">/* only non-leaf works! */</span>
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">Tree</span>    <span class="function-name">right</span>();     <span class="comment">/* only non-leaf works! */</span>
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">Object</span>  <span class="function-name">nodeValue</span>(); <span class="comment">/* only non-leaf works! */</span>
+
+    <span class="keyword">public</span> <span class="type">boolean</span>          <span class="function-name">isEmpty</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.isLeaf(); }
+    <span class="keyword">public</span> <span class="type">Tree</span>             <span class="function-name">addElem</span>(<span class="type">Object</span> <span class="variable-name">v</span>) { 
+        <span class="keyword">return</span> Tree.node(<span class="keyword">this</span>, Tree.leaf(), v); 
+    }
+    <span class="keyword">public</span> <span class="variable-name">Collection</span>.<span class="type">Pair</span>  <span class="function-name">anyElem</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.isLeaf()) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">RuntimeException</span>(<span class="string">"cant-use-some-elem-on-empty-trees!"</span>);
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.left().isLeaf()) {
+            <span class="keyword">return</span> <span class="keyword">new</span> Collection.<span class="type">Pair</span>( <span class="keyword">this</span>.nodeValue(), <span class="keyword">this</span>.right() );
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.right().isLeaf()) {
+            <span class="keyword">return</span> <span class="keyword">new</span> Collection.<span class="type">Pair</span>( <span class="keyword">this</span>.nodeValue(), <span class="keyword">this</span>.left() );
+        } <span class="keyword">else</span> {
+            Collection.<span class="type">Pair</span> <span class="variable-name">val_and_rest</span> = <span class="keyword">this</span>.left().anyElem();
+            <span class="type">Object</span>          <span class="variable-name">lft_val</span>      = val_and_rest.x;
+            <span class="type">Tree</span>            <span class="variable-name">lft_rest</span>     = (<span class="type">Tree</span>) val_and_rest.y;
+            <span class="keyword">return</span> <span class="keyword">new</span> Collection.<span class="type">Pair</span>( lft_val, 
+                                        Tree.node( lft_rest, 
+                                                   <span class="keyword">this</span>.right(), 
+                                                   <span class="keyword">this</span>.nodeValue() ));
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">Tree</span> <span class="function-name">node</span>( <span class="type">Tree</span> <span class="variable-name">lft</span>, <span class="type">Tree</span> <span class="variable-name">rgt</span>, <span class="type">Object</span> <span class="variable-name">val</span> ) { 
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Node</span>( lft, rgt, val );
+    }
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">Tree</span> <span class="function-name">leaf</span>() {
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Leaf</span>();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="type">Leaf</span> <span class="keyword">extends</span> <span class="type">Tree</span> 
+    {
+        <span class="keyword">public</span> <span class="type">boolean</span> <span class="function-name">isLeaf</span>()    { <span class="keyword">return</span> <span class="constant">true</span>; }
+        <span class="keyword">public</span> <span class="type">Object</span>  <span class="function-name">nodeValue</span>() { <span class="keyword">throw</span> errmsg(<span class="string">"leaves don't have values"</span>);   }
+        <span class="keyword">public</span> <span class="type">Tree</span>    <span class="function-name">left</span>()      { <span class="keyword">throw</span> errmsg(<span class="string">"leaves don't have subtrees"</span>); }
+        <span class="keyword">public</span> <span class="type">Tree</span>    <span class="function-name">right</span>()     { <span class="keyword">throw</span> errmsg(<span class="string">"leaves don't have subtrees"</span>); }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="type">Node</span> <span class="keyword">extends</span> <span class="type">Tree</span> 
+    {
+        <span class="type">Object</span> <span class="variable-name">val</span>;
+        <span class="type">Tree</span> <span class="variable-name">lft</span>;
+        <span class="type">Tree</span> <span class="variable-name">rgt</span>;
+        <span class="type">Node</span>( <span class="type">Tree</span> <span class="variable-name">theLeft</span>, <span class="type">Tree</span> <span class="variable-name">theRight</span>, <span class="type">Object</span> <span class="variable-name">theVal</span> ) {
+            <span class="keyword">this</span>.val = theVal;
+            <span class="keyword">this</span>.lft = theLeft;
+            <span class="keyword">this</span>.rgt = theRight;
+        }
+        <span class="keyword">public</span> <span class="type">boolean</span> <span class="function-name">isLeaf</span>()    { <span class="keyword">return</span> <span class="constant">false</span>; }
+        <span class="keyword">public</span> <span class="type">Object</span>  <span class="function-name">nodeValue</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.val; }
+        <span class="keyword">public</span> <span class="type">Tree</span>    <span class="function-name">left</span>()      { <span class="keyword">return</span> <span class="keyword">this</span>.lft; }
+        <span class="keyword">public</span> <span class="type">Tree</span>    <span class="function-name">right</span>()     { <span class="keyword">return</span> <span class="keyword">this</span>.rgt; }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">RuntimeException</span> <span class="function-name">errmsg</span>( <span class="type">String</span> <span class="variable-name">s</span> ) {
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">RuntimeException</span>( s );
+    }
+}
+</pre>
+  </body>
+</html>

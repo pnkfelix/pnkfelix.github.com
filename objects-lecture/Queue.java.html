@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>Queue.java</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #b22222;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #0000ff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #a020f0;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #228b22;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #b8860b;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Queue</span> <span class="keyword">extends</span> <span class="type">Collection</span> 
+{
+    <span class="keyword">private</span> <span class="type">Object</span>[] <span class="variable-name">elems</span>;
+    <span class="keyword">private</span> <span class="type">Queue</span>( <span class="type">Object</span>[] <span class="variable-name">theElems</span> ) { <span class="keyword">this</span>.elems = theElems; }
+    <span class="comment">/* The standard queue messages are below. */</span>
+    <span class="keyword">public</span> <span class="type">Queue</span>           <span class="function-name">snoc</span>(<span class="type">Object</span> <span class="variable-name">x</span>) { 
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Queue</span>( array_append( <span class="keyword">this</span>.elems, <span class="keyword">new</span> <span class="type">Object</span>[] { x } ) );
+    }
+    <span class="keyword">public</span> <span class="type">boolean</span>         <span class="function-name">isEmpty</span>()    { <span class="keyword">return</span> array_isNull(elems);            }
+    <span class="keyword">public</span> <span class="type">Object</span>          <span class="function-name">head</span>()       { <span class="keyword">return</span> array_car(elems);               }
+    <span class="keyword">public</span> <span class="type">Queue</span>           <span class="function-name">tail</span>()       { <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Queue</span>( array_cdr( elems )); }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">Queue</span>    <span class="function-name">empty</span>()      { <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Queue</span>( array_null() );      }
+
+    <span class="comment">/* But we also need to implement the abstract methods
+     * of Collection. */</span>
+    <span class="keyword">public</span> <span class="type">Queue</span>           <span class="function-name">addElem</span>( <span class="type">Object</span> <span class="variable-name">val</span> ) { <span class="keyword">return</span> <span class="keyword">this</span>.snoc(val); }
+    <span class="keyword">public</span> <span class="variable-name">Collection</span>.<span class="type">Pair</span> <span class="function-name">anyElem</span>() { 
+        <span class="keyword">return</span> <span class="keyword">new</span> Collection.<span class="type">Pair</span>( <span class="keyword">this</span>.head(), <span class="keyword">this</span>.tail() ); 
+    }
+
+    <span class="comment">/*** Don't look below this line!  ***/</span>
+
+
+    <span class="comment">/*** You've been warned.          ***/</span>
+
+
+    <span class="comment">/* The rest of this is very gross code that should not be used for
+     * any real system anywhere ever; its all just a hack to get a
+     * semi-applicative programming style even in an imperative
+     * language like Java. */</span>
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">boolean</span>  <span class="function-name">array_isNull</span>( <span class="type">Object</span>[] <span class="variable-name">x</span> ) { <span class="keyword">return</span> x.length == 0; }
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span>[] <span class="function-name">array_null</span>()               { <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">Object</span>[0]; }
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span>   <span class="function-name">array_car</span>( <span class="type">Object</span>[] <span class="variable-name">x</span> )    { <span class="keyword">return</span> x[0];          }
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span>[] <span class="function-name">array_cdr</span>( <span class="type">Object</span>[] <span class="variable-name">x</span> ) {
+        <span class="type">Object</span>[] <span class="variable-name">z</span> = <span class="keyword">new</span> <span class="type">Object</span>[x.length - 1];
+        System.arraycopy( x, 1, z, 0, x.length - 1);
+        <span class="keyword">return</span> z;
+    }
+    <span class="keyword">static</span> <span class="type">Object</span>[] <span class="function-name">array_append</span>( <span class="type">Object</span>[] <span class="variable-name">x</span>, <span class="type">Object</span>[] <span class="variable-name">y</span> ) {
+        <span class="type">Object</span>[] <span class="variable-name">z</span> = <span class="keyword">new</span> <span class="type">Object</span>[x.length + y.length];
+        System.arraycopy( x, 0, z, 0, x.length );
+        System.arraycopy( y, 0, z, x.length, y.length );
+        <span class="keyword">return</span> z;
+    }
+}
+</pre>
+  </body>
+</html>

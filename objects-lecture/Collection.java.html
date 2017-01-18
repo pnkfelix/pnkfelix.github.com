@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>Collection.java</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #b22222;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #0000ff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #a020f0;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #bc8f8f;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #228b22;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #b8860b;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="type">Collection</span> 
+{
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="type">Pair</span> { 
+        <span class="type">Object</span> <span class="variable-name">x</span>; <span class="type">Collection</span> <span class="variable-name">y</span>;
+        <span class="type">Pair</span>(<span class="type">Object</span> <span class="variable-name">theX</span>, <span class="type">Collection</span> <span class="variable-name">theY</span>) { x = theX; y = theY; }
+    }
+
+    <span class="comment">/* These are *abstract* methods that our concrete subclasses will 
+     * have to implement. */</span>
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">boolean</span>         <span class="function-name">isEmpty</span>();
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">Collection</span>      <span class="function-name">addElem</span>( <span class="type">Object</span> <span class="variable-name">x</span> );
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="variable-name">Collection</span>.<span class="type">Pair</span> <span class="function-name">anyElem</span>();
+
+    <span class="comment">/* These are *concrete* methods that are shared amongst all of our
+     * subclasses.  Thus we have automatic code reuse. */</span>
+    <span class="keyword">public</span>          <span class="type">Collection</span>      <span class="function-name">addAll</span>(<span class="type">Collection</span> <span class="variable-name">other_collection</span>) {
+        <span class="keyword">if</span> (other_collection.isEmpty()) {
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        } <span class="keyword">else</span> {
+            <span class="type">Pair</span>       <span class="variable-name">val_and_other_rest</span> = other_collection.anyElem();
+            <span class="type">Object</span>     <span class="variable-name">val</span>                = val_and_other_rest.x;
+            <span class="type">Collection</span> <span class="variable-name">other_rest</span>         = val_and_other_rest.y;
+            <span class="keyword">return</span> <span class="keyword">this</span>.addElem(val).addAll( other_rest );
+        }
+    }
+    <span class="keyword">public</span>          <span class="type">String</span>          <span class="function-name">toString</span>() {
+        <span class="keyword">return</span> <span class="string">"( "</span> + <span class="keyword">this</span>.toItemsString() + <span class="string">")"</span>;
+    }
+    <span class="keyword">private</span>         <span class="type">String</span>          <span class="function-name">toItemsString</span>() {
+        <span class="keyword">if</span> (<span class="keyword">this</span>.isEmpty()) {
+            <span class="keyword">return</span> <span class="string">""</span>;
+        } <span class="keyword">else</span> {
+            <span class="type">Pair</span>       <span class="variable-name">val_and_other_rest</span> = <span class="keyword">this</span>.anyElem();
+            <span class="type">Object</span>     <span class="variable-name">val</span>                = val_and_other_rest.x;
+            <span class="type">Collection</span> <span class="variable-name">other_rest</span>         = val_and_other_rest.y;
+            <span class="keyword">return</span> (val.toString() + <span class="string">" "</span> + other_rest.toItemsString());
+        }
+    }
+}
+</pre>
+  </body>
+</html>

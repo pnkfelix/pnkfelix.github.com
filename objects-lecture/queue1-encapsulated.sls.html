@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>queue1-encapsulated.sls</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-paren">(</span>library <span class="quack-pltish-paren">(</span>obj-lecture queue1-encapsulated<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span>export empty snoc isEmpty head tail<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>rnrs<span class="quack-pltish-paren">))</span>
+  
+  <span class="quack-pltish-comment">;; A Queue is an Abstract Value
+</span>  
+  <span class="quack-pltish-comment">;; Internally, a Queue is a (HiddenToken -&gt; Listof[SchemeValue]
+</span>  <span class="quack-pltish-comment">;; where HiddenToken is a singleton that no other code
+</span>  <span class="quack-pltish-comment">;; knows about.
+</span>  
+  <span class="quack-pltish-comment">;; concrete-&gt;abstract : Listof[SchemeValue] -&gt; Queue
+</span>  <span class="quack-pltish-comment">;; abstract-&gt;concrete : Queue -&gt; Listof[SchemeValue]
+</span>  <span class="quack-pltish-comment">;; (see bottom of file for how to hide the token in library-less languages)
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-defn">hidden-token</span> <span class="quack-pltish-paren">(</span>cons <span class="quack-pltish-selfeval">'unique</span> <span class="quack-pltish-selfeval">'and-hidden</span><span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">concrete-&gt;abstract</span> lst<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let</span> <span class="quack-pltish-paren">((</span>an-abstract-queue
+           <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>token<span class="quack-pltish-paren">)</span>
+             <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">if</span> <span class="quack-pltish-paren">(</span>eq? token hidden-token<span class="quack-pltish-paren">)</span>
+                 lst
+                 <span class="quack-pltish-paren">(</span>error <span class="quack-pltish-selfeval">'queue1-encapsulated</span>
+                        <span class="quack-pltish-selfeval">"unauthorized-access-attempt"</span><span class="quack-pltish-paren">)))))</span>
+      an-abstract-queue<span class="quack-pltish-paren">))</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">abstract-&gt;concrete</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>q hidden-token<span class="quack-pltish-paren">))</span>
+
+
+  <span class="quack-pltish-comment">;; empty : -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">empty</span><span class="quack-pltish-paren">)</span> 
+    <span class="quack-pltish-paren">(</span>concrete-&gt;abstract  
+     '<span class="quack-pltish-paren">()))</span>
+  
+  <span class="quack-pltish-comment">;; snoc : Queue SchemeValue -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">snoc</span> q v<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>concrete-&gt;abstract 
+     <span class="quack-pltish-paren">(</span>append <span class="quack-pltish-paren">(</span>abstract-&gt;concrete q<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>list v<span class="quack-pltish-paren">))))</span>
+  
+  <span class="quack-pltish-comment">;; isEmpty : Queue -&gt; Boolean
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">isEmpty</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>null? <span class="quack-pltish-paren">(</span>abstract-&gt;concrete q<span class="quack-pltish-paren">)))</span>
+  
+  <span class="quack-pltish-comment">;; head : Queue -&gt; SchemeValue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">head</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>car <span class="quack-pltish-paren">(</span>abstract-&gt;concrete q<span class="quack-pltish-paren">)))</span>
+  
+  <span class="quack-pltish-comment">;; tail : Queue -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">tail</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>concrete-&gt;abstract <span class="quack-pltish-paren">(</span>cdr <span class="quack-pltish-paren">(</span>abstract-&gt;concrete q<span class="quack-pltish-paren">)))))</span>
+<span class="quack-pltish-comment">#|
+  ;; (Code below illustrates how one might hide the hidden-token
+  ;;  outside of a library form; e.g. in R5RS Scheme.  The code must
+  ;;  be run in a context where definitions are evaluated from top
+  ;;  to bottom order.  (It will also work inside of a library form.)
+  (define c-&gt;a)
+  (define a-&gt;c)
+  (define dummy 
+    (let ((hidden-token ;; binds *the* HiddenToken
+           (cons 'unique 'and-hidden)))
+      (set! c-&gt;a
+            (lambda (lst)
+              (let ((an-abstract-queue
+                     (lambda (token)
+                       (if (eq? token hidden-token)
+                           lst
+                           (error 'queue1-encapsulated
+                                  "unauthorized-access-attempt")))))
+                an-abstract-queue)))
+      (set! a-&gt;c
+            (lambda (q)
+              (q hidden-token)))))
+  (define concrete-&gt;abstract c-&gt;a)
+  (define abstract-&gt;concrete a-&gt;c)
+|#</span>
+</pre>
+  </body>
+</html>

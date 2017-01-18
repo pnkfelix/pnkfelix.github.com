@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>queue1.sls</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-paren">(</span>library <span class="quack-pltish-paren">(</span>obj-lecture queue1<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span>export empty snoc isEmpty head tail<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>rnrs base<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; A Queue is one of:
+</span>  <span class="quack-pltish-comment">;; - '()
+</span>  <span class="quack-pltish-comment">;; - (cons SchemeValue Queue)
+</span>
+  <span class="quack-pltish-comment">;; interpretation: 
+</span>  <span class="quack-pltish-comment">;; - the empty list is an empty queue
+</span>  <span class="quack-pltish-comment">;; - a non-empty list L is a queue whose head is (car L) and 
+</span>  <span class="quack-pltish-comment">;;   whose tail is (cdr L)
+</span>
+  <span class="quack-pltish-comment">;; empty : -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">empty</span><span class="quack-pltish-paren">)</span> '<span class="quack-pltish-paren">())</span>
+
+  <span class="quack-pltish-comment">;; snoc : Queue SchemeValue -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">snoc</span> q v<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+      <span class="quack-pltish-paren">((</span>null? q<span class="quack-pltish-paren">)</span> <span class="quack-pltish-paren">(</span>cons v '<span class="quack-pltish-paren">()))</span>
+      <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">else</span> <span class="quack-pltish-paren">(</span>cons <span class="quack-pltish-paren">(</span>car q<span class="quack-pltish-paren">)</span>
+                  <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>cdr q<span class="quack-pltish-paren">)</span> v<span class="quack-pltish-paren">)))))</span>
+
+  <span class="quack-pltish-comment">;; isEmpty : Queue -&gt; Boolean
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">isEmpty</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>null? q<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; head : Queue -&gt; SchemeValue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">head</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>car q<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; tail : Queue -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">tail</span> q<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>cdr q<span class="quack-pltish-paren">)))</span>
+</pre>
+  </body>
+</html>

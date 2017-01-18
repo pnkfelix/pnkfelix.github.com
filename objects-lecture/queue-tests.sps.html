@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>queue-tests.sps</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      .quack-threesemi-semi {
+        /* quack-threesemi-semi-face */
+        color: #a0ffff;
+        background-color: #c0ffff;
+      }
+      .quack-threesemi-text {
+        /* quack-threesemi-text-face */
+        color: #008b8b;
+        background-color: #c0ffff;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-comment"><span class="quack-threesemi-semi">;;;</span></span><span class="quack-pltish-comment"><span class="quack-threesemi-text"> This file contains BLACK-BOX tests that rely *only*
+</span></span><span class="quack-pltish-comment"><span class="quack-threesemi-semi">;;;</span></span><span class="quack-pltish-comment"><span class="quack-threesemi-text"> on guarantees provided by the Queue abstract data type (ADT).
+</span></span>
+<span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>obj-lecture queue1<span class="quack-pltish-paren">)</span> <span class="quack-pltish-comment">;; switch between queue impls
+</span>        <span class="quack-pltish-paren">(</span>obj-lecture test-syntax<span class="quack-pltish-paren">)</span>
+        <span class="quack-pltish-paren">(</span>only <span class="quack-pltish-paren">(</span>rnrs base<span class="quack-pltish-paren">)</span> quote<span class="quack-pltish-paren">))</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>isEmpty <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">))</span> 
+      <span class="quack-pltish-selfeval">#t</span><span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>isEmpty <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">))</span> 
+      <span class="quack-pltish-selfeval">#f</span><span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">))</span> 
+      <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">))</span>
+      <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>tail <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span> <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">)))</span>
+      <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">)</span>
+
+<span class="quack-pltish-paren">(</span>test <span class="quack-pltish-paren">(</span>head <span class="quack-pltish-paren">(</span>tail
+             <span class="quack-pltish-paren">(</span>tail
+              <span class="quack-pltish-paren">(</span>tail <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>snoc <span class="quack-pltish-paren">(</span>empty<span class="quack-pltish-paren">)</span>
+                                                  <span class="quack-pltish-selfeval">'a</span><span class="quack-pltish-paren">)</span>
+                                            <span class="quack-pltish-selfeval">'b</span><span class="quack-pltish-paren">)</span>
+                                      <span class="quack-pltish-selfeval">'c</span><span class="quack-pltish-paren">)</span>
+                                <span class="quack-pltish-selfeval">'d</span><span class="quack-pltish-paren">)</span>
+                          <span class="quack-pltish-selfeval">'e</span><span class="quack-pltish-paren">)))))</span>
+      <span class="quack-pltish-selfeval">'d</span><span class="quack-pltish-paren">)</span>
+</pre>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.16 in css mode. -->
+<html>
+  <head>
+    <title>queue1-dispatch.sls</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .quack-pltish-comment {
+        /* quack-pltish-comment-face */
+        color: #008b8b;
+      }
+      .quack-pltish-defn {
+        /* quack-pltish-defn-face */
+        color: #0000cd;
+        font-weight: bold;
+      }
+      .quack-pltish-keyword {
+        /* quack-pltish-keyword-face */
+        font-weight: bold;
+      }
+      .quack-pltish-paren {
+        /* quack-pltish-paren-face */
+        color: #cd0000;
+      }
+      .quack-pltish-selfeval {
+        /* quack-pltish-selfeval-face */
+        color: #008b00;
+      }
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+#!r6rs
+<span class="quack-pltish-paren">(</span>library <span class="quack-pltish-paren">(</span>obj-lecture queue1-dispatch<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span>export empty snoc isEmpty head tail<span class="quack-pltish-paren">)</span>
+  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">import</span> <span class="quack-pltish-paren">(</span>obj-lecture queue-dispatch-interface<span class="quack-pltish-paren">)</span>
+          <span class="quack-pltish-paren">(</span>prefix <span class="quack-pltish-paren">(</span>obj-lecture queue1<span class="quack-pltish-paren">)</span> q1impl:<span class="quack-pltish-paren">)</span>
+          <span class="quack-pltish-paren">(</span>rnrs base<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; A Queue is a (Msg -&gt; Procedure)
+</span>  <span class="quack-pltish-comment">;; where Msg is one of:
+</span>  <span class="quack-pltish-comment">;; - 'snoc          =&gt; (Value -&gt; Queue)
+</span>  <span class="quack-pltish-comment">;; - 'is-empty      =&gt; (-&gt; Boolean)
+</span>  <span class="quack-pltish-comment">;; - 'head          =&gt; (-&gt; Value)
+</span>  <span class="quack-pltish-comment">;; - 'tail          =&gt; (-&gt; Queue)
+</span>
+  <span class="quack-pltish-comment">;; A QueueRep is whatever (obj-lecture queue1) uses for Queue
+</span>
+  <span class="quack-pltish-comment">;; concrete-&gt;object : QueueRep -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">concrete-&gt;object</span> lst<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">let</span> <span class="quack-pltish-paren">((</span>queue-obj 
+           <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>sym<span class="quack-pltish-paren">)</span>
+             <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">cond</span>
+               <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'snoc</span><span class="quack-pltish-paren">)</span> 
+                <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">(</span>val<span class="quack-pltish-paren">)</span> 
+                  <span class="quack-pltish-paren">(</span>snoc-impl lst val<span class="quack-pltish-paren">)))</span>
+               <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'is-empty</span><span class="quack-pltish-paren">)</span>
+                <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">()</span> 
+                  <span class="quack-pltish-paren">(</span>isEmpty-impl lst<span class="quack-pltish-paren">)))</span>
+               <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'head</span><span class="quack-pltish-paren">)</span>
+                <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">()</span>
+                  <span class="quack-pltish-paren">(</span>head-impl lst<span class="quack-pltish-paren">)))</span>
+               <span class="quack-pltish-paren">((</span>eq? sym <span class="quack-pltish-selfeval">'tail</span><span class="quack-pltish-paren">)</span>
+                <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">lambda</span> <span class="quack-pltish-paren">()</span>
+                  <span class="quack-pltish-paren">(</span>tail-impl lst<span class="quack-pltish-paren">)))))))</span>
+      queue-obj<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; empty : -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">empty</span><span class="quack-pltish-paren">)</span> 
+    <span class="quack-pltish-paren">(</span>concrete-&gt;object <span class="quack-pltish-paren">(</span>q1impl:empty<span class="quack-pltish-paren">)))</span>
+
+  <span class="quack-pltish-comment">;; snoc-impl : QueueRep SchemeValue -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">snoc-impl</span> q1rep val<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>concrete-&gt;object <span class="quack-pltish-paren">(</span>q1impl:snoc q1rep val<span class="quack-pltish-paren">)))</span>
+
+  <span class="quack-pltish-comment">;; isEmpty-impl : QueueRep -&gt; Boolean
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">isEmpty-impl</span> q1rep<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>q1impl:isEmpty q1rep<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; head-impl : QueueRep -&gt; SchemeValue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">head-impl</span> q1rep<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>q1impl:head q1rep<span class="quack-pltish-paren">))</span>
+
+  <span class="quack-pltish-comment">;; tail-impl : QueueRep -&gt; Queue
+</span>  <span class="quack-pltish-paren">(</span><span class="quack-pltish-keyword">define</span> <span class="quack-pltish-paren">(</span><span class="quack-pltish-defn">tail-impl</span> q1rep<span class="quack-pltish-paren">)</span>
+    <span class="quack-pltish-paren">(</span>concrete-&gt;object <span class="quack-pltish-paren">(</span>q1impl:tail q1rep<span class="quack-pltish-paren">))))</span>
+</pre>
+  </body>
+</html>
