@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>Comprehensive Exam for Felix S Klock II</title>
+
+<link type="text/css" rel="stylesheet" href="comprehensive-exam.css" />
+</head>
+<body>
+
+<h1>Comprehensive Exam for Felix S Klock II</h1>
+
+<h2>The Schedule</h2>
+<p>
+Comprehensive exam: 7 May 2008, 1:00 PM
+(366 West Village H)
+</p>
+<p>
+Slides are now <a href="compexam.pdf">available</a>.
+</p>
+<hr/>
+
+<h2>The Committee</h2>
+
+<ul>
+<li><a href="http://www.ccs.neu.edu/home/will/">Will Clinger</a>
+</li>
+<li><a href="http://www.ccs.neu.edu/home/gene/">Gene Cooperman</a>
+</li>
+<li><a href="http://www.ccs.neu.edu/home/shivers/">Olin Shivers</a>
+</li>
+<li><a href="http://research.sun.com/people/mybio.php?c=476">Guy Steele</a>
+</li>
+</ul>
+
+<p>
+Will Clinger wrote the following paragraph to explain the choice of committee:
+</p>
+<blockquote>
+Felix's thesis concerns the design and implementation
+of a generational garbage collector with provable
+worst-case bounds on several important aspects of
+performance combined with reasonable throughput on
+typical programs.  All members of his committee are
+comfortable with algorithm design and analysis and
+with low-level systems implementation, including
+concurrency on shared-memory multiprocessors.  Guy
+Steele, who was on the program committee for ISMM
+2008, understands the industrial state of this art.
+Gene Cooperman and Olin Shivers understand garbage
+collection in general and systems implementation.
+</blockquote>
+
+<hr/>
+
+<h2>The Proposal</h2>
+<p>
+The thesis proposal: <a href="rrof-thesis-proposal.pdf">Regional Garbage Collection</a>
+</p>
+
+The short version:
+<p>
+Garbage collectors that 
+occasionally pause to collect the entire heap 
+work well enough for many applications, 
+but that paradigm does not scale up because 
+collection pauses that take time
+proportional to the total heap size
+can cause alarming or annoying delays, 
+even if they occur rarely.
+</p>
+<p>
+Real-time, incremental, and concurrent collectors 
+eliminate such delays but introduce complex 
+invariants to the memory management system.
+Maintenance of these invariants 
+during execution reduces application throughput.
+Also, supporting these invariants increases 
+the complexity of compilers, run-time infrastructure, 
+and low-level libraries 
+(e.g. client modules written in C and 
+ linked via a foreign function interface).
+</p>
+<p>
+In non-real-time operating environments, 
+real-time garbage collection is overkill.
+It would be better to preserve the throughput of generational collectors 
+while eliminating the long delays associated with major collections.
+Implementors would also appreciate a 
+system with hard bounds on pause times, 
+but simpler than contemporary real-time memory managers.
+</p>
+<p>
+Will Clinger (my thesis advisor) 
+and I have designed, and I am implementing, 
+a <em>regional garbage collector</em>
+that collects bounded subsets of the heap
+during <em>every</em> collection, thus 
+disentangling the worst-case mutator pause time 
+from the total heap size.
+The design isolates 
+collection-related work 
+not directly associated with moving objects; 
+a separate processor core can perform such work
+without direct interaction with the mutator thread.
+</p>
+<p>
+My thesis is: 
+Our regional garbage collector 
+achieves worst case bounds on mutator pause times
+and minimum mutator utilization, 
+and if its concurrent tasks are run with sufficiently high 
+priority, it provides competitive throughput while 
+maintaining a worst case bound on overall memory usage.
+</p>
+
+<hr/>
+
+<address>
+<a href="mailto:pnkfelix@ccs.neu.edu">Felix S Klock II</a>
+</address>
+<a href="http://www.ccs.neu.edu/home/pnkfelix/">Felix's homepage</a>
+<p>
+Content last updated: 11 May 2008 (Presentation last updated: 28 July 2009)
+</p>
+
+<p>
+    <a href="http://validator.w3.org/check/referer"><img
+       style="border:0;width:88px;height:31px"
+       src="http://www.w3.org/Icons/valid-xhtml10-blue"
+       alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+</p>
+
+</body>
+</html>

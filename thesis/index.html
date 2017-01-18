@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>Scalable Garbage Collection via Remembered Set
+Summarization and Refinement</title>
+
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+
+<div class="box" id="thesis">
+<h2 class="boxtitle">Scalable Garbage Collection
+via Remembered Set Summarization and Refinement</h2>
+
+<p>
+My thesis: Regional garbage collection with summarization, waveoff,
+and snapshot refinement, provides mutator-independent worst-case
+bounds on pause times and minimum mutator utilization, and provides
+competitive throughput while maintaining a worst-case bound on overall
+memory usage.
+</p>
+
+My dissertation: <a href="klock11-diss.pdf">klock11-diss.pdf</a>.
+</div>
+
+<div class="box" id="abstract">
+<h2 class="boxtitle">Abstract:</h2>
+<p>
+<em>Regional garbage collection</em>
+offers a useful compromise between real-time
+and generational collection. Regional collectors resemble generational collectors,
+but are scalable. A scalable collector guarantees a positive lower
+bound, independent of mutator and live storage, for the theoretical worstcase
+minimum mutator utilization (MMU).
+</p>
+<p>
+Standard generational collectors are not scalable. Some real-time collectors
+are scalable, while others assume a well-behaved mutator or provide no
+worst-case guarantees at all.
+</p>
+<p>
+This dissertation presents regional garbage collection, coupled with a
+theorem establishing that it is scalable in the sense above, as well as establishing
+upper bounds for its worst-case space usage and collection pauses.
+</p>
+<p>
+Regional collectors separate <em>summarization</em> and 
+<em>refinement</em> from the task
+of object reclamation. They resolve “popularity” problems via two novel
+technologies: <em>summarization wave-off</em>, and <em>region fame</em>.
+Regional collectors cannot compete with hard real-time collectors at millisecond
+resolutions, but offer efficiency comparable to contemporary generational
+collectors combined with improved latency and MMU at resolutions
+on the order of hundreds of milliseconds to a few seconds.
+</p>
+<p>
+A prototype regional collector performs acceptably on a wide range of
+benchmarks: It is comparable to a tuned generational collector on a set
+of fifty-eight non-collection-intensive benchmarks, and achieves acceptable
+throughput without violating its bounds on a set of thirteen collection-intensive
+benchmarks.
+</p>
+</div>
+<p>
+    <a href="http://validator.w3.org/check/referer"><img
+       style="border:0;width:88px;height:31px"
+       src="http://www.w3.org/Icons/valid-xhtml10-blue"
+       alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+</p>
+
+</body>
+</html>
