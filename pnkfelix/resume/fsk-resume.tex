@@ -18,8 +18,9 @@
 \newcommand{\mysidestyle}{\sc}
 %______________________________________________________________________________________________________________________
 \begin{document}
-\name{\Large Felix S. Klock II}
-\address{36 rue Fondary, 75015 Paris, France\\phone: +1 857.472.3757\\
+\name{\Large Felix S. Klock II}%
+%\address{36 rue Fondary, 75015 Paris, France\\phone: +1 857.472.3757\\
+\address{42 Pinecliff Dr, Marblehead, MA, 01945 USA\\phone: +1 857.472.3757\\
 %e-mail: {\tt pnkfelix@alum.mit.edu}
 e-mail: {\tt felix.klock@gmail.com}
 }
@@ -45,7 +46,7 @@ e-mail: {\tt felix.klock@gmail.com}
       \item[\rm Software engineering:] functional programming, \noneed{system modeling, }debugging tool design, CS~education%
         \noneed{\\ Programming Language Design: Type and Effect Systems, Syntatic Extension}
         \vspace{-1ex}
-      \item[\rm Languages:] C/C++, Scheme/Lisp, Java, Python, C\#, assembly (Intel x86, ARM), FORTH\noneed{, \LaTeXe}.
+      \item[\rm Languages:] Rust, C/C++, Scheme/Lisp, Java, Python, C\#, assembly (x86, ARM)\noneed{, FORTH, \LaTeXe}.
     \end{description}
     %__________________________________________________________________________________________________________________
     % Education
@@ -74,18 +75,16 @@ e-mail: {\tt felix.klock@gmail.com}
     % Professional Experience
     \section{\mysidestyle Professional\\Experience}
 
-    \textbf{Mozilla}, Paris, France \hfill \textbf{2012 -- present}\\\vspace{1mm}%
-    \textsl{Research Engineer, Rust language}
+    \textbf{Mozilla}, Paris, France and remote \hfill \textbf{2012 -- present}\\\vspace{1mm}%
+    \textsl{Staff Research Engineer, Rust language}
 \begin{description}
-\item[\rm Roles:] 
-  (1)~Resource cleanup (``sound {\tt Drop}''),
-  (2)~Control-flow graph and dataflow analysis,
-  and
-  (3)~Memory Management and Garbage Collection (GC) expert.
+\item[\rm Roles:]
+  (1) Rust compiler team co-lead, (2) Rust compiler developer, and (3) Language design team member.
 \end{description}
     \vspace{-2mm}
     Project home page: {\tt https://www.rust-lang.org/} \\
-    Project history: {\tt http://github.com/rust-lang/rust/}
+    Project history: {\tt http://github.com/rust-lang/rust/} \\
+    Achievements: Compiler team management, triaging issues and chasing down bugs. Spun up working groups: \emph{wg-prioritization} (delegating compiler bug triage) and \emph{wg-incr-comp} (improving incremental compilation in Rust). Oversaw non-lexical lifetimes (NLL; Rust RFC 2094) development and staged migration from lexical to NLL. Designed future-incompatibility reporting (Rust RFC 2834), user-defined destructors with type and lifetime parameters (Rust RFC 769) and Rust's user-defined allocators (Rust RFC 1398).
 
     \textbf{Adobe Systems Incorporated}, Waltham, MA \hfill \textbf{2010 -- 2012}\\\vspace{1mm}%
     \textsl{Computer Scientist, Actionscript 3 Virtual Machine (aka Tamarin) for Flash Runtime}
@@ -98,7 +97,7 @@ e-mail: {\tt felix.klock@gmail.com}
 \end{description}
     \vspace{-2mm}
     Project history through May 2012: {\tt http://hg.mozilla.org/tamarin-redux/}\\
-    Achievements: Improved telescoping GC inverse load-factor, reducing overhead from $20\times$ to $4\times$ mark/colns ratio. Implemented Native JSON integrated with AS3, and extended with serialization of public members of AS3 classes. Added JIT-support for efficient indexing of ``simple dense'' {\tt ArrayObject}, yielding 10--20\% speedup.
+    Achievements: Improved telescoping GC inverse load-factor, reducing overhead from $20\times$ to $4\times$ mark/cons ratio. Implemented Native JSON integrated with AS3, and extended with serialization of public members of AS3 classes. Added JIT-support for efficient indexing of ``simple dense'' {\tt ArrayObject}, yielding 10--20\% speedup.
 %     \begin{list2}
 % 
 % \item \noneed{ Memory Management/GC maintenance and improvement: }
@@ -153,7 +152,7 @@ e-mail: {\tt felix.klock@gmail.com}
     \textsl{Developer and maintainer of Larceny Scheme compiler and runtime system} \\
     Project home page: {\tt http://www.larcenists.org/} \\
     Project history: {\tt http://github.com/larcenists/larceny/}\\
-    Achievements: Designed regional GC, with formal bounds on MMU. Revised Intel x86 backend to emit machine code in-heap. Developed and evaluated four alternative x86 calling conventions, yielding $\geq 10\%$ speed boost. Implemented dynamic in-heap .NET bytecode emission for Common Larceny.
+    Achievements: Designed regional GC, with formal bounds on mutator utilizaiton (MMU). Revised Intel x86 backend to emit machine code in-heap. Developed and evaluated four alternative x86 calling conventions, yielding $\geq 10\%$ speed boost. Implemented dynamic in-heap .NET bytecode emission for Common Larceny.
     \vspace{-2mm}
 %     \begin{list2}
 % \item
@@ -206,6 +205,9 @@ e-mail: {\tt felix.klock@gmail.com}
 
     \textbf{Green Hills Software}, Santa Barbara, CA \hfill \textbf{2001 -- 2003}\\\vspace{1mm}%
     \textsl{Software Engineer for End-User Compiler Product Development}
+    \\
+    Achievements: Implemented move-coalescing register allocation, data-load optimizations, and reassignment of zero-initialized and uninitialized arrays to blank static segment (bss).
+%
 % \begin{list2}
 % \item
 % Added \noneed{architecture-independent }graph-coloring with move
@@ -275,10 +277,11 @@ e-mail: {\tt felix.klock@gmail.com}
     In \textsl{Proceedings of the 2009 Workshop on Scheme and Functional Programming}, Victoria, British Columbia, 20 September 2008
 
     \section{\mysidestyle Presentations}
+    ``Rust: Fearless at all levels'' Algolia Search Party 2018\\ \verb|https://www.youtube.com/watch?v=9QuI2Z0stbs&t=2755|\\
     ``Subtyping in Rust and Clarke's Third Law'' Rust Fest 2016\\ \verb|https://www.youtube.com/watch?v=fI4RG_uq-WU|\\
     ``Rust: A type system you didn't know you wanted'' Curry On 2015\\ \verb|https://www.youtube.com/watch?v=Q7lQCgnNWU0&t=152s|\\
-    ``The Rust Language and Type System (Demo),'' ML Family Workshop 2014\\  \verb|https://www.youtube.com/watch?v=RvbkD5nRGA8|\\
-    ``Rust: Safe Systems Programming with the Fun of FP,'' Codemesh 2013\\ \verb|https://vimeo.com/85253071|
+    %``The Rust Language and Type System (Demo),'' ML Family Workshop 2014\\  \verb|https://www.youtube.com/watch?v=RvbkD5nRGA8|\\
+    %``Rust: Safe Systems Programming with the Fun of FP,'' Codemesh 2013\\ \verb|https://vimeo.com/85253071|
     %__________________________________________________________________________________________________________________
     % Honors and Awards
     \section{\mysidestyle Honors and\\Awards} 
