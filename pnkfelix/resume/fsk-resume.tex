@@ -75,23 +75,22 @@ e-mail: {\tt felix.klock@gmail.com}
     % Professional Experience
     \section{\mysidestyle Professional\\Experience}
 
-    \textbf{Amazon Web Services}, remote \hfill \textbf{October 2020 -- present}\\\vspace{1mm}%
+    \textbf{Amazon Web Services}, remote \hfill \textbf{October 2020 -- December 2024}\\\vspace{1mm}%
     \textsl{Principal Engineer, Rust Platform Team}
 \begin{description}
-\item[\rm Roles:]
-  (1) Rust compiler team co-lead, (2) Rust compiler developer, and (3) Language design team member.
+\item[\rm Rust Roles:]
+  (1) Compiler team co-lead, (2) Specification team co-lead (3) Language Design team member, (4) Compiler performance working group member.
 \end{description}
     \vspace{-2mm}
     Project home page: {\tt https://www.rust-lang.org/} \\
 %    Project history: {\tt http://github.com/rust-lang/rust/} \\
-    Achievements: TurboWish performance debugging initiative, yielding \texttt{tokio-console} deliverable. Drove ``Hurry Up and \texttt{.await}'' workshop
-    %({\tt https://huaa.workshops.async-rust.dev/})
-    at AWS re:Invent. Screencasted using \texttt{rr} to debug Rust programs. Compiler team management, triaging issues and chasing down bugs.
+    Achievements: Async Rust tooling+education (TurboWish blog posts, \texttt{tokio-console} performance debugger, re:Invent workshop tutorial);
+    Developer screencasts (\texttt{rustc} development tutorials, ``debugging as a science,'' \texttt{rr} and \texttt{pernos.co}); Safety validation (AWS-internal distribution of \texttt{miri}, the Krabcake \texttt{valgrind} tool, Rust Contracts).
 
     \textbf{Mozilla}, Paris, France and remote \hfill \textbf{2012 -- August 2020}\\\vspace{1mm}%
     \textsl{Staff Research Engineer, Rust language} \\
-    Achievements: Spun up working groups: \emph{wg-prioritization} (delegating compiler bug triage) and \emph{wg-incr-comp} (improving incremental compilation in Rust). Oversaw non-lexical lifetimes (NLL; Rust RFC~2094) development and staged migration from lexical to NLL. Designed future-incompatibility reporting (Rust RFC~2834), user-defined destructors with type and lifetime parameters (Rust RFC~769), non-zeroing dynamic drop (Rust RFC~320),  and Rust's user-defined allocators (Rust RFC~1398).
-
+    Achievements: Spun up working groups: \emph{wg-prioritization} (bug triage), \emph{wg-incr-comp} (incremental compilation), \emph{wg-rustc-perf} (monitoring rustc performance). Oversaw non-lexical lifetimes (NLL; Rust RFC~2094), migration from lexical to NLL. Future-incompatibility reporting (Rust RFC~2834), user-defined destructors with type/lifetime generics (Rust RFC~769), non-zeroing dynamic drop (Rust RFC~320),  and Rust's user-defined allocators (Rust RFC~1398).
+    
     \textbf{Adobe Systems Incorporated}, Waltham, MA \hfill \textbf{2010 -- 2012}\\\vspace{1mm}%
     \textsl{Computer Scientist, Actionscript 3 Virtual Machine (aka Tamarin) for Flash Runtime}
 \begin{description}
@@ -156,9 +155,8 @@ e-mail: {\tt felix.klock@gmail.com}
     \textsl{Developer and maintainer of Larceny Scheme compiler and runtime system} \\
 %    Project home page: {\tt http://www.larcenists.org/} \\
     Project history: {\tt http://github.com/larcenists/larceny/}\\
-    Achievements: Designed regional GC, with formal bounds on mutator utilizaiton (MMU). Revised Intel x86 backend to emit machine code in-heap.
+    Achievements: Regional GC, bounding mutator utilization. In-heap dynamic machine code emission for x86 backend. Dyanmic .NET bytecode emission for Common Larceny.
     %Developed and evaluated four alternative x86 calling conventions, yielding $\geq 10\%$ speed boost.
-    Implemented dynamic in-heap .NET bytecode emission for Common Larceny.
     \vspace{-2mm}
 %     \begin{list2}
 % \item
@@ -210,9 +208,9 @@ e-mail: {\tt felix.klock@gmail.com}
 %    and \course{CSG~107/CS~5010}{Program Design Paradigms} (Fall 2008, 2009)
 
     \textbf{Green Hills Software}, Santa Barbara, CA \hfill \textbf{2001 -- 2003}\\\vspace{1mm}%
-    \textsl{Software Engineer for End-User Compiler Product Development}
+    \textsl{Compiler Engineer for End-User Product Development}
     \\
-    Achievements: Implemented move-coalescing register allocation, data-load optimizations, and reassignment of zero-initialized and uninitialized arrays to blank static segment (bss).
+    Achievements: Move-coalescing register allocation; data-load optimizations; reassignment of zero- and uninitialized arrays to blank static segment (bss).
 %
 % \begin{list2}
 % \item
@@ -245,14 +243,14 @@ e-mail: {\tt felix.klock@gmail.com}
 }
 
     \textbf{Massachusetts Institute of Technology}, Cambridge, MA \hfill \textbf{2000 -- 2001} \\\vspace{1mm}%
-    \textsl{Teaching Assistant} \\
-    Assistant for 6.170, \coursetitle{Laboratory in Software Engineering},
-    Spring, Fall~2000, Spring~2001. {Head Teaching Assistant Fall~2000.}
+    \textsl{Teaching Assistant, 6.170; Head Teaching Assistant Fall~2000}
+    \noneed{Assistant for 6.170, \noneed{\coursetitle{Laboratory in Software Engineering},}
+    Spring, Fall~2000, Spring~2001. {Head Teaching Assistant Fall~2000.}}
 
     \textbf{MIT Laboratory for Computer Science}, Cambridge, MA  \hfill \textbf{1999 -- 2001}\\\vspace{1mm}%
     \textsl{Undergraduate Research Assistant for Computer Architecture Group}\\
-    Assisted with implementation of \emph{FLEX} compiler {for transforming
-    Java byte-code to machine code}
+    Assisted with \emph{FLEX} compiler {for transforming
+    Java bytecode to machine code}
     % designed 
     %\noneed{Generic }data-flow analysis routines, StrongARM backend, and
     %register allocation {infrastructure}
@@ -283,9 +281,13 @@ e-mail: {\tt felix.klock@gmail.com}
     In \textsl{Proceedings of the 2009 Workshop on Scheme and Functional Programming}, Victoria, British Columbia, 20 September 2008
 
     \section{\mysidestyle Selected Presentations}
-    ``Rust: Fearless at all levels'' Algolia Search Party 2018\\ \verb|https://www.youtube.com/watch?v=9QuI2Z0stbs&t=2755|\\
-    ``Subtyping in Rust and Clarke's Third Law'' Rust Fest 2016\\ \verb|https://www.youtube.com/watch?v=fI4RG_uq-WU|\\
-    ``Rust: A type system you didn't know you wanted'' Curry On 2015\\ \verb|https://www.youtube.com/watch?v=Q7lQCgnNWU0&t=152s|\\
+    ``Contracts for Rust, Revisited'' Rust Formal Methods Interest Group 2024\\ {\small\verb|https://www.youtube.com/watch?v=j60gcdpHNaM|}\\
+    ``Fireside chat: Felix Klock and Greg Morrisett'' ICFP 2023\\ {\small\verb|https://www.youtube.com/watch?v=msw47HLb3zo|}\\
+    ``Krabcake: A Rust UB detector'' Rust Verification Workshop 2023\\ {\small\verb|http://pnkfx.org/presentations/krabcake-rust-verification-2023-april.pdf|}\\
+    %``Reversible Debugging of Rust with \texttt{rr}'' informal distribution 2021\\ {\small\verb|https://www.youtube.com/watch?v=c9iiTgAMrJU|}
+    ``Rust: Fearless at all levels'' Algolia Search Party 2018\\ {\small\verb|https://www.youtube.com/watch?v=9QuI2Z0stbs&t=2755|}\\
+    ``Subtyping in Rust and Clarke's Third Law'' Rust Fest 2016\\ {\small\verb|https://www.youtube.com/watch?v=fI4RG_uq-WU|}\\
+    %``Rust: A type system you didn't know you wanted'' Curry On 2015\\ {\small\verb|https://www.youtube.com/watch?v=Q7lQCgnNWU0|}\\
     %``The Rust Language and Type System (Demo),'' ML Family Workshop 2014\\  \verb|https://www.youtube.com/watch?v=RvbkD5nRGA8|\\
     %``Rust: Safe Systems Programming with the Fun of FP,'' Codemesh 2013\\ \verb|https://vimeo.com/85253071|
     %__________________________________________________________________________________________________________________
