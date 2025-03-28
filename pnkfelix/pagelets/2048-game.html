@@ -12,13 +12,14 @@
         3. Keep it simple - no unnecessary CSS or external JavaScript libraries
         4. Support variable grid size from 2x2 to 20x20
         5. Support touch gestures (swipes) for mobile devices
+        6. Ensure responsive sizing to fit on all screen sizes
         */
 
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: #faf8ef;
             touch-action: none; /* Prevents browsers from handling touch events their own way */
         }
@@ -26,7 +27,7 @@
         h1 {
             font-size: 36px;
             margin: 0;
-            padding: 20px 0;
+            padding: 10px 0;
             color: #776e65;
         }
 
@@ -34,13 +35,13 @@
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .score-box {
             background-color: #bbada0;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 5px;
             font-weight: bold;
         }
@@ -50,25 +51,26 @@
         }
 
         .score-value {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .settings-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .size-slider {
-            width: 150px;
+            width: 120px;
         }
 
         .size-value {
             font-weight: bold;
             color: #776e65;
-            width: 30px;
+            width: 20px;
             text-align: left;
         }
 
@@ -82,7 +84,7 @@
             border-radius: 5px;
             padding: 10px;
             position: relative;
-            /* Size will be set dynamically based on grid size */
+            /* Size will be set dynamically based on available space */
             transition: width 0.3s ease, height 0.3s ease;
             touch-action: none; /* Ensures swipes are captured by our code */
         }
@@ -226,31 +228,38 @@
         }
 
         .message {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             color: #776e65;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         button {
             background-color: #8f7a66;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 3px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
-            margin-right: 10px;
+            margin: 5px;
         }
 
         button:hover {
             background-color: #9f8b77;
         }
 
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
         .instructions {
-            margin: 20px auto;
-            max-width: 400px;
+            margin: 15px auto;
+            max-width: 90%;
             text-align: left;
             color: #776e65;
             font-size: 14px;
@@ -294,6 +303,37 @@
             margin-top: 10px;
             float: right;
         }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 500px) {
+            body {
+                padding: 5px;
+            }
+            
+            h1 {
+                font-size: 28px;
+                padding: 5px 0;
+            }
+            
+            .score-box {
+                padding: 5px 10px;
+            }
+            
+            .button-container {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            button {
+                padding: 8px 10px;
+                margin: 3px;
+                font-size: 13px;
+            }
+            
+            .message {
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -316,9 +356,11 @@
         <span class="size-value" id="grid-size-value">4</span>
     </div>
     
-    <button id="new-game">New Game</button>
-    <button id="undo-btn">Undo</button>
-    <button id="debug-btn">Debug</button>
+    <div class="button-container">
+        <button id="new-game">New Game</button>
+        <button id="undo-btn">Undo</button>
+        <button id="debug-btn">Debug</button>
+    </div>
     
     <div class="game-container" id="game-container">
         <div class="grid" id="grid"></div>
@@ -347,30 +389,11 @@
     </div>
 
     <script>
-        /* 
-        GAME LOGIC:
-        - The game board is an NxN grid, represented as a 2D array (N is adjustable)
-        - Initial state has two random tiles (2 or 4)
-        - Player moves tiles using arrow keys (up, down, left, right) or swipe gestures
-        - On each move, tiles slide as far as possible in the given direction
-        - When two tiles of the same value collide, they merge into a tile with double the value
-        - After each move, a new tile (2 or 4) appears in a random empty cell
-        - Game ends when no moves are possible
-        - Player wins when a 2048 tile is created
-
-        TOUCH FUNCTIONALITY:
-        - Detect touchstart and touchend events on the game container
-        - Calculate the direction of the swipe based on start and end coordinates
-        - Map swipe directions to game movements (up, down, left, right)
-        - Use a minimum threshold to distinguish between swipes and taps
-        - Prevent scrolling during swipe gestures on the game board
-        */
-
         document.addEventListener('DOMContentLoaded', () => {
             // Game state variables
             let grid = [];
             let score = 0;
-            let bestScore = 0;
+            let bestScore = localStorage.getItem('bestScore') || 0;
             let gameOver = false;
             let gameWon = false;
             let keepGoing = false;
@@ -381,8 +404,10 @@
             let gridSize = 4; // Default size (can be changed by the slider)
             const minGridSize = 2;
             const maxGridSize = 20;
-            const defaultCellSize = 100; // Size in pixels for default 4x4 grid
-            const defaultGapSize = 10;  // Gap size in pixels for default 4x4 grid
+            
+            // Dynamic sizing variables
+            let cellSize, gapSize;
+            const minCellSize = 30; // Minimum size for a cell in pixels
             
             // Next unique ID for tiles
             let nextTileId = 0;
@@ -414,33 +439,39 @@
 
             // Cell positions and sizes (will be calculated dynamically)
             let cellPositions = [];
-            let cellSize, gapSize;
 
             // Update the grid size display
             function updateGridSizeDisplay() {
                 gridSizeValue.textContent = gridSize;
             }
 
-            // Calculate cell positions and sizes based on grid size
+            // Calculate the optimal game container size based on viewport
+            function calculateOptimalContainerSize() {
+                const availableWidth = Math.min(window.innerWidth - 40, 600); // Max width with padding
+                const availableHeight = window.innerHeight - document.querySelector('h1').offsetHeight -
+                                      document.querySelector('.score-container').offsetHeight -
+                                      document.querySelector('.settings-container').offsetHeight -
+                                      document.querySelector('.button-container').offsetHeight -
+                                      document.querySelector('.instructions').offsetHeight - 80; // Extra padding
+                
+                // Use the smaller dimension to ensure it fits both ways
+                return Math.min(availableWidth, availableHeight);
+            }
+
+            // Calculate cell positions and sizes based on grid size and available space
             function calculateCellPositions() {
                 cellPositions = [];
                 
-                // Calculate the cell size based on grid size
-                // For larger grids, we make cells smaller
-                const maxGameContainerSize = 400; // Maximum container size in pixels
+                // Get available space
+                const maxContainerSize = calculateOptimalContainerSize();
                 
-                // Calculate sizes adaptively
-                if (gridSize <= 4) {
-                    // For small grids, use fixed sizes
-                    cellSize = defaultCellSize;
-                    gapSize = defaultGapSize;
-                } else {
-                    // For larger grids, scale the cell size down
-                    const totalGaps = gridSize + 1; // Number of gaps (including outer edges)
-                    const availableSpace = maxGameContainerSize - (totalGaps * defaultGapSize);
-                    cellSize = Math.floor(availableSpace / gridSize);
-                    gapSize = defaultGapSize;
-                }
+                // Calculate gap size (smaller for larger grids)
+                gapSize = Math.max(4, Math.min(10, 12 - gridSize / 2));
+                
+                // Calculate cell size based on container size and gaps
+                const totalGaps = gridSize + 1; // Number of gaps (including outer edges)
+                const availableSpace = maxContainerSize - (totalGaps * gapSize);
+                cellSize = Math.max(minCellSize, Math.floor(availableSpace / gridSize));
                 
                 // Compute the total size of the game container
                 const containerSize = (cellSize * gridSize) + (gapSize * (gridSize + 1));
@@ -476,6 +507,10 @@
                 gameWon = false;
                 keepGoing = false;
                 history = []; // Clear undo history
+                
+                // Update the best score from localStorage
+                bestScore = localStorage.getItem('bestScore') || 0;
+                bestScoreElement.textContent = bestScore;
                 
                 // Clear all tiles
                 gridElement.innerHTML = '';
@@ -518,6 +553,7 @@
                 if (score > bestScore) {
                     bestScore = score;
                     bestScoreElement.textContent = bestScore;
+                    localStorage.setItem('bestScore', bestScore);
                 }
             }
 
@@ -550,9 +586,10 @@
                 tile.style.height = cellPositions[index].height;
                 
                 // Adjust font size based on cell size and value length
+                const digitCount = value.toString().length;
                 const fontSize = Math.min(
                     cellSize / 2.5, // Base font size proportional to cell size
-                    cellSize / Math.max(1, value.toString().length / 1.5) // Reduce for longer numbers
+                    cellSize / Math.max(1, digitCount / 1.5) // Reduce for longer numbers
                 );
                 tile.style.fontSize = `${fontSize}px`;
                 
@@ -859,9 +896,10 @@
                                     targetTile.dataset.value = merge.newValue;
                                     
                                     // Adjust font size for larger numbers
+                                    const digitCount = merge.newValue.toString().length;
                                     const fontSize = Math.min(
                                         cellSize / 2.5,
-                                        cellSize / Math.max(1, merge.newValue.toString().length / 1.5)
+                                        cellSize / Math.max(1, digitCount / 1.5)
                                     );
                                     targetTile.style.fontSize = `${fontSize}px`;
                                     
@@ -909,6 +947,50 @@
                 return moved;
             }
 
+            // Handle window resize event
+            function handleResize() {
+                // Only recalculate if game is active
+                if (!waitingForAnimation) {
+                    // Save current grid state
+                    const currentGrid = JSON.parse(JSON.stringify(grid));
+                    
+                    // Recalculate positions
+                    calculateCellPositions();
+                    
+                    // Update cell positions
+                    const cells = document.querySelectorAll('.grid-cell');
+                    for (let i = 0; i < cells.length; i++) {
+                        cells[i].style.top = cellPositions[i].top;
+                        cells[i].style.left = cellPositions[i].left;
+                        cells[i].style.width = cellPositions[i].width;
+                        cells[i].style.height = cellPositions[i].height;
+                    }
+                    
+                    // Update tile positions and sizes
+                    const tiles = document.querySelectorAll('.tile');
+                    for (const tile of tiles) {
+                        const row = parseInt(tile.dataset.row);
+                        const col = parseInt(tile.dataset.col);
+                        const index = getCellIndex(row, col);
+                        const value = parseInt(tile.dataset.value);
+                        
+                        // Update position and size
+                        tile.style.top = cellPositions[index].top;
+                        tile.style.left = cellPositions[index].left;
+                        tile.style.width = cellPositions[index].width;
+                        tile.style.height = cellPositions[index].height;
+                        
+                        // Update font size
+                        const digitCount = value.toString().length;
+                        const fontSize = Math.min(
+                            cellSize / 2.5,
+                            cellSize / Math.max(1, digitCount / 1.5)
+                        );
+                        tile.style.fontSize = `${fontSize}px`;
+                    }
+                }
+            }
+
             // Check if the game has been won (2048 tile exists)
             function hasWon() {
                 for (let row = 0; row < gridSize; row++) {
@@ -919,6 +1001,14 @@
                     }
                 }
                 return false;
+            }
+            
+            // Function to handle orientation change events
+            function handleOrientationChange() {
+                // Small delay to allow the browser to complete the orientation change
+                setTimeout(() => {
+                    handleResize();
+                }, 200);
             }
 
             // Check if the game is over (no moves possible)
@@ -988,7 +1078,11 @@
                     layout: {
                         cellSize: cellSize,
                         gapSize: gapSize,
-                        containerSize: gameContainerElement.style.width
+                        containerSize: gameContainerElement.style.width,
+                        viewportSize: {
+                            width: window.innerWidth,
+                            height: window.innerHeight
+                        }
                     },
                     DOMState: {
                         tileCount: tiles.length,
@@ -1105,6 +1199,10 @@
             gameContainerElement.addEventListener('touchend', handleTouchEnd, { passive: false });
             gameContainerElement.addEventListener('touchmove', handleTouchMove, { passive: false });
             
+            // Add window resize and orientation change listeners
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', handleOrientationChange);
+            
             newGameButton.addEventListener('click', initGame);
             tryAgainButton.addEventListener('click', initGame);
             undoButton.addEventListener('click', undoMove);
@@ -1128,10 +1226,18 @@
                 debugOverlay.style.display = 'none';
             });
             
+            // Load best score from localStorage
+            bestScore = localStorage.getItem('bestScore') || 0;
+            bestScoreElement.textContent = bestScore;
+            
             // Initialize the game with default settings
             updateGridSizeDisplay();
             initGame();
+            
+            // Perform initial resize to ensure proper fit
+            handleResize();
         });
     </script>
 </body>
 </html>
+                                
