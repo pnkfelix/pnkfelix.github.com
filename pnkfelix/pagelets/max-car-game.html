@@ -2,12 +2,14 @@
 <html>
 <head>
   <title>Monster Car Smash Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
       margin: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
       background-color: #87CEEB; /* Sky blue background */
+      touch-action: none; /* Prevents browser handling of touch events */
     }
     
     #gameCanvas {
@@ -49,6 +51,19 @@
       border-radius: 5px;
       font-size: 14px;
     }
+    
+    #controls {
+      position: absolute;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -61,6 +76,9 @@
     Avoid monsters and airplanes!<br>
     Watch out for ice patches - they'll make you slip!<br>
     Stay on the road for best speed!
+  </div>
+  <div id="controls">
+    Swipe on screen to move the car
   </div>
   
   <script>
@@ -124,6 +142,15 @@
       ArrowLeft: false,
       ArrowRight: false
     };
+    
+    // Touch variables for swipe detection
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    const minSwipeDistance = 30; // Minimum distance to register a swipe
+    let swipeTimeout = null;
+    const swipeDuration = 100; // Duration to keep the key "pressed" after swipe
     
     // Monsters array
     const monsters = [];
@@ -268,6 +295,58 @@
               obj1.x + obj1.width > obj2.x &&
               obj1.y < obj2.y + obj2.height &&
               obj1.y + obj1.height > obj2.y);
+    }
+    
+    // Process swipe and trigger corresponding key press
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      
+      // Reset all keys first
+      keys.ArrowUp = false;
+      keys.ArrowDown = false;
+      keys.ArrowLeft = false;
+      keys.ArrowRight = false;
+      
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+        // Horizontal swipe
+        if (deltaX > 0) {
+          // Swipe right
+          keys.ArrowRight = true;
+          // Set a timeout to reset the key state
+          clearTimeout(swipeTimeout);
+          swipeTimeout = setTimeout(() => {
+            keys.ArrowRight = false;
+          }, swipeDuration);
+        } else {
+          // Swipe left
+          keys.ArrowLeft = true;
+          // Set a timeout to reset the key state
+          clearTimeout(swipeTimeout);
+          swipeTimeout = setTimeout(() => {
+            keys.ArrowLeft = false;
+          }, swipeDuration);
+        }
+      } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > minSwipeDistance) {
+        // Vertical swipe
+        if (deltaY > 0) {
+          // Swipe down
+          keys.ArrowDown = true;
+          // Set a timeout to reset the key state
+          clearTimeout(swipeTimeout);
+          swipeTimeout = setTimeout(() => {
+            keys.ArrowDown = false;
+          }, swipeDuration);
+        } else {
+          // Swipe up
+          keys.ArrowUp = true;
+          // Set a timeout to reset the key state
+          clearTimeout(swipeTimeout);
+          swipeTimeout = setTimeout(() => {
+            keys.ArrowUp = false;
+          }, swipeDuration);
+        }
+      }
     }
     
     // Update game state
@@ -862,6 +941,43 @@
         e.preventDefault();
       }
     });
+    
+    // Touch event listeners for mobile controls
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Prevent default behavior
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // Prevent scrolling
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault(); // Prevent default behavior
+      touchEndX = e.changedTouches[0].clientX;
+      touchEndY = e.changedTouches[0].clientY;
+      
+      handleSwipe();
+    }, { passive: false });
+    
+    // For continuous swipe movement (optional - makes controls more responsive)
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      touchEndX = e.touches[0].clientX;
+      touchEndY = e.touches[0].clientY;
+      
+      // Only process if the touch has moved a minimum distance
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      
+      if (Math.abs(deltaX) > minSwipeDistance || Math.abs(deltaY) > minSwipeDistance) {
+        handleSwipe();
+        // Update start position for continuous movement
+        touchStartX = touchEndX;
+        touchStartY = touchEndY;
+      }
+    }, { passive: false });
     
     // Resize canvas when window size changes
     window.addEventListener('resize', () => {
