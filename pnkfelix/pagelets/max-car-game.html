@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Monster Car Smash Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #87CEEB; /* Sky blue background */
+    }
+    
+    #gameCanvas {
+      background-color: #8B4513; /* Brown for dirt/road background */
+      display: block;
+    }
+    
+    #gameInfo {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
+    #restartButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #instructions {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="gameInfo">Lives: <span id="lives">3</span> | Score: <span id="score">0</span> | Level: <span id="level">1</span></div>
+  <button id="restartButton">Restart Game</button>
+  <div id="instructions">
+    Use arrow keys to move the green car.<br>
+    Reach the finish line at the top!<br>
+    Avoid monsters and airplanes!<br>
+    Watch out for ice patches - they'll make you slip!<br>
+    Stay on the road for best speed!
+  </div>
+  
+  <script>
+    // Get canvas and context
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas to full window size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Game variables
+    let score = 0;
+    let lives = 3;
+    let gameOver = false;
+    let level = 1;
+    let finishLineY = 50;
+    let hasWon = false;
+    
+    // Create mountain ranges
+    const leftMountains = [];
+    const rightMountains = [];
+    
+    // Street characters
+    const badGuys = [];
+    const policeOfficers = [];
+    
+    // Ice patches
+    const icePatches = [];
+    
+    // Car state for ice slipping
+    let isSlipping = false;
+    let slipDirection = { x: 0, y: 0 };
+    let slipTimer = 0;
+    
+    // Car object
+    const car = {
+      x: canvas.width / 2,
+      y: canvas.height - 100,
+      width: 40,
+      height: 60,
+      speed: 5,
+      color: '#00CC00', // Bright green car
+      isHit: false,
+      hitTimer: 0
+    };
+    
+    // Road object
+    const road = {
+      x: canvas.width / 4,
+      y: 0,
+      width: canvas.width / 2,
+      height: canvas.height,
+      color: '#888888' // Gray road
+    };
+    
+    // Key states
+    const keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+      ArrowRight: false
+    };
+    
+    // Monsters array
+    const monsters = [];
+    
+    // Airplanes array
+    const airplanes = [];
+    
+    // Stars array (for effects when car is hit)
+    const stars = [];
+    
+    // Generate mountains on both sides
+    function generateMountains() {
+      leftMountains.length = 0;
+      rightMountains.length = 0;
+      
+      // Left side mountains
+      let xPos = 0;
+      while (xPos < road.x - 20) {
+        const height = 100 + Math.random() * 150;
+        leftMountains.push({
+          x: xPos,
+          width: 60 + Math.random() * 60,
+          height: height,
+          snowLine: height * 0.4
+        });
+        xPos += 40 + Math.random() * 30;
+      }
+      
+      // Right side mountains
+      xPos = road.x + road.width + 20;
+      while (xPos < canvas.width - 50) {
+        const height = 100 + Math.random() * 150;
+        rightMountains.push({
+          x: xPos,
+          width: 60 + Math.random() * 60,
+          height: height,
+          snowLine: height * 0.4
+        });
+        xPos += 40 + Math.random() * 30;
+      }
+    }
+    
+    // Create a monster
+    function createMonster() {
+      return {
+        x: Math.random() * (canvas.width - 60),
+        y: -80,
+        width: 60,
+        height: 80,
+        speed: 1 + Math.random() * 2,
+        punchTimer: 0,
+        isPunching: false
+      };
+    }
+    
+    // Create an airplane
+    function createAirplane() {
+      const side = Math.random() > 0.5 ? 1 : -1;
+      return {
+        x: side > 0 ? -100 : canvas.width + 100,
+        y: 100 + Math.random() * (canvas.height - 200),
+        width: 80,
+        height: 40,
+        speed: 2 + Math.random() * 3,
+        direction: side
+      };
+    }
+    
+    // Create a star (visual effect for hits)
+    function createStar(x, y) {
+      return {
+        x: x,
+        y: y,
+        size: 10 + Math.random() * 10,
+        speed: 1 + Math.random() * 2,
+        angle: Math.random() * Math.PI * 2,
+        opacity: 1
+      };
+    }
+    
+    // Create a bad guy
+    function createBadGuy() {
+      const lane = Math.floor(Math.random() * 3); // 0, 1, or 2 for left, middle, right
+      const laneX = road.x + (lane * road.width / 3) + road.width / 6;
+      
+      return {
+        x: laneX,
+        y: Math.random() * canvas.height,
+        width: 20,
+        height: 30,
+        speed: 2 + Math.random() * 1.5,
+        lane: lane,
+        color: '#000000', // Black clothing
+        legPhase: Math.random() * Math.PI * 2
+      };
+    }
+    
+    // Create a police officer
+    function createPoliceOfficer(badGuy) {
+      return {
+        x: badGuy.x,
+        y: badGuy.y + 80 + Math.random() * 40, // Start a bit behind bad guy
+        width: 20,
+        height: 30,
+        speed: badGuy.speed * 0.9, // Slightly slower than bad guy
+        lane: badGuy.lane,
+        color: '#0000CC', // Blue uniform
+        legPhase: Math.random() * Math.PI * 2
+      };
+    }
+    
+    // Create an ice patch
+    function createIcePatch() {
+      return {
+        x: road.x + Math.random() * (road.width - 80),
+        y: -100 - Math.random() * 300,
+        width: 60 + Math.random() * 80,
+        height: 40 + Math.random() * 40,
+        speed: 1 + Math.random() * 2
+      };
+    }
+    
+    // Generate initial ice patches
+    function generateIcePatches() {
+      icePatches.length = 0;
+      const patchCount = 3 + level;
+      
+      for (let i = 0; i < patchCount; i++) {
+        icePatches.push(createIcePatch());
+      }
+    }
+    
+    // Check if car is on road
+    function isCarOnRoad() {
+      return (car.x + car.width > road.x && 
+              car.x < road.x + road.width);
+    }
+    
+    // Check collision between two objects
+    function checkCollision(obj1, obj2) {
+      return (obj1.x < obj2.x + obj2.width &&
+              obj1.x + obj1.width > obj2.x &&
+              obj1.y < obj2.y + obj2.height &&
+              obj1.y + obj1.height > obj2.y);
+    }
+    
+    // Update game state
+    function update() {
+      if (gameOver) return;
+      
+      // Move car based on key presses
+      if (isSlipping) {
+        // When slipping, car moves according to slip direction
+        car.x += slipDirection.x;
+        car.y += slipDirection.y;
+        
+        slipTimer++;
+        if (slipTimer > 50) {
+          isSlipping = false;
+          slipTimer = 0;
+        }
+      } else {
+        // Normal movement
+        if (keys.ArrowUp) car.y -= car.speed * (isCarOnRoad() ? 1.5 : 0.7); // Faster on road
+        if (keys.ArrowDown) car.y += car.speed * (isCarOnRoad() ? 1.5 : 0.7);
+        if (keys.ArrowLeft) car.x -= car.speed;
+        if (keys.ArrowRight) car.x += car.speed;
+      }
+      
+      // Keep car within canvas bounds
+      car.x = Math.max(0, Math.min(canvas.width - car.width, car.x));
+      car.y = Math.max(0, Math.min(canvas.height - car.height, car.y));
+      
+      // Update car hit animation
+      if (car.isHit) {
+        car.hitTimer++;
+        if (car.hitTimer > 30) {
+          car.isHit = false;
+          car.hitTimer = 0;
+        }
+      }
+      
+      // Update monsters
+      for (let i = monsters.length - 1; i >= 0; i--) {
+        const monster = monsters[i];
+        monster.y += monster.speed;
+        
+        // Random punching
+        if (!monster.isPunching && Math.random() < 0.01) {
+          monster.isPunching = true;
+          monster.punchTimer = 0;
+        }
+        
+        // Update punch animation
+        if (monster.isPunching) {
+          monster.punchTimer++;
+          if (monster.punchTimer > 30) {
+            monster.isPunching = false;
+          }
+          
+          // Check collision with car during punch
+          if (monster.punchTimer > 15 && monster.punchTimer < 25) {
+            if (checkCollision(monster, car) && !car.isHit) {
+              car.isHit = true;
+              lives--;
+              
+              // Create stars effect
+              for (let j = 0; j < 8; j++) {
+                stars.push(createStar(car.x + car.width/2, car.y));
+              }
+              
+              // Check if game over
+              if (lives <= 0) {
+                gameOver = true;
+              }
+            }
+          }
+        }
+        
+        // Remove monsters that go off screen
+        if (monster.y > canvas.height) {
+          monsters.splice(i, 1);
+          score++;
+          document.getElementById('score').textContent = score;
+        }
+      }
+      
+      // Update airplanes
+      for (let i = airplanes.length - 1; i >= 0; i--) {
+        const airplane = airplanes[i];
+        airplane.x += airplane.speed * airplane.direction;
+        
+        // Check collision with car
+        if (checkCollision(airplane, car) && !car.isHit) {
+          car.isHit = true;
+          lives--;
+          
+          // Create stars effect
+          for (let j = 0; j < 12; j++) {
+            stars.push(createStar(car.x + car.width/2, car.y));
+          }
+          
+          // Check if game over
+          if (lives <= 0) {
+            gameOver = true;
+          }
+        }
+        
+        // Remove airplanes that go off screen
+        if ((airplane.direction > 0 && airplane.x > canvas.width) || 
+            (airplane.direction < 0 && airplane.x + airplane.width < 0)) {
+          airplanes.splice(i, 1);
+        }
+      }
+      
+      // Update bad guys and police officers
+      for (let i = badGuys.length - 1; i >= 0; i--) {
+        const badGuy = badGuys[i];
+        badGuy.y -= badGuy.speed; // Moving up the screen
+        badGuy.legPhase += 0.2; // Update running animation
+        
+        // Remove if off screen
+        if (badGuy.y < -50) {
+          // Remove corresponding police officer
+          if (i < policeOfficers.length) {
+            policeOfficers.splice(i, 1);
+          }
+          badGuys.splice(i, 1);
+        }
+      }
+      
+      // Update police officers
+      for (let i = policeOfficers.length - 1; i >= 0; i--) {
+        const officer = policeOfficers[i];
+        officer.y -= officer.speed; // Moving up the screen
+        officer.legPhase += 0.2; // Update running animation
+        
+        // Remove if off screen
+        if (officer.y < -50) {
+          policeOfficers.splice(i, 1);
+        }
+      }
+      
+      // Update ice patches
+      for (let i = icePatches.length - 1; i >= 0; i--) {
+        const ice = icePatches[i];
+        ice.y += ice.speed;
+        
+        // Check collision with car
+        if (!isSlipping && checkCollision(ice, car)) {
+          isSlipping = true;
+          slipTimer = 0;
+          
+          // Set slip direction based on car's current movement and some randomness
+          slipDirection.x = (keys.ArrowLeft ? -2 : keys.ArrowRight ? 2 : 0) + (Math.random() * 4 - 2);
+          slipDirection.y = (keys.ArrowUp ? -1 : keys.ArrowDown ? 1 : 0) + (Math.random() * 2 - 1);
+          
+          // Add some visual feedback
+          for (let j = 0; j < 5; j++) {
+            stars.push(createStar(car.x + car.width/2, car.y + car.height));
+          }
+        }
+        
+        // Remove if off screen
+        if (ice.y > canvas.height) {
+          icePatches.splice(i, 1);
+          icePatches.push(createIcePatch()); // Add a new one to replace it
+        }
+      }
+      
+      // Update stars
+      for (let i = stars.length - 1; i >= 0; i--) {
+        const star = stars[i];
+        star.x += Math.cos(star.angle) * star.speed;
+        star.y += Math.sin(star.angle) * star.speed;
+        star.opacity -= 0.02;
+        
+        if (star.opacity <= 0) {
+          stars.splice(i, 1);
+        }
+      }
+      
+      // Randomly add new monsters
+      if (Math.random() < 0.02 && monsters.length < 5) {
+        monsters.push(createMonster());
+      }
+      
+      // Randomly add new airplanes
+      if (Math.random() < 0.01 && airplanes.length < 2) {
+        airplanes.push(createAirplane());
+      }
+      
+      // Randomly add new bad guys with police chasing
+      if (Math.random() < 0.01 && badGuys.length < 3) {
+        const newBadGuy = createBadGuy();
+        badGuys.push(newBadGuy);
+        policeOfficers.push(createPoliceOfficer(newBadGuy));
+      }
+      
+      // Update displays
+      document.getElementById('lives').textContent = lives;
+      document.getElementById('level').textContent = level;
+      
+      // Check if car reached finish line
+      if (!hasWon && car.y <= finishLineY) {
+        hasWon = true;
+        level++;
+        setTimeout(() => {
+          // Reset car position but keep score
+          car.x = canvas.width / 2;
+          car.y = canvas.height - 100;
+          isSlipping = false;
+          
+          // Clear monsters and airplanes
+          monsters.length = 0;
+          airplanes.length = 0;
+          
+          // Generate new ice patches (more with each level)
+          generateIcePatches();
+          
+          // Reset finish line position (make it harder each level)
+          finishLineY = Math.max(20, 50 - (level * 5));
+          
+          // Update level display
+          document.getElementById('level').textContent = level;
+          
+          // Continue game
+          hasWon = false;
+        }, 2000);
+      }
+    }
+    
+    // Draw everything
+    function draw() {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Set sky background
+      ctx.fillStyle = '#87CEEB'; // Sky blue
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw mountains on left side
+      leftMountains.forEach(mountain => {
+        // Draw mountain body
+        ctx.fillStyle = '#5D4037'; // Brown
+        ctx.beginPath();
+        ctx.moveTo(mountain.x, canvas.height);
+        ctx.lineTo(mountain.x + mountain.width/2, canvas.height - mountain.height);
+        ctx.lineTo(mountain.x + mountain.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw snow cap
+        ctx.fillStyle = '#FFFFFF'; // White snow
+        ctx.beginPath();
+        ctx.moveTo(mountain.x + mountain.width/2 - (mountain.width/2) * (mountain.snowLine/mountain.height), 
+                  canvas.height - mountain.snowLine);
+        ctx.lineTo(mountain.x + mountain.width/2, canvas.height - mountain.height);
+        ctx.lineTo(mountain.x + mountain.width/2 + (mountain.width/2) * (mountain.snowLine/mountain.height), 
+                  canvas.height - mountain.snowLine);
+        ctx.closePath();
+        ctx.fill();
+      });
+      
+      // Draw mountains on right side
+      rightMountains.forEach(mountain => {
+        // Draw mountain body
+        ctx.fillStyle = '#5D4037'; // Brown
+        ctx.beginPath();
+        ctx.moveTo(mountain.x, canvas.height);
+        ctx.lineTo(mountain.x + mountain.width/2, canvas.height - mountain.height);
+        ctx.lineTo(mountain.x + mountain.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw snow cap
+        ctx.fillStyle = '#FFFFFF'; // White snow
+        ctx.beginPath();
+        ctx.moveTo(mountain.x + mountain.width/2 - (mountain.width/2) * (mountain.snowLine/mountain.height), 
+                  canvas.height - mountain.snowLine);
+        ctx.lineTo(mountain.x + mountain.width/2, canvas.height - mountain.height);
+        ctx.lineTo(mountain.x + mountain.width/2 + (mountain.width/2) * (mountain.snowLine/mountain.height), 
+                  canvas.height - mountain.snowLine);
+        ctx.closePath();
+        ctx.fill();
+      });
+      
+      // Draw road
+      ctx.fillStyle = road.color;
+      ctx.fillRect(road.x, road.y, road.width, road.height);
+      
+      // Draw road lines
+      ctx.strokeStyle = 'yellow';
+      ctx.setLineDash([20, 20]);
+      ctx.beginPath();
+      ctx.moveTo(road.x + road.width/2, 0);
+      ctx.lineTo(road.x + road.width/2, canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Draw ice patches
+      icePatches.forEach(ice => {
+        // Create ice pattern
+        ctx.fillStyle = 'rgba(200, 230, 255, 0.7)'; // Light blue with transparency
+        ctx.fillRect(ice.x, ice.y, ice.width, ice.height);
+        
+        // Add ice texture/highlights
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 2;
+        
+        // Draw some random lines for ice texture
+        for (let i = 0; i < 5; i++) {
+          const startX = ice.x + Math.random() * ice.width;
+          const startY = ice.y + Math.random() * ice.height;
+          const length = 10 + Math.random() * 20;
+          const angle = Math.random() * Math.PI;
+          
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(startX + Math.cos(angle) * length, startY + Math.sin(angle) * length);
+          ctx.stroke();
+        }
+        
+        // Add ice shine
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(ice.x + ice.width/3, ice.y + ice.height/3, 
+                   ice.width/5, ice.height/6, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Draw finish line
+      ctx.fillStyle = 'black';
+      ctx.fillRect(road.x - 50, finishLineY - 5, road.width + 100, 10);
+      
+      // Draw checkered pattern on finish line
+      ctx.fillStyle = 'white';
+      const checkSize = 10;
+      const numChecks = Math.ceil((road.width + 100) / checkSize);
+      for (let i = 0; i < numChecks; i++) {
+        if (i % 2 === 0) {
+          ctx.fillRect(road.x - 50 + (i * checkSize), finishLineY - 5, checkSize, 10);
+        }
+      }
+      
+      // Draw monsters
+      monsters.forEach(monster => {
+        // Draw monster body
+        ctx.fillStyle = '#663399'; // Purple
+        ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+        
+        // Draw monster eyes
+        ctx.fillStyle = 'white';
+        ctx.fillRect(monster.x + 10, monster.y + 15, 10, 10); // left eye
+        ctx.fillRect(monster.x + 40, monster.y + 15, 10, 10); // right eye
+        
+        // Draw monster pupils
+        ctx.fillStyle = 'black';
+        ctx.fillRect(monster.x + 13, monster.y + 18, 4, 4); // left pupil
+        ctx.fillRect(monster.x + 43, monster.y + 18, 4, 4); // right pupil
+        
+        // Draw monster mouth
+        ctx.fillStyle = 'red';
+        ctx.fillRect(monster.x + 15, monster.y + 40, 30, 10);
+        
+        // Draw punching arm if monster is punching
+        if (monster.isPunching) {
+          const punchExtension = Math.sin(monster.punchTimer * 0.2) * 40;
+          ctx.fillStyle = '#663399'; // Purple
+          ctx.fillRect(monster.x + 30, monster.y + 60, 20, 20 + punchExtension);
+          
+          // Draw fist
+          ctx.fillStyle = '#440066'; // Dark purple
+          ctx.fillRect(monster.x + 25, monster.y + 80 + punchExtension, 30, 20);
+        }
+      });
+      
+      // Draw bad guys
+      badGuys.forEach(badGuy => {
+        // Draw body
+        ctx.fillStyle = badGuy.color;
+        ctx.fillRect(badGuy.x - badGuy.width/2, badGuy.y, badGuy.width, badGuy.height);
+        
+        // Draw head
+        ctx.fillStyle = '#FFD700'; // Gold/yellow head
+        ctx.beginPath();
+        ctx.arc(badGuy.x, badGuy.y - 10, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw mask
+        ctx.fillStyle = '#555555'; // Dark gray mask
+        ctx.fillRect(badGuy.x - 8, badGuy.y - 13, 16, 6);
+        
+        // Draw running legs
+        ctx.fillStyle = badGuy.color;
+        const legOffset = Math.sin(badGuy.legPhase) * 5;
+        // Left leg
+        ctx.fillRect(badGuy.x - badGuy.width/2 - 3, badGuy.y + badGuy.height, 6, 15 + legOffset);
+        // Right leg
+        ctx.fillRect(badGuy.x + badGuy.width/2 - 3, badGuy.y + badGuy.height, 6, 15 - legOffset);
+        
+        // Draw running arms
+        ctx.fillStyle = badGuy.color;
+        // Left arm
+        ctx.fillRect(badGuy.x - badGuy.width/2 - 8, badGuy.y + 5, 8, 6 - legOffset);
+        // Right arm
+        ctx.fillRect(badGuy.x + badGuy.width/2, badGuy.y + 5, 8, 6 + legOffset);
+        
+        // Draw money bag
+        ctx.fillStyle = '#006400'; // Dark green
+        ctx.fillRect(badGuy.x + badGuy.width/2 + 4, badGuy.y + 10, 10, 15);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '12px Arial';
+        ctx.fillText('$', badGuy.x + badGuy.width/2 + 8, badGuy.y + 22);
+      });
+      
+      // Draw police officers
+      policeOfficers.forEach(officer => {
+        // Draw body
+        ctx.fillStyle = officer.color;
+        ctx.fillRect(officer.x - officer.width/2, officer.y, officer.width, officer.height);
+        
+        // Draw head
+        ctx.fillStyle = '#FFD700'; // Gold/yellow head
+        ctx.beginPath();
+        ctx.arc(officer.x, officer.y - 10, 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw police hat
+        ctx.fillStyle = '#0000AA'; // Dark blue hat
+        ctx.fillRect(officer.x - 12, officer.y - 20, 24, 8);
+        ctx.fillStyle = '#FFFF00'; // Yellow badge
+        ctx.fillRect(officer.x - 3, officer.y - 18, 6, 6);
+        
+        // Draw running legs
+        ctx.fillStyle = '#000066'; // Dark blue pants
+        const legOffset = Math.sin(officer.legPhase) * 5;
+        // Left leg
+        ctx.fillRect(officer.x - officer.width/2 - 3, officer.y + officer.height, 6, 15 + legOffset);
+        // Right leg
+        ctx.fillRect(officer.x + officer.width/2 - 3, officer.y + officer.height, 6, 15 - legOffset);
+        
+        // Draw running arms
+        ctx.fillStyle = officer.color;
+        // Left arm with baton
+        ctx.fillRect(officer.x - officer.width/2 - 8, officer.y + 5, 8, 6 - legOffset);
+        ctx.fillStyle = '#555555'; // Gray baton
+        ctx.fillRect(officer.x - officer.width/2 - 18, officer.y + 5 - legOffset, 10, 4);
+        
+        // Right arm
+        ctx.fillStyle = officer.color;
+        ctx.fillRect(officer.x + officer.width/2, officer.y + 5, 8, 6 + legOffset);
+      });
+      
+      // Draw car
+      if (isSlipping) {
+        // Draw car with slight rotation when slipping
+        ctx.save();
+        ctx.translate(car.x + car.width/2, car.y + car.height/2);
+        ctx.rotate(Math.sin(slipTimer * 0.2) * 0.2); // Slight rotation back and forth
+        ctx.fillStyle = car.isHit ? (car.hitTimer % 6 < 3 ? 'red' : car.color) : car.color;
+        ctx.fillRect(-car.width/2, -car.height/2, car.width, car.height);
+        
+        // Draw car details
+        ctx.fillStyle = 'black';
+        ctx.fillRect(-car.width/2 + 5, -car.height/2 + 10, 10, 5); // left window
+        ctx.fillRect(-car.width/2 + 25, -car.height/2 + 10, 10, 5); // right window
+        ctx.fillRect(-car.width/2 + 5, -car.height/2 + 45, 30, 10); // bumper
+        ctx.restore();
+        
+        // Draw skid marks when slipping
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(car.x, car.y + car.height);
+        ctx.lineTo(car.x - slipDirection.x * 5, car.y + car.height - slipDirection.y * 5);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(car.x + car.width, car.y + car.height);
+        ctx.lineTo(car.x + car.width - slipDirection.x * 5, car.y + car.height - slipDirection.y * 5);
+        ctx.stroke();
+      } else {
+        // Normal car drawing
+        ctx.fillStyle = car.isHit ? (car.hitTimer % 6 < 3 ? 'red' : car.color) : car.color;
+        ctx.fillRect(car.x, car.y, car.width, car.height);
+        
+        // Draw car details
+        ctx.fillStyle = 'black';
+        ctx.fillRect(car.x + 5, car.y + 10, 10, 5); // left window
+        ctx.fillRect(car.x + 25, car.y + 10, 10, 5); // right window
+        ctx.fillRect(car.x + 5, car.y + 45, 30, 10); // bumper
+      }
+      
+      // Draw airplanes
+      airplanes.forEach(airplane => {
+        // Draw airplane body
+        ctx.fillStyle = '#3366FF'; // Blue
+        ctx.fillRect(airplane.x, airplane.y, airplane.width, airplane.height);
+        
+        // Draw airplane wings
+        ctx.fillStyle = '#99CCFF'; // Light blue
+        ctx.fillRect(airplane.x + 20, airplane.y - 10, 40, 10); // top wing
+        ctx.fillRect(airplane.x + 20, airplane.y + airplane.height, 40, 10); // bottom wing
+        
+        // Draw airplane tail
+        ctx.fillStyle = '#99CCFF'; // Light blue
+        if (airplane.direction > 0) {
+          ctx.fillRect(airplane.x, airplane.y + 10, 10, 20); // left tail
+        } else {
+          ctx.fillRect(airplane.x + airplane.width - 10, airplane.y + 10, 10, 20); // right tail
+        }
+        
+        // Draw airplane cockpit
+        ctx.fillStyle = '#FFCC00'; // Yellow
+        if (airplane.direction > 0) {
+          ctx.fillRect(airplane.x + airplane.width - 15, airplane.y + 10, 15, 20); // right cockpit
+        } else {
+          ctx.fillRect(airplane.x, airplane.y + 10, 15, 20); // left cockpit
+        }
+      });
+      
+      // Draw stars
+      stars.forEach(star => {
+        ctx.save();
+        ctx.translate(star.x, star.y);
+        ctx.rotate(Date.now() * 0.01);
+        ctx.globalAlpha = star.opacity;
+        ctx.fillStyle = 'yellow';
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          ctx.lineTo(Math.cos((i * 2 * Math.PI / 5) - Math.PI/2) * star.size,
+                     Math.sin((i * 2 * Math.PI / 5) - Math.PI/2) * star.size);
+          ctx.lineTo(Math.cos(((i + 0.5) * 2 * Math.PI / 5) - Math.PI/2) * (star.size/2),
+                     Math.sin(((i + 0.5) * 2 * Math.PI / 5) - Math.PI/2) * (star.size/2));
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      });
+      
+      // Draw level complete message
+      if (hasWon) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'gold';
+        ctx.textAlign = 'center';
+        ctx.fillText('LEVEL ' + (level-1) + ' COMPLETE!', canvas.width/2, canvas.height/2 - 50);
+        
+        ctx.font = '24px Arial';
+        ctx.fillText('Get ready for level ' + level + '!', canvas.width/2, canvas.height/2);
+      }
+    
+      // Draw game over message
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER!', canvas.width/2, canvas.height/2 - 50);
+        
+        ctx.font = '24px Arial';
+        ctx.fillText('Score: ' + score, canvas.width/2, canvas.height/2);
+        
+        ctx.font = '20px Arial';
+        ctx.fillText('Click the Restart button to play again!', canvas.width/2, canvas.height/2 + 50);
+      }
+    }
+    
+    // Game loop
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // Start game loop
+    generateMountains();
+    generateIcePatches();
+    gameLoop();
+    
+    // Event listeners for keyboard
+    window.addEventListener('keydown', (e) => {
+      if (e.key in keys) {
+        keys[e.key] = true;
+        e.preventDefault();
+      }
+    });
+    
+    window.addEventListener('keyup', (e) => {
+      if (e.key in keys) {
+        keys[e.key] = false;
+        e.preventDefault();
+      }
+    });
+    
+    // Resize canvas when window size changes
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      // Adjust road position and size
+      road.x = canvas.width / 4;
+      road.width = canvas.width / 2;
+      road.height = canvas.height;
+      
+      // Regenerate mountains for new canvas size
+      generateMountains();
+    });
+    
+    // Restart button event listener
+    document.getElementById('restartButton').addEventListener('click', () => {
+      // Reset game state
+      score = 0;
+      lives = 3;
+      level = 1;
+      gameOver = false;
+      hasWon = false;
+      finishLineY = 50;
+      isSlipping = false;
+      
+      // Reset car position
+      car.x = canvas.width / 2;
+      car.y = canvas.height - 100;
+      car.isHit = false;
+      
+      // Clear all entities
+      monsters.length = 0;
+      airplanes.length = 0;
+      stars.length = 0;
+      badGuys.length = 0;
+      policeOfficers.length = 0;
+      
+      // Generate new elements
+      generateMountains();
+      generateIcePatches();
+      
+      // Update display
+      document.getElementById('score').textContent = score;
+      document.getElementById('lives').textContent = lives;
+      document.getElementById('level').textContent = level;
+    });
+  </script>
+</body>
+</html>
