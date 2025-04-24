@@ -1,15 +1,297 @@
 ## Talk outline
 
 * Developer humor
-* Software delivery cycle
-* Schools of thought on debugging
+* Software Delivery Cycle
+* Debugging Philosophies
 * The scientific method
-* Zooming in on observation and analysis
+* Observation and Analysis
 * Tools
 
 ---
+layout: two-cols
+clicks: 8
+---
+
+# Binary Search
+
+<<< @/bin_search.rs#bsearch_inf_loop rust {|2,3|5|7,8|9,10|12|}
+
+::right::
+
+# &nbsp;
+
+<div class="flex flex-col items-center">
+  <div v-if="$clicks === 0">
+    Explaining
+  </div>
+  <div v-if="$clicks === 1">
+    Initially looking at whole slice from A to B
+  </div>
+  <div v-if="$clicks === 2">
+    Identify middle element of current slice
+  </div>
+  <div v-if="$clicks === 3">
+    If we found the record with matching K, return it
+  </div>
+  <div v-if="$clicks === 4">
+    If midpoint too big, then focus on left side
+  </div>
+  <div v-if="$clicks === 5">
+    If midpoint too small, then focus on right side
+  </div>
+  <div v-if="$clicks >= 6" class="left">
+    Unfortunately, it is busted
+
+  </div>
+  <div v-if="$clicks >= 6" class="left">
+
+<<< bin_search.rs#demo_data rust
+
+</div>
+  <div v-if="$clicks >= 7">
+<<< bin_search.rs#demo2 rust
+  </div>
+  <div v-if="$clicks >= 7">
+The above works as expected.
+
+But...
+  </div>
+
+  <div v-if="$clicks >= 8">
 
 
+<<< bin_search.rs#demo3 rust
+ </div>
+ <div v-if="$clicks >= 8">
+
+This second one does not work. It infinite loops.
+
+</div>
+
+</div>
+
+---
+layout: center
+---
+
+# Lets add some debug logging
+
+---
+layout: two-cols
+clicks: 3
+---
+
+<<< @/bin_search.rs#bsearch_debug_logs rust {|2,3,9|}
+
+::right::
+
+
+<div v-if="$clicks >= 2">
+
+`bsearch(&demo, 2)` prints:
+```
+haystack: [1, 2, 4, 5, 6, 9] needle: 2
+A M B
+0 3 6
+0 1 3
+```
+
+</div>
+<div v-if="$clicks >= 3">
+
+`bsearch(&demo, 3)` prints:
+```
+haystack: [1, 2, 4, 5, 6, 9] needle: 3
+A M B
+0 3 6
+0 1 3
+1 2 3
+1 1 2
+1 1 2
+1 1 2
+...
+```
+
+</div>
+
+---
+layout: center
+---
+
+# The quick fix!
+
+"It must just be an off-by-one error"
+
+---
+layout: two-cols
+clicks: 3
+---
+
+# Quick hack
+
+<<< @/bin_search.rs#incorrect_fix rust {13,15}
+
+::right::
+
+The old code infinite looped, because it kept reconsidering the same element repeatedly.
+
+Cursory inspection: "Lets update the places where `mid` is used to compute new endpoints."
+
+<div v-if="$clicks >= 1">
+
+## **Warning: *incorrect* fix!**
+
+(Challenge for those who know correct fix: Why is symmetry inapplicable here?)
+
+</div>
+
+---
+layout: two-cols
+clicks: 4
+---
+
+# "It works"
+
+<<< @/bin_search.rs#incorrect_fix rust
+
+::right::
+
+<<< bin_search.rs#demo_data rust
+
+<div v-if="$clicks == 2">
+
+`bsearch(&demo, 2)` prints:
+```
+haystack: [1, 2, 4, 5, 6, 9] needle: 2
+A M B
+0 3 6
+0 1 2
+```
+
+and returns `Some((2,"two"))`
+
+</div>
+
+<div v-if="$clicks == 3">
+
+`bsearch(&demo, 3)` prints:
+```
+haystack: [1, 2, 4, 5, 6, 9] needle: 3
+A M B
+0 3 6
+0 1 2
+```
+
+and returns `None`.
+
+(So far, so good.)
+
+</div>
+
+<div v-if="$clicks >= 4">
+
+But its not good.
+
+`bsearch(&demo, 1)` prints:
+```
+haystack: [1, 2, 4, 5, 6, 9] needle: 1
+A M B
+0 3 6
+0 1 2
+```
+
+and returns `None`.
+
+* Do we really understand what's going on?
+* Are these print statements enlightening us?
+
+</div>
+
+
+---
+layout: two-cols
+clicks: 3
+---
+
+# Binary Search
+
+<<< @/bin_search.rs#incorrect_fix rust {|15|13|13,15}
+
+::right::
+
+## Imprecision in Mental Model
+
+We have a set of candidate elements, denoted by a half-open range $[A,B)$
+
+(meaning element at $A$ is included as a candidate, while element at $B$ is excluded
+as a candidate).
+
+<div v-if="$clicks == 1">
+  
+ Here, we are going from $[A,B)$ to $[M+1,B)$; element at $M$ is excluded from future consideration (fixing infinite loop from earlier).
+ 
+ This makes sense; we have already proven element at M to be too small.
+
+</div>
+
+<div v-if="$clicks == 2">
+
+. . .
+
+  Here, we are going from $[A,B)$ to $[A,M-1)$; element at $M-1$ is excluded from future consideration. This is *not* justified; we have not proven anything about element at $M-1$.
+
+</div>
+
+<div v-if="$clicks >= 3">
+
+. . .
+
+. . .
+
+The two cases are *not* symmetric. A half-open range means that the left end-point should be treated differently than the the right endpoint.
+
+(Thought experiment: What does the code look like if one uses closed ranges $[A,B]$ to encode the search bounds?)
+
+</div>
+
+---
+
+<CircleGraph :titles="[
+  'Analyze Requirement',
+  'Design Solution',
+  'Implement',
+  'Test',
+  'Deploy',
+  'Maintain'
+]" />
+
+
+---
+
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const dynamicData = ref([])
+
+onMounted(() => {
+  // Generate or fetch your data programmatically
+  dynamicData.value = generateData()
+})
+
+function generateData() {
+  return [...Array(5)].map((_, i) => ({
+    id: i,
+    title: `Dynamic Item ${i}`,
+    value: Math.random() * 100
+  }))
+}
+</script>
+
+# My Dynamic Slide
+
+<div v-for="item in dynamicData" :key="item.id">
+  {{ item.title }}: {{ item.value.toFixed(2) }}
+</div>
 
 
 
@@ -30,8 +312,10 @@ graph LR
 
 ---
 layout: two-cols
-clicks: 5
+clicks: 0
 ---
+
+<!-- set clicks above to a positive number (e.g. 5) to resume having expected click behvior on this slide. -->
 
 
 <style>
@@ -83,7 +367,7 @@ here is some text
 <div>
   <div v-if="$clicks === 1">
     <p>Discussing the problem...</p>
-  </div>
+i  </div>
   <div v-else-if="$clicks === 2">
     <p>Creating the specification...</p>
   </div>
@@ -97,7 +381,7 @@ here is some text
     <p>Delivering the product...</p>
   </div>
 </div>
-
+  
 ---
 
 <svg>
