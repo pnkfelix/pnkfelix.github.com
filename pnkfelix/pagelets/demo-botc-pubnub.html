@@ -267,13 +267,13 @@
                 </select>
             </div>
             
-            <div class="input-group">
-                <label for="gameRoom">Game Room ID:</label>
-                <input type="text" id="gameRoom" placeholder="Enter or create room ID">
-                <button type="button" onclick="generateRoomId()">Generate New Room</button>
-            </div>
-            
             <div id="storytellerSetup" class="hidden">
+                <div class="input-group">
+                    <label for="gameRoom">Game Room ID:</label>
+                    <input type="text" id="gameRoom" placeholder="Enter or create room ID">
+                    <button type="button" onclick="generateRoomId()">Generate New Room</button>
+                </div>
+                
                 <div class="input-group">
                     <label for="playerNames">Player Names (one per line):</label>
                     <textarea id="playerNames" rows="6" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve"></textarea>
@@ -287,11 +287,19 @@
             
             <div id="playerSetup" class="hidden">
                 <div class="input-group">
+                    <label for="gameRoomPlayer">Game Room ID:</label>
+                    <input type="text" id="gameRoomPlayer" placeholder="Enter room ID from Storyteller">
+                    <button type="button" onclick="checkRoom()">Check Room</button>
+                </div>
+                
+                <div id="playerNameSection" class="input-group hidden">
                     <label for="playerName">Your Name:</label>
                     <select id="playerName">
                         <option value="">Select your name...</option>
                     </select>
                 </div>
+                
+                <div id="roomStatus" class="hidden" style="margin: 10px 0; padding: 10px; border-radius: 8px;"></div>
             </div>
             
             <button onclick="joinGame()">Start Game</button>
@@ -341,432 +349,817 @@
     </div>
 
     <script>
-      // PubNub Configuration - Replace with your keys
-      const PUBNUB_PUBLISH_KEY = 'demo'; // Replace with your publish key
-      const PUBNUB_SUBSCRIBE_KEY = 'demo'; // Replace with your subscribe key
-      
-      let pubnub;
-      let currentUser = '';
-      let currentRoom = '';
-      let userType = '';
-      let players = [];
-      let isConnected = false;
-      
-      // Initialize when user type changes
-      document.getElementById('userType').addEventListener('change', function() {
-        const storytellerSetup = document.getElementById('storytellerSetup');
-        const playerSetup = document.getElementById('playerSetup');
+        // PubNub Configuration - Replace with your keys
+        const PUBNUB_PUBLISH_KEY = 'demo'; // Replace with your publish key
+        const PUBNUB_SUBSCRIBE_KEY = 'demo'; // Replace with your subscribe key
         
-        if (this.value === 'storyteller') {
-          storytellerSetup.classList.remove('hidden');
-          playerSetup.classList.add('hidden');
-        } else {
-          storytellerSetup.classList.add('hidden');
-          playerSetup.classList.remove('hidden');
-        }
-      });
-      
-      function generateRoomId() {
-        const roomId = 'botc_' + Math.random().toString(36).substr(2, 8);
-        document.getElementById('gameRoom').value = roomId;
-      }
-      
-      function joinGame() {
-        userType = document.getElementById('userType').value;
-        currentRoom = document.getElementById('gameRoom').value.trim();
+        let pubnub;
+        let currentUser = '';
+        let currentRoom = '';
+        let userType = '';
+        let players = [];
+        let isConnected = false;
         
-        if (!currentRoom) {
-          alert('Please enter a room ID');
-          return;
-        }
-        
-        if (userType === 'storyteller') {
-          const playerNamesText = document.getElementById('playerNames').value.trim();
-          if (!playerNamesText) {
-            alert('Please enter player names');
-            return;
-          }
-          
-          players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
-          currentUser = 'Storyteller';
-          
-          const scriptName = document.getElementById('scriptName').value.trim() || 'Custom Script';
-          
-          // Populate player selection for storyteller
-          const targetSelect = document.getElementById('targetPlayer');
-          targetSelect.innerHTML = '<option value="all">All Players</option>';
-          players.forEach(player => {
-            const option = document.createElement('option');
-            option.value = player;
-            option.textContent = player;
-            targetSelect.appendChild(option);
-          });
-          
-        } else {
-          currentUser = document.getElementById('playerName').value;
-          if (!currentUser) {
-            alert('Please select your name');
-            return;
-          }
-        }
-        
-        initializePubNub();
-        switchToGameScreen();
-      }
-      
-      function initializePubNub() {
-        pubnub = new PubNub({
-          publishKey: PUBNUB_PUBLISH_KEY,
-          subscribeKey: PUBNUB_SUBSCRIBE_KEY,
-          userId: currentUser,
-          heartbeatInterval: 30
-        });
-        
-        // Subscribe to the game room
-        pubnub.subscribe({
-          channels: [currentRoom]
-        });
-        
-        // Listen for messages
-        pubnub.addListener({
-          message: function(messageEvent) {
-            handleIncomingMessage(messageEvent.message);
-          },
-          presence: function(presenceEvent) {
-            handlePresenceChange(presenceEvent);
-          },
-          status: function(statusEvent) {
-            handleConnectionStatus(statusEvent);
-          }
-        });
-        
-        // Enable presence
-        pubnub.subscribe({
-          channels: [currentRoom],
-          withPresence: true
-        });
-        
-        // If storyteller, send initial game setup
-        if (userType === 'storyteller') {
-          setTimeout(() => {
-            sendGameSetup();
-          }, 1000);
-        } else {
-          // If player, request current game state
-          setTimeout(() => {
-            requestGameState();
-          }, 1000);
-        }
-      }
-      
-      function handleConnectionStatus(statusEvent) {
-        const statusEl = document.getElementById('connectionStatus');
-        
-        if (statusEvent.category === 'PNConnectedCategory') {
-          isConnected = true;
-          statusEl.textContent = 'Connected to game';
-          statusEl.className = 'status connected';
-        } else if (statusEvent.category === 'PNReconnectedCategory') {
-          isConnected = true;
-          statusEl.textContent = 'Reconnected to game';
-          statusEl.className = 'status connected';
-        } else if (statusEvent.category === 'PNNetworkDownCategory') {
-          isConnected = false;
-          statusEl.textContent = 'Connection lost - trying to reconnect...';
-          statusEl.className = 'status disconnected';
-        }
-      }
-      
-      function sendGameSetup() {
-        const setupMessage = {
-          type: 'game_setup',
-          players: players,
-          script: document.getElementById('scriptName').value || 'Custom Script',
-          storyteller: currentUser,
-          timestamp: Date.now()
-        };
-        
-        pubnub.publish({
-          channel: currentRoom,
-          message: setupMessage
-        });
-      }
-      
-      function requestGameState() {
-        const requestMessage = {
-          type: 'request_game_state',
-          from: currentUser,
-          timestamp: Date.now()
-        };
-        
-        pubnub.publish({
-          channel: currentRoom,
-          message: requestMessage
-        });
-      }
-      
-      function handleIncomingMessage(message) {
-        if (message.type === 'game_setup') {
-          if (userType === 'player') {
-            players = message.players;
-            document.getElementById('displayScript').textContent = message.script;
-            updatePlayersList();
+        // Initialize when user type changes
+        document.getElementById('userType').addEventListener('change', function() {
+            const storytellerSetup = document.getElementById('storytellerSetup');
+            const playerSetup = document.getElementById('playerSetup');
             
-            // Populate player name selector if not already selected
+            if (this.value === 'storyteller') {
+                storytellerSetup.classList.remove('hidden');
+                playerSetup.classList.add('hidden');
+            } else {
+                storytellerSetup.classList.add('hidden');
+                playerSetup.classList.remove('hidden');
+            }
+        });
+        
+        function generateRoomId() {
+            const roomId = 'botc_' + Math.random().toString(36).substr(2, 8);
+            document.getElementById('gameRoom').value = roomId;
+        }
+        
+        function checkRoom() {
+            const roomId = document.getElementById('gameRoomPlayer').value.trim();
+            if (!roomId) {
+                alert('Please enter a room ID');
+                return;
+            }
+            
+            // Set up temporary PubNub connection to check if room exists and get game setup
+            const tempPubNub = new PubNub({
+                publishKey: PUBNUB_PUBLISH_KEY,
+                subscribeKey: PUBNUB_SUBSCRIBE_KEY,
+                userId: 'temp_' + Math.random().toString(36).substr(2, 8)
+            });
+            
+            // Request game state
+            const requestMessage = {
+                type: 'request_game_state',
+                from: 'temp_player',
+                timestamp: Date.now()
+            };
+            
+            // Listen for game setup response
+            tempPubNub.addListener({
+                message: function(messageEvent) {
+                    if (messageEvent.message.type === 'game_setup') {
+                        const setup = messageEvent.message;
+                        populatePlayerNames(setup.players, setup.script);
+                        tempPubNub.unsubscribeAll();
+                        tempPubNub.destroy();
+                    }
+                }
+            });
+            
+            tempPubNub.subscribe({
+                channels: [roomId]
+            });
+            
+            tempPubNub.publish({
+                channel: roomId,
+                message: requestMessage
+            });
+            
+            // Set timeout in case no response
+            setTimeout(() => {
+                if (document.getElementById('playerNameSection').classList.contains('hidden')) {
+                    showRoomStatus('Room not found or no Storyteller online. Make sure the Room ID is correct and the Storyteller has started the game.', 'error');
+                    tempPubNub.unsubscribeAll();
+                    tempPubNub.destroy();
+                }
+            }, 5000);
+        }
+        
+        function populatePlayerNames(playerList, scriptName) {
+            players = playerList;
+            
+            // Show success status
+            showRoomStatus(`Found game: ${scriptName} with ${playerList.length} players`, 'success');
+            
+            // Populate the player dropdown
             const playerSelect = document.getElementById('playerName');
-            if (!playerSelect.value) {
-              playerSelect.innerHTML = '<option value="">Select your name...</option>';
-              players.forEach(player => {
+            playerSelect.innerHTML = '<option value="">Select your name...</option>';
+            playerList.forEach(player => {
                 const option = document.createElement('option');
                 option.value = player;
                 option.textContent = player;
                 playerSelect.appendChild(option);
-              });
-            }
-          }
-        } else if (message.type === 'request_game_state' && userType === 'storyteller') {
-          // Storyteller responds with current game state
-          sendGameSetup();
-        } else if (message.type === 'chat_message') {
-          displayMessage(message);
-        }
-      }
-      
-      function handlePresenceChange(presenceEvent) {
-        // Update online players list
-        updatePlayersList();
-      }
-      
-      function switchToGameScreen() {
-        document.getElementById('setupScreen').classList.add('hidden');
-        document.getElementById('gameScreen').classList.remove('hidden');
-        
-        document.getElementById('displayRoom').textContent = currentRoom;
-        document.getElementById('displayScript').textContent = document.getElementById('scriptName').value || 'Custom Script';
-        
-        if (userType === 'storyteller') {
-          document.getElementById('storytellerControls').classList.remove('hidden');
-        }
-        
-        updatePlayersList();
-      }
-      
-      function updatePlayersList() {
-        const playersList = document.getElementById('playersList');
-        playersList.innerHTML = '';
-        
-        players.forEach(player => {
-          const playerCard = document.createElement('div');
-          playerCard.className = 'player-card';
-          playerCard.textContent = player;
-          
-          if (player === currentUser || (userType === 'storyteller' && player === 'Storyteller')) {
-            playerCard.classList.add('storyteller');
-          }
-          
-          playersList.appendChild(playerCard);
-        });
-        
-        // Add storyteller card
-        if (userType === 'player') {
-          const storytellerCard = document.createElement('div');
-          storytellerCard.className = 'player-card storyteller';
-          storytellerCard.textContent = '👑 Storyteller';
-          playersList.appendChild(storytellerCard);
-        }
-      }
-      
-      function useTemplate(template) {
-        document.getElementById('messageInput').value = template;
-      }
-      
-      function sendMessage() {
-        const messageInput = document.getElementById('messageInput');
-        const messageText = messageInput.value.trim();
-        
-        if (!messageText || !isConnected) return;
-        
-        let targetPlayer = 'all';
-        if (userType === 'storyteller') {
-          targetPlayer = document.getElementById('targetPlayer').value;
-        }
-        
-        const message = {
-          type: 'chat_message',
-          from: currentUser,
-          to: targetPlayer,
-          content: messageText,
-          timestamp: Date.now(),
-          isStoryteller: userType === 'storyteller'
-        };
-        
-        // Parse templates in the message
-        if (messageText.includes('{')) {
-          message.hasTemplate = true;
-          message.templateFields = parseTemplateFields(messageText);
-        }
-        
-        pubnub.publish({
-          channel: currentRoom,
-          message: message
-        });
-        
-        messageInput.value = '';
-      }
-      
-      function parseTemplateFields(text) {
-        const fields = [];
-        const regex = /\{([^}]+)\}/g;
-        let match;
-        
-        while ((match = regex.exec(text)) !== null) {
-          fields.push({
-            field: match[1],
-            placeholder: match[0]
-          });
-        }
-        
-        return fields;
-      }
-      
-      function displayMessage(message) {
-        const messagesContainer = document.getElementById('messages');
-        const messageEl = document.createElement('div');
-        
-        // Only show messages intended for this user
-        if (message.to !== 'all' && message.to !== currentUser && message.from !== currentUser) {
-          return;
-        }
-        
-        messageEl.className = 'message';
-        if (message.isStoryteller) {
-          messageEl.classList.add('from-storyteller');
-        } else {
-          messageEl.classList.add('from-player');
-        }
-        
-        const headerEl = document.createElement('div');
-        headerEl.className = 'message-header';
-        const time = new Date(message.timestamp).toLocaleTimeString();
-        headerEl.textContent = `${message.from} → ${message.to === 'all' ? 'Everyone' : message.to} (${time})`;
-        
-        const contentEl = document.createElement('div');
-        contentEl.className = 'message-content';
-        contentEl.textContent = message.content;
-        
-        messageEl.appendChild(headerEl);
-        messageEl.appendChild(contentEl);
-        
-        // Add template response area if this message has templates and is for current user
-        if (message.hasTemplate && message.to === currentUser && userType === 'player') {
-          const templateEl = document.createElement('div');
-          templateEl.className = 'template-response';
-          
-          let responseText = message.content;
-          message.templateFields.forEach(field => {
-            const inputEl = document.createElement('span');
-            inputEl.className = 'template-input';
-            inputEl.textContent = `[${field.field}]`;
-            inputEl.onclick = () => handleTemplateClick(field.field, inputEl);
+            });
             
-            responseText = responseText.replace(field.placeholder, inputEl.outerHTML);
-          });
-          
-          templateEl.innerHTML = `<strong>Quick Response:</strong><br>${responseText}`;
-          
-          const sendResponseBtn = document.createElement('button');
-          sendResponseBtn.textContent = 'Send Response';
-          sendResponseBtn.style.marginTop = '10px';
-          sendResponseBtn.onclick = () => sendTemplateResponse(message, templateEl);
-          
-          templateEl.appendChild(sendResponseBtn);
-          messageEl.appendChild(templateEl);
+            // Show the player name selection
+            document.getElementById('playerNameSection').classList.remove('hidden');
+            
+            // Update the join button to be more specific
+            const joinButton = document.querySelector('button[onclick="joinGame()"]');
+            joinButton.textContent = 'Join Game';
         }
         
-        messagesContainer.appendChild(messageEl);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-      
-      function handleTemplateClick(fieldType, element) {
-        let options = [];
-        
-        if (fieldType === 'player') {
-          options = players.slice(); // Copy array
-        } else if (fieldType === 'role') {
-          options = ['Washerwoman', 'Librarian', 'Investigator', 'Chef', 'Empath', 'Fortune Teller', 'Butler', 'Drunk', 'Recluse', 'Saint', 'Baron', 'Poisoner', 'Scarlet Woman', 'Imp']; // Basic Trouble Brewing roles
-        } else if (fieldType === 'action') {
-          options = ['Choose your target', 'Use your ability', 'Make your choice', 'Pass your turn'];
-        } else {
-          // For other field types, allow text input
-          const newValue = prompt(`Enter ${fieldType}:`);
-          if (newValue) {
-            element.textContent = newValue;
-            element.dataset.value = newValue;
-          }
-          return;
+        function showRoomStatus(message, type) {
+            const statusEl = document.getElementById('roomStatus');
+            statusEl.textContent = message;
+            statusEl.className = type === 'success' ? 'status connected' : 'status disconnected';
+            statusEl.classList.remove('hidden');
         }
         
-        // Create a simple selection dialog
-        const selection = prompt(`Choose ${fieldType}:\n` + options.map((opt, i) => `${i + 1}. ${opt}`).join('\n'));
-        const index = parseInt(selection) - 1;
-        
-        if (index >= 0 && index < options.length) {
-          element.textContent = options[index];
-          element.dataset.value = options[index];
+        function joinGame() {
+            userType = document.getElementById('userType').value;
+            
+            if (userType === 'storyteller') {
+                currentRoom = document.getElementById('gameRoom').value.trim();
+                
+                if (!currentRoom) {
+                    alert('Please enter a room ID');
+                    return;
+                }
+                
+                const playerNamesText = document.getElementById('playerNames').value.trim();
+                if (!playerNamesText) {
+                    alert('Please enter player names');
+                    return;
+                }
+                
+                players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
+                currentUser = 'Storyteller';
+                
+                const scriptName = document.getElementById('scriptName').value.trim() || 'Custom Script';
+                
+                // Populate player selection for storyteller
+                const targetSelect = document.getElementById('targetPlayer');
+                targetSelect.innerHTML = '<option value="all">All Players</option>';
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = player;
+                    option.textContent = player;
+                    targetSelect.appendChild(option);
+                });
+                
+            } else {
+                // Player joining
+                currentRoom = document.getElementById('gameRoomPlayer').value.trim();
+                currentUser = document.getElementById('playerName').value;
+                
+                if (!currentRoom) {
+                    alert('Please check the room first');
+                    return;
+                }
+                
+                if (!currentUser) {
+                    alert('Please select your name');
+                    return;
+                }
+            }
+            
+            initializePubNub();
+            switchToGameScreen();
         }
-      }
-      
-      function sendTemplateResponse(originalMessage, templateEl) {
-        const templateInputs = templateEl.querySelectorAll('.template-input');
-        let responseText = originalMessage.content;
         
-        let allFilled = true;
-        templateInputs.forEach(input => {
-          if (!input.dataset.value) {
-            allFilled = false;
-          } else {
-            const fieldName = input.textContent.replace(/[\[\]]/g, '');
-            responseText = responseText.replace(`{${fieldName}}`, input.dataset.value);
-          }
+        function initializePubNub() {
+            pubnub = new PubNub({
+                publishKey: PUBNUB_PUBLISH_KEY,
+                subscribeKey: PUBNUB_SUBSCRIBE_KEY,
+                userId: currentUser,
+                heartbeatInterval: 30
+            });
+            
+            // Subscribe to the game room
+            pubnub.subscribe({
+                channels: [currentRoom]
+            });
+            
+            // Listen for messages
+            pubnub.addListener({
+                message: function(messageEvent) {
+                    handleIncomingMessage(messageEvent.message);
+                },
+                presence: function(presenceEvent) {
+                    handlePresenceChange(presenceEvent);
+                },
+                status: function(statusEvent) {
+                    handleConnectionStatus(statusEvent);
+                }
+            });
+            
+            // Enable presence
+            pubnub.subscribe({
+                channels: [currentRoom],
+                withPresence: true
+            });
+            
+            // If storyteller, send initial game setup
+            if (userType === 'storyteller') {
+                setTimeout(() => {
+                    sendGameSetup();
+                }, 1000);
+            } else {
+                // If player, request current game state
+                setTimeout(() => {
+                    requestGameState();
+                }, 1000);
+            }
+        }
+        
+        function handleConnectionStatus(statusEvent) {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            if (statusEvent.category === 'PNConnectedCategory') {
+                isConnected = true;
+                statusEl.textContent = 'Connected to game';
+                statusEl.className = 'status connected';
+            } else if (statusEvent.category === 'PNReconnectedCategory') {
+                isConnected = true;
+                statusEl.textContent = 'Reconnected to game';
+                statusEl.className = 'status connected';
+            } else if (statusEvent.category === 'PNNetworkDownCategory') {
+                isConnected = false;
+                statusEl.textContent = 'Connection lost - trying to reconnect...';
+                statusEl.className = 'status disconnected';
+            }
+        }
+        
+        function sendGameSetup() {
+            const setupMessage = {
+                type: 'game_setup',
+                players: players,
+                script: document.getElementById('scriptName').value || 'Custom Script',
+                storyteller: currentUser,
+                timestamp: Date.now()
+            };
+            
+            pubnub.publish({
+                channel: currentRoom,
+                message: setupMessage
+            });
+        }
+        
+        function requestGameState() {
+            const requestMessage = {
+                type: 'request_game_state',
+                from: currentUser,
+                timestamp: Date.now()
+            };
+            
+            pubnub.publish({
+                channel: currentRoom,
+                message: requestMessage
+            });
+        }
+        
+        function handleIncomingMessage(message) {
+            if (message.type === 'game_setup') {
+                players = message.players;
+                document.getElementById('displayScript').textContent = message.script;
+                updatePlayersList();
+            } else if (message.type === 'request_game_state' && userType === 'storyteller') {
+                // Storyteller responds with current game state
+                sendGameSetup();
+            } else if (message.type === 'chat_message') {
+                displayMessage(message);
+            }
+        }
+        
+        function handlePresenceChange(presenceEvent) {
+            // Update online players list
+            updatePlayersList();
+        }
+        
+        function switchToGameScreen() {
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            document.getElementById('displayRoom').textContent = currentRoom;
+            
+            if (userType === 'storyteller') {
+                document.getElementById('displayScript').textContent = document.getElementById('scriptName').value || 'Custom Script';
+                document.getElementById('storytellerControls').classList.remove('hidden');
+            } else {
+                // For players, the script name was already set when they checked the room
+                if (!document.getElementById('displayScript').textContent) {
+                    document.getElementById('displayScript').textContent = 'Loading...';
+                }
+            }
+            
+            updatePlayersList();
+        }
+        
+        function updatePlayersList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = '';
+            
+            players.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                playerCard.textContent = player;
+                
+                if (player === currentUser || (userType === 'storyteller' && player === 'Storyteller')) {
+                    playerCard.classList.add('storyteller');
+                }
+                
+                playersList.appendChild(playerCard);
+            });
+            
+            // Add storyteller card
+            if (userType === 'player') {
+                const storytellerCard = document.createElement('div');
+                storytellerCard.className = 'player-card storyteller';
+                storytellerCard.textContent = '👑 Storyteller';
+                playersList.appendChild(storytellerCard);
+            }
+        }
+        
+        function useTemplate(template) {
+            document.getElementById('messageInput').value = template;
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText || !isConnected) return;
+            
+            let targetPlayer = 'all';
+            if (userType === 'storyteller') {
+                targetPlayer = document.getElementById('targetPlayer').value;
+            }
+            
+            const message = {
+                type: 'chat_message',
+                from: currentUser,
+                to: targetPlayer,
+                content: messageText,
+                timestamp: Date.now(),
+                isStoryteller: userType === 'storyteller'
+            };
+            
+            // Parse templates in the message
+            if (messageText.includes('{')) {
+                message.hasTemplate = true;
+                message.templateFields = parseTemplateFields(messageText);
+            }
+            
+            pubnub.publish({
+                channel: currentRoom,
+                message: message
+            });
+            
+            messageInput.value = '';
+        }
+        
+        function parseTemplateFields(text) {
+            const fields = [];
+            const regex = /\{([^}]+)\}/g;
+            let match;
+            
+            while ((match = regex.exec(text)) !== null) {
+                fields.push({
+                    field: match[1],
+                    placeholder: match[0]
+                });
+            }
+            
+            return fields;
+        }
+        
+        function displayMessage(message) {
+            const messagesContainer = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            
+            // Only show messages intended for this user
+            if (message.to !== 'all' && message.to !== currentUser && message.from !== currentUser) {
+                return;
+            }
+            
+            messageEl.className = 'message';
+            if (message.isStoryteller) {
+                messageEl.classList.add('from-storyteller');
+            } else {
+                messageEl.classList.add('from-player');
+            }
+            
+            const headerEl = document.createElement('div');
+            headerEl.className = 'message-header';
+            const time = new Date(message.timestamp).toLocaleTimeString();
+            headerEl.textContent = `${message.from} → ${message.to === 'all' ? 'Everyone' : message.to} (${time})`;
+            
+            const contentEl = document.createElement('div');
+            contentEl.className = 'message-content';
+            contentEl.textContent = message.content;
+            
+            messageEl.appendChild(headerEl);
+            messageEl.appendChild(contentEl);
+            
+            // Add template response area if this message has templates and is for current user
+            if (message.hasTemplate && message.to === currentUser && userType === 'player') {
+                const templateEl = document.createElement('div');
+                templateEl.className = 'template-response';
+                
+                let responseText = message.content;
+                message.templateFields.forEach(field => {
+                    const inputEl = document.createElement('span');
+                    inputEl.className = 'template-input';
+                    inputEl.textContent = `[${field.field}]`;
+                    inputEl.onclick = () => handleTemplateClick(field.field, inputEl);
+                    
+                    responseText = responseText.replace(field.placeholder, inputEl.outerHTML);
+                });
+                
+                templateEl.innerHTML = `<strong>Quick Response:</strong><br>${responseText}`;
+                
+                const sendResponseBtn = document.createElement('button');
+                sendResponseBtn.textContent = 'Send Response';
+                sendResponseBtn.style.marginTop = '10px';
+                sendResponseBtn.onclick = () => sendTemplateResponse(message, templateEl);
+                
+                templateEl.appendChild(sendResponseBtn);
+                messageEl.appendChild(templateEl);
+            }
+            
+            messagesContainer.appendChild(messageEl);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function handleTemplateClick(fieldType, element) {
+            let options = [];
+            
+            if (fieldType === 'player') {
+                options = players.slice(); // Copy array
+            } else if (fieldType === 'role') {
+                options = ['Washerwoman', 'Librarian', 'Investigator', 'Chef', 'Empath', 'Fortune Teller', 'Butler', 'Drunk', 'Recluse', 'Saint', 'Baron', 'Poisoner', 'Scarlet Woman', 'Imp']; // Basic Trouble Brewing roles
+            } else if (fieldType === 'action') {
+                options = ['Choose your target', 'Use your ability', 'Make your choice', 'Pass your turn'];
+            } else {
+                // For other field types, allow text input
+                const newValue = prompt(`Enter ${fieldType}:`);
+                if (newValue) {
+                    element.textContent = newValue;
+                    element.dataset.value = newValue;
+                }
+                return;
+            }
+            
+            // Create a simple selection dialog
+            const selection = prompt(`Choose ${fieldType}:\n` + options.map((opt, i) => `${i + 1}. ${opt}`).join('\n'));
+            const index = parseInt(selection) - 1;
+            
+            if (index >= 0 && index < options.length) {
+                element.textContent = options[index];
+                element.dataset.value = options[index];
+            }
+        }
+        
+        function sendTemplateResponse(originalMessage, templateEl) {
+            const templateInputs = templateEl.querySelectorAll('.template-input');
+            let responseText = originalMessage.content;
+            
+            let allFilled = true;
+            templateInputs.forEach(input => {
+                if (!input.dataset.value) {
+                    allFilled = false;
+                } else {
+                    const fieldName = input.textContent.replace(/[\[\]]/g, '');
+                    responseText = responseText.replace(`{${fieldName}}`, input.dataset.value);
+                }
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Send the response
+            const responseMessage = {
+                type: 'chat_message',
+                from: currentUser,
+                to: originalMessage.from,
+                content: responseText,
+                timestamp: Date.now(),
+                isStoryteller: false,
+                isTemplateResponse: true
+            };
+            
+            pubnub.publish({
+                channel: currentRoom,
+                message: responseMessage
+            });
+            
+            // Disable the template area
+            templateEl.style.opacity = '0.5';
+            templateEl.style.pointerEvents = 'none';
+        }
+        
+        // Handle Enter key in message input
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
         });
         
-        if (!allFilled) {
-          alert('Please fill in all fields');
-          return;
-        }
-        
-        // Send the response
-        const responseMessage = {
-          type: 'chat_message',
-          from: currentUser,
-          to: originalMessage.from,
-          content: responseText,
-          timestamp: Date.now(),
-          isStoryteller: false,
-          isTemplateResponse: true
-        };
-        
-        pubnub.publish({
-          channel: currentRoom,
-          message: responseMessage
-        });
-        
-        // Disable the template area
-        templateEl.style.opacity = '0.5';
-        templateEl.style.pointerEvents = 'none';
-      }
-      
-      // Handle Enter key in message input
-      document.getElementById('messageInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
-        }
-      });
-      
-      // Initialize setup screen
-      document.getElementById('userType').dispatchEvent(new Event('change'));
-      generateRoomId();
+        // Initialize setup screen
+        document.getElementById('userType').dispatchEvent(new Event('change'));
+        generateRoomId();
     </script>
 </body>
 </html>
+<!--
+
+     PROMPT SEQUENCE TO CLAUDE
+
+     Project Summary: Local Smartphone Messaging App
+Goal
+Create a web-hosted app for smartphones that allows nearby co-located devices to communicate through short text messages, without going through third-party servers. Key requirements:
+* Works on both iOS Safari and Android Chrome
+* Smartphones are physically nearby/co-located
+* Communication hidden from human observers in the area
+* Messages don't need security against internet attackers
+* Primary use case: short text messages between devices
+Technical Journey & Rejected Options
+1. Web Bluetooth API ❌
+* Rejected: Not supported on iOS Safari
+2. QR Code + WebRTC for Direct P2P ❌
+* Rejected: WebRTC signaling complexity without servers proved too difficult
+3. "No Third-Party Server" Requirement ❌
+* Pivoted: Realized messages only need to be hidden from nearby humans, not secured against internet threats
+* New approach: Public messaging APIs where messages are posted publicly, live temporarily (24 hours), with isolated feeds per "room"
+4. Firebase Realtime Database ⭐⭐⭐⭐⭐
+* Real-time WebSocket push, perfect room isolation, generous free tier
+* Issue: More complex setup (auth, security rules) = 6-8 hours development
+5. Other Services Evaluated:
+* Pusher: Good but limited free tier ⭐⭐⭐⭐
+* JSONBin.io/GitHub Gists: Polling only, not real-time ⭐⭐
+* MQTT: Protocol-level solution requiring broker setup, WebSocket bridges for browsers - massive overkill for simple friend messaging
+Current Plan: PubNub
+Selected because:
+* Purpose-built for exactly this use case
+* 2-3 hours total development time vs 6-8+ for alternatives
+* Works in browsers out-of-the-box (no server setup needed)
+* $49/month cost acceptable for temporary friend project vs weeks of development time
+* Simple 3-line implementation: subscribe(), publish(), addListener()
+Status: Working prototype already built and tested. Ready for deployment with real PubNub keys.
+User Context: Developer with limited free time, willing to pay modest amount ($49-100/month) for few months to deliver working app to friends quickly rather than spend weeks on complex setup.
+
+To add a little extra context here: I want to prototype the smart phone app quickly. The main goal is to have an app where I, a game master for an instance of Blood on the Clocktower, can 1. start the app on the my phone, 2. choose a script (presumably I will have uploaded the choices to https://botc-scripts.azurewebsites.net/), 3. input the names of the group of players, 4. have my friends likewise open up the same website, choose their player name from the list, and 5. now we are all playing the game together, where I can send private messages to each player (via pub nub) and then they can likewise respond to my messages. In this way, I will be able to give them information about which role they have received, or what information they learned in each night phase of the game, or ask them to use their power (e.g. choose a player, and/or a role on the current script), and then I may respond with information according to what their power is. The main point is the messages should be able to be free-form human text, but there is also a presumed structure to most of the interactions that we will want to leverage, such as expecting the demon to choose a player each night, and thus it will be useful in the app for me, as the storyteller, to be able to send a message payload that will include, A. the message displayed to the user, and B. a template for what their likely response will be, such as "I choose {player}", where the "{player}" will be interpreted by the app as a place where one can click it and it brings up a combo box with all the players in the current game.
+
+In case its not clear, I do want this to be a single page web app that I can just host on my server.
+Edit
+
+This sounds like a great project! A single-page web app for Blood on the Clocktower with structured messaging is perfect for PubNub. Let me create a comprehensive implementation that handles both your storyteller role and player interactions.
+
+Perfect! I've created a comprehensive Blood on the Clocktower messaging app that meets all your requirements. Here's what it includes:
+Key Features
+
+For Storytellers:
+
+    Setup game rooms with player names and script selection
+    Send messages to individual players or all players
+    Quick message templates for common game actions
+    Template system for structured responses (like "{player}" and "{role}")
+
+For Players:
+
+    Join existing game rooms by selecting their name
+    Receive private messages from the storyteller
+    Interactive template responses with dropdown/selection prompts
+    Clean, mobile-friendly interface
+
+How the Template System Works
+
+When you send a message like "Choose a player: {player}", the receiving player sees:
+
+    Your original message
+    A "Quick Response" area with clickable template fields
+    Clicking "{player}" opens a selection prompt with all current players
+    Once filled out, they can send the structured response back to you
+
+Template Field Types Supported
+
+    {player} - Shows dropdown of all players in the game
+    {role} - Shows dropdown of common BotC roles
+    {action} - Shows dropdown of common actions
+    Any other {field} - Opens a text input prompt
+
+Setup Instructions
+
+    Replace PubNub Keys: Change the PUBNUB_PUBLISH_KEY and PUBNUB_SUBSCRIBE_KEY constants with your real PubNub keys
+    Host the file: Upload this HTML file to your server
+    Start Playing:
+        You (storyteller) open the app, select "Storyteller", create a room, add player names
+        Players open the same URL, select "Player", enter the same room ID, choose their name
+        Start messaging!
+
+Example Workflow
+
+    You send: "Your role is {role}" to Alice
+    Alice sees a template response with a clickable "{role}" field
+    Alice clicks it, selects "Washerwoman" from the dropdown
+    Alice sends back: "Your role is Washerwoman"
+    You receive the structured response
+
+The app handles connection status, real-time messaging, and provides a clean mobile interface perfect for smartphone use. The dark theme with red accents fits the Blood on the Clocktower aesthetic perfectly!
+
+Would you like me to add any additional template types or modify any of the game mechanics?
+
+What is the recommended way to deal with keeping the pubnub keys private? Or do people tend to just embed them in their pages and just hope that they do not get abused by being visible on the public internet (security through semi-obscurity, I guess)?
+Edit
+
+Great question! PubNub keys present a classic client-side security challenge. Here are the recommended approaches, from most to least secure:
+1. Server-Side Proxy (Most Secure)
+
+Create a simple backend that handles PubNub operations:
+
+javascript
+
+// Your server handles auth and forwards to PubNub
+fetch('/api/send-message', {
+  method: 'POST',
+  body: JSON.stringify({ message, channel, userId }),
+  headers: { 'Authorization': 'Bearer ' + userToken }
+})
+
+Pros: Keys completely hidden, full control over usage Cons: Requires backend infrastructure, more complex
+2. PubNub Access Manager (Recommended for Client-Side)
+
+Use PubNub's built-in security system:
+
+javascript
+
+// Generate temporary auth tokens server-side
+const token = await pubnub.grantToken({
+  ttl: 60, // 1 hour
+  authorized_uuid: userId,
+  resources: {
+    channels: { [roomId]: { read: true, write: true } }
+  }
+});
+
+Pros: Granular permissions, token expiration, PubNub handles security Cons: Still need server-side token generation
+3. Environment Variables + Build Process
+
+If using a build tool, inject keys at build time:
+
+javascript
+
+const PUBNUB_PUBLISH_KEY = process.env.PUBNUB_PUBLISH_KEY;
+
+Pros: Keys not in source code Cons: Still visible in final bundle
+4. What Most People Actually Do
+
+Embed keys directly with these mitigations:
+
+    Use PubNub's channel-level permissions to restrict access
+    Set up usage alerts and rate limiting in PubNub dashboard
+    Monitor usage regularly
+    Use a dedicated PubNub app just for this project
+
+For Your Use Case (Quick Prototype)
+
+I'd recommend option 4 with these PubNub settings:
+
+    Create channel patterns like botc_*
+    Enable presence and set message history to 24 hours max
+    Set up usage alerts at reasonable thresholds
+    Use PubNub's free tier limits as natural rate limiting
+
+Reality Check
+
+For a friend group game with temporary usage, embedded keys with monitoring is totally reasonable. The risk/effort tradeoff usually favors this approach for prototypes and small-scale personal projects.
+
+Would you like me to show you how to set up the PubNub dashboard restrictions, or would you prefer to keep it simple for now and monitor usage?
+
+Okay, assuming I go with Option 4, how do I get myself started with Pub Nub?
+Edit
+
+Here's your step-by-step guide to get started with PubNub:
+1. Create PubNub Account
+
+    Go to pubnub.com
+    Click "Sign Up" (it's free)
+    Verify your email
+
+2. Create Your App
+
+    Once logged in, click "Create New App"
+    Name it something like "BotC Messenger"
+    Click "Create"
+
+3. Get Your Keys
+
+    Click on your new app
+    You'll see a "Demo Keyset" - click on it
+    Copy these two keys:
+        Publish Key (starts with pub-c-)
+        Subscribe Key (starts with sub-c-)
+
+4. Update Your Code
+
+Replace these lines in the HTML:
+
+javascript
+
+const PUBNUB_PUBLISH_KEY = 'your-publish-key-here';
+const PUBNUB_SUBSCRIBE_KEY = 'your-subscribe-key-here';
+
+5. Configure Basic Security (Recommended)
+
+In your PubNub dashboard:
+
+Storage & Playback:
+
+    Set "Message Retention" to "1 Day" (plenty for your game sessions)
+
+Access Manager:
+
+    For now, leave it "Off" (you can enable later if needed)
+
+Usage Alerts:
+
+    Go to "Account" → "Usage Alerts"
+    Set alerts at like 80% of free tier limits so you get warned if something goes wrong
+
+6. Test It Out
+
+    Save your HTML file with the real keys
+    Open it on two devices/browsers
+    Create a game room and test messaging
+
+7. Monitor Usage
+
+Check your PubNub dashboard periodically to see:
+
+    Messages sent/received
+    Connected devices
+    Any unusual spikes
+
+Free Tier Limits (More than enough for your use case):
+
+    1 million API calls/month
+    1GB data transfer/month
+    200 concurrent connections
+    Message history: 24 hours
+
+Your friend group gaming sessions will use maybe 0.1% of these limits, so you're totally safe.
+Pro Tip
+
+Once you have it working, consider creating a second keyset called "Production" and keep "Demo" for testing. This way you can experiment without affecting your live games.
+
+Want me to walk you through any of these steps in more detail?
+
+I'm not quite sure if your state machine is set up correctly here. In particular, I was thinking that if the Storyteller has already created the game, then each player should just have to type the correct room id. Once they've typed a correct room id, then they select their name from the list of players associated with that room, and get to join. The way your code seems to be set up, the player is given a button to Generate a New Room, and it never fills the combo box with the names. But maybe I am doing something wrong with my own flow?
+Edit
+
+You're absolutely right! The state machine has some issues. The player flow should be:
+
+    Player enters existing room ID
+    App fetches the player list for that room
+    Player selects their name from the populated dropdown
+    Player joins the game
+
+But currently:
+
+    Players can generate new rooms (which makes no sense)
+    The player name dropdown never gets populated until after joining
+    There's no validation that the room exists
+
+Let me fix this:
+
+Perfect! Now the flow works correctly:
+Storyteller Flow:
+
+    Select "Storyteller"
+    Enter/generate room ID
+    Add player names
+    Set script name
+    Click "Start Game"
+
+Player Flow:
+
+    Select "Player"
+    Enter the room ID (provided by storyteller)
+    Click "Check Room"
+    App connects temporarily to verify room exists and fetch player list
+    If successful, player dropdown populates with available names
+    Player selects their name
+    Click "Join Game"
+
+Key Improvements:
+
+    Separate room ID fields for storyteller vs player
+    Room validation - players can't join non-existent rooms
+    Dynamic player list fetching - player names come from the actual game setup
+    Better error handling - shows clear messages if room not found
+    No room generation for players - they can only join existing rooms
+    Status feedback - shows "Found game: [Script] with [X] players"
+
+How it works:
+
+    When player clicks "Check Room", it creates a temporary PubNub connection
+    Sends a request_game_state message to that room
+    If a storyteller is online, they respond with the game setup
+    Player's dropdown gets populated with the actual player names
+    Temporary connection is cleaned up
+    Player can now select their name and join properly
+
+The state machine now correctly reflects the real-world flow where the storyteller creates the game first, then shares the room ID with players who join by selecting their pre-defined names!
+
+     
+-->
