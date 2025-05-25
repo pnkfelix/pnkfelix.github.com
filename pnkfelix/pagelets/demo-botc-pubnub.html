@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood on the Clocktower Messenger</title>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        
+        .setup-screen, .game-screen {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #ffd93d;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .players-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .player-card.storyteller {
+            border-color: #ffd93d;
+        }
+        
+        .player-card.online {
+            border-color: #26de81;
+        }
+        
+        .messaging-area {
+            margin-top: 20px;
+        }
+        
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .message.from-storyteller {
+            background: rgba(255, 215, 61, 0.2);
+            border-left: 4px solid #ffd93d;
+        }
+        
+        .message.from-player {
+            background: rgba(38, 222, 129, 0.2);
+            border-left: 4px solid #26de81;
+        }
+        
+        .message-header {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        
+        .message-content {
+            font-size: 0.95rem;
+        }
+        
+        .template-response {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 6px;
+            border: 1px dashed #ff6b6b;
+        }
+        
+        .template-input {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+        
+        .template-input:hover {
+            background: #ee5a24;
+        }
+        
+        .compose-area {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .compose-area textarea {
+            flex: 1;
+            min-height: 50px;
+            resize: vertical;
+        }
+        
+        .compose-area button {
+            width: auto;
+            margin-top: 0;
+            min-width: 80px;
+        }
+        
+        .storyteller-controls {
+            background: rgba(255, 215, 61, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .template-btn {
+            background: rgba(255, 215, 61, 0.3);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .template-btn:hover {
+            background: rgba(255, 215, 61, 0.5);
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .status.connected {
+            background: rgba(38, 222, 129, 0.2);
+            color: #26de81;
+        }
+        
+        .status.disconnected {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .compose-area {
+                flex-direction: column;
+            }
+            
+            .compose-area button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🩸 Blood on the Clocktower</h1>
+            <p>Private Messaging for Your Game</p>
+        </div>
+        
+        <!-- Setup Screen -->
+        <div id="setupScreen" class="setup-screen">
+            <div class="input-group">
+                <label for="userType">I am the:</label>
+                <select id="userType">
+                    <option value="storyteller">Storyteller</option>
+                    <option value="player">Player</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="gameRoom">Game Room ID:</label>
+                <input type="text" id="gameRoom" placeholder="Enter or create room ID">
+                <button type="button" onclick="generateRoomId()">Generate New Room</button>
+            </div>
+            
+            <div id="storytellerSetup" class="hidden">
+                <div class="input-group">
+                    <label for="playerNames">Player Names (one per line):</label>
+                    <textarea id="playerNames" rows="6" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="scriptName">Script Name:</label>
+                    <input type="text" id="scriptName" placeholder="Trouble Brewing" value="Trouble Brewing">
+                </div>
+            </div>
+            
+            <div id="playerSetup" class="hidden">
+                <div class="input-group">
+                    <label for="playerName">Your Name:</label>
+                    <select id="playerName">
+                        <option value="">Select your name...</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="joinGame()">Start Game</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="gameScreen" class="game-screen hidden">
+            <div id="connectionStatus" class="status disconnected">
+                Connecting...
+            </div>
+            
+            <div class="input-group">
+                <label>Game: <span id="displayScript"></span> | Room: <span id="displayRoom"></span></label>
+            </div>
+            
+            <div class="players-list" id="playersList"></div>
+            
+            <!-- Storyteller Controls -->
+            <div id="storytellerControls" class="storyteller-controls hidden">
+                <h3>Storyteller Controls</h3>
+                <div class="input-group">
+                    <label for="targetPlayer">Send to:</label>
+                    <select id="targetPlayer">
+                        <option value="all">All Players</option>
+                    </select>
+                </div>
+                
+                <div class="quick-templates">
+                    <button class="template-btn" onclick="useTemplate('Your role is {role}')">Assign Role</button>
+                    <button class="template-btn" onclick="useTemplate('Choose a player: {player}')">Choose Player</button>
+                    <button class="template-btn" onclick="useTemplate('You learn that {player} is {role}')">Give Info</button>
+                    <button class="template-btn" onclick="useTemplate('Use your ability. Choose {player}')">Use Ability</button>
+                    <button class="template-btn" onclick="useTemplate('Night phase: {action}')">Night Action</button>
+                    <button class="template-btn" onclick="useTemplate('You may choose {player} or pass')">Optional Action</button>
+                </div>
+            </div>
+            
+            <div class="messaging-area">
+                <div class="messages" id="messages"></div>
+                
+                <div class="compose-area">
+                    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      // PubNub Configuration - Replace with your keys
+      const PUBNUB_PUBLISH_KEY = 'demo'; // Replace with your publish key
+      const PUBNUB_SUBSCRIBE_KEY = 'demo'; // Replace with your subscribe key
+      
+      let pubnub;
+      let currentUser = '';
+      let currentRoom = '';
+      let userType = '';
+      let players = [];
+      let isConnected = false;
+      
+      // Initialize when user type changes
+      document.getElementById('userType').addEventListener('change', function() {
+        const storytellerSetup = document.getElementById('storytellerSetup');
+        const playerSetup = document.getElementById('playerSetup');
+        
+        if (this.value === 'storyteller') {
+          storytellerSetup.classList.remove('hidden');
+          playerSetup.classList.add('hidden');
+        } else {
+          storytellerSetup.classList.add('hidden');
+          playerSetup.classList.remove('hidden');
+        }
+      });
+      
+      function generateRoomId() {
+        const roomId = 'botc_' + Math.random().toString(36).substr(2, 8);
+        document.getElementById('gameRoom').value = roomId;
+      }
+      
+      function joinGame() {
+        userType = document.getElementById('userType').value;
+        currentRoom = document.getElementById('gameRoom').value.trim();
+        
+        if (!currentRoom) {
+          alert('Please enter a room ID');
+          return;
+        }
+        
+        if (userType === 'storyteller') {
+          const playerNamesText = document.getElementById('playerNames').value.trim();
+          if (!playerNamesText) {
+            alert('Please enter player names');
+            return;
+          }
+          
+          players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
+          currentUser = 'Storyteller';
+          
+          const scriptName = document.getElementById('scriptName').value.trim() || 'Custom Script';
+          
+          // Populate player selection for storyteller
+          const targetSelect = document.getElementById('targetPlayer');
+          targetSelect.innerHTML = '<option value="all">All Players</option>';
+          players.forEach(player => {
+            const option = document.createElement('option');
+            option.value = player;
+            option.textContent = player;
+            targetSelect.appendChild(option);
+          });
+          
+        } else {
+          currentUser = document.getElementById('playerName').value;
+          if (!currentUser) {
+            alert('Please select your name');
+            return;
+          }
+        }
+        
+        initializePubNub();
+        switchToGameScreen();
+      }
+      
+      function initializePubNub() {
+        pubnub = new PubNub({
+          publishKey: PUBNUB_PUBLISH_KEY,
+          subscribeKey: PUBNUB_SUBSCRIBE_KEY,
+          userId: currentUser,
+          heartbeatInterval: 30
+        });
+        
+        // Subscribe to the game room
+        pubnub.subscribe({
+          channels: [currentRoom]
+        });
+        
+        // Listen for messages
+        pubnub.addListener({
+          message: function(messageEvent) {
+            handleIncomingMessage(messageEvent.message);
+          },
+          presence: function(presenceEvent) {
+            handlePresenceChange(presenceEvent);
+          },
+          status: function(statusEvent) {
+            handleConnectionStatus(statusEvent);
+          }
+        });
+        
+        // Enable presence
+        pubnub.subscribe({
+          channels: [currentRoom],
+          withPresence: true
+        });
+        
+        // If storyteller, send initial game setup
+        if (userType === 'storyteller') {
+          setTimeout(() => {
+            sendGameSetup();
+          }, 1000);
+        } else {
+          // If player, request current game state
+          setTimeout(() => {
+            requestGameState();
+          }, 1000);
+        }
+      }
+      
+      function handleConnectionStatus(statusEvent) {
+        const statusEl = document.getElementById('connectionStatus');
+        
+        if (statusEvent.category === 'PNConnectedCategory') {
+          isConnected = true;
+          statusEl.textContent = 'Connected to game';
+          statusEl.className = 'status connected';
+        } else if (statusEvent.category === 'PNReconnectedCategory') {
+          isConnected = true;
+          statusEl.textContent = 'Reconnected to game';
+          statusEl.className = 'status connected';
+        } else if (statusEvent.category === 'PNNetworkDownCategory') {
+          isConnected = false;
+          statusEl.textContent = 'Connection lost - trying to reconnect...';
+          statusEl.className = 'status disconnected';
+        }
+      }
+      
+      function sendGameSetup() {
+        const setupMessage = {
+          type: 'game_setup',
+          players: players,
+          script: document.getElementById('scriptName').value || 'Custom Script',
+          storyteller: currentUser,
+          timestamp: Date.now()
+        };
+        
+        pubnub.publish({
+          channel: currentRoom,
+          message: setupMessage
+        });
+      }
+      
+      function requestGameState() {
+        const requestMessage = {
+          type: 'request_game_state',
+          from: currentUser,
+          timestamp: Date.now()
+        };
+        
+        pubnub.publish({
+          channel: currentRoom,
+          message: requestMessage
+        });
+      }
+      
+      function handleIncomingMessage(message) {
+        if (message.type === 'game_setup') {
+          if (userType === 'player') {
+            players = message.players;
+            document.getElementById('displayScript').textContent = message.script;
+            updatePlayersList();
+            
+            // Populate player name selector if not already selected
+            const playerSelect = document.getElementById('playerName');
+            if (!playerSelect.value) {
+              playerSelect.innerHTML = '<option value="">Select your name...</option>';
+              players.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player;
+                option.textContent = player;
+                playerSelect.appendChild(option);
+              });
+            }
+          }
+        } else if (message.type === 'request_game_state' && userType === 'storyteller') {
+          // Storyteller responds with current game state
+          sendGameSetup();
+        } else if (message.type === 'chat_message') {
+          displayMessage(message);
+        }
+      }
+      
+      function handlePresenceChange(presenceEvent) {
+        // Update online players list
+        updatePlayersList();
+      }
+      
+      function switchToGameScreen() {
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        
+        document.getElementById('displayRoom').textContent = currentRoom;
+        document.getElementById('displayScript').textContent = document.getElementById('scriptName').value || 'Custom Script';
+        
+        if (userType === 'storyteller') {
+          document.getElementById('storytellerControls').classList.remove('hidden');
+        }
+        
+        updatePlayersList();
+      }
+      
+      function updatePlayersList() {
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = '';
+        
+        players.forEach(player => {
+          const playerCard = document.createElement('div');
+          playerCard.className = 'player-card';
+          playerCard.textContent = player;
+          
+          if (player === currentUser || (userType === 'storyteller' && player === 'Storyteller')) {
+            playerCard.classList.add('storyteller');
+          }
+          
+          playersList.appendChild(playerCard);
+        });
+        
+        // Add storyteller card
+        if (userType === 'player') {
+          const storytellerCard = document.createElement('div');
+          storytellerCard.className = 'player-card storyteller';
+          storytellerCard.textContent = '👑 Storyteller';
+          playersList.appendChild(storytellerCard);
+        }
+      }
+      
+      function useTemplate(template) {
+        document.getElementById('messageInput').value = template;
+      }
+      
+      function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const messageText = messageInput.value.trim();
+        
+        if (!messageText || !isConnected) return;
+        
+        let targetPlayer = 'all';
+        if (userType === 'storyteller') {
+          targetPlayer = document.getElementById('targetPlayer').value;
+        }
+        
+        const message = {
+          type: 'chat_message',
+          from: currentUser,
+          to: targetPlayer,
+          content: messageText,
+          timestamp: Date.now(),
+          isStoryteller: userType === 'storyteller'
+        };
+        
+        // Parse templates in the message
+        if (messageText.includes('{')) {
+          message.hasTemplate = true;
+          message.templateFields = parseTemplateFields(messageText);
+        }
+        
+        pubnub.publish({
+          channel: currentRoom,
+          message: message
+        });
+        
+        messageInput.value = '';
+      }
+      
+      function parseTemplateFields(text) {
+        const fields = [];
+        const regex = /\{([^}]+)\}/g;
+        let match;
+        
+        while ((match = regex.exec(text)) !== null) {
+          fields.push({
+            field: match[1],
+            placeholder: match[0]
+          });
+        }
+        
+        return fields;
+      }
+      
+      function displayMessage(message) {
+        const messagesContainer = document.getElementById('messages');
+        const messageEl = document.createElement('div');
+        
+        // Only show messages intended for this user
+        if (message.to !== 'all' && message.to !== currentUser && message.from !== currentUser) {
+          return;
+        }
+        
+        messageEl.className = 'message';
+        if (message.isStoryteller) {
+          messageEl.classList.add('from-storyteller');
+        } else {
+          messageEl.classList.add('from-player');
+        }
+        
+        const headerEl = document.createElement('div');
+        headerEl.className = 'message-header';
+        const time = new Date(message.timestamp).toLocaleTimeString();
+        headerEl.textContent = `${message.from} → ${message.to === 'all' ? 'Everyone' : message.to} (${time})`;
+        
+        const contentEl = document.createElement('div');
+        contentEl.className = 'message-content';
+        contentEl.textContent = message.content;
+        
+        messageEl.appendChild(headerEl);
+        messageEl.appendChild(contentEl);
+        
+        // Add template response area if this message has templates and is for current user
+        if (message.hasTemplate && message.to === currentUser && userType === 'player') {
+          const templateEl = document.createElement('div');
+          templateEl.className = 'template-response';
+          
+          let responseText = message.content;
+          message.templateFields.forEach(field => {
+            const inputEl = document.createElement('span');
+            inputEl.className = 'template-input';
+            inputEl.textContent = `[${field.field}]`;
+            inputEl.onclick = () => handleTemplateClick(field.field, inputEl);
+            
+            responseText = responseText.replace(field.placeholder, inputEl.outerHTML);
+          });
+          
+          templateEl.innerHTML = `<strong>Quick Response:</strong><br>${responseText}`;
+          
+          const sendResponseBtn = document.createElement('button');
+          sendResponseBtn.textContent = 'Send Response';
+          sendResponseBtn.style.marginTop = '10px';
+          sendResponseBtn.onclick = () => sendTemplateResponse(message, templateEl);
+          
+          templateEl.appendChild(sendResponseBtn);
+          messageEl.appendChild(templateEl);
+        }
+        
+        messagesContainer.appendChild(messageEl);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      
+      function handleTemplateClick(fieldType, element) {
+        let options = [];
+        
+        if (fieldType === 'player') {
+          options = players.slice(); // Copy array
+        } else if (fieldType === 'role') {
+          options = ['Washerwoman', 'Librarian', 'Investigator', 'Chef', 'Empath', 'Fortune Teller', 'Butler', 'Drunk', 'Recluse', 'Saint', 'Baron', 'Poisoner', 'Scarlet Woman', 'Imp']; // Basic Trouble Brewing roles
+        } else if (fieldType === 'action') {
+          options = ['Choose your target', 'Use your ability', 'Make your choice', 'Pass your turn'];
+        } else {
+          // For other field types, allow text input
+          const newValue = prompt(`Enter ${fieldType}:`);
+          if (newValue) {
+            element.textContent = newValue;
+            element.dataset.value = newValue;
+          }
+          return;
+        }
+        
+        // Create a simple selection dialog
+        const selection = prompt(`Choose ${fieldType}:\n` + options.map((opt, i) => `${i + 1}. ${opt}`).join('\n'));
+        const index = parseInt(selection) - 1;
+        
+        if (index >= 0 && index < options.length) {
+          element.textContent = options[index];
+          element.dataset.value = options[index];
+        }
+      }
+      
+      function sendTemplateResponse(originalMessage, templateEl) {
+        const templateInputs = templateEl.querySelectorAll('.template-input');
+        let responseText = originalMessage.content;
+        
+        let allFilled = true;
+        templateInputs.forEach(input => {
+          if (!input.dataset.value) {
+            allFilled = false;
+          } else {
+            const fieldName = input.textContent.replace(/[\[\]]/g, '');
+            responseText = responseText.replace(`{${fieldName}}`, input.dataset.value);
+          }
+        });
+        
+        if (!allFilled) {
+          alert('Please fill in all fields');
+          return;
+        }
+        
+        // Send the response
+        const responseMessage = {
+          type: 'chat_message',
+          from: currentUser,
+          to: originalMessage.from,
+          content: responseText,
+          timestamp: Date.now(),
+          isStoryteller: false,
+          isTemplateResponse: true
+        };
+        
+        pubnub.publish({
+          channel: currentRoom,
+          message: responseMessage
+        });
+        
+        // Disable the template area
+        templateEl.style.opacity = '0.5';
+        templateEl.style.pointerEvents = 'none';
+      }
+      
+      // Handle Enter key in message input
+      document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      
+      // Initialize setup screen
+      document.getElementById('userType').dispatchEvent(new Event('change'));
+      generateRoomId();
+    </script>
+</body>
+</html>
