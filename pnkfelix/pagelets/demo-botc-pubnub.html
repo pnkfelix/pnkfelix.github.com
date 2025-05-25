@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood on the Clocktower Messenger</title>
-    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.0.min.js"></script>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.8.2.0.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1161,5 +1161,14 @@ How it works:
 
 The state machine now correctly reflects the real-world flow where the storyteller creates the game first, then shares the room ID with players who join by selecting their pre-defined names!
 
-     
+
+     Uncaught Error: ReferenceError: PubNub is not definedEditThe error suggests the PubNub library isn't loading properly. Let me check the script tag and fix it:
+
+     I've updated to the latest PubNub version. If you're still getting the error, here are a few things to check:
+Troubleshooting Steps:
+
+Check your browser console - Are there any network errors loading the PubNub script?
+Try this test - Add this temporarily right after the PubNub script tag:
+
+
 -->
