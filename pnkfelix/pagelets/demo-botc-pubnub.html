@@ -1049,17 +1049,24 @@
             let templateData = {};
             
             if (currentTemplate.type === 'storyteller_info') {
+                // First: Validate ALL fields before processing ANY
+                for (const field of currentTemplate.fields) {
+                    const inputEl = document.getElementById(`field_${field.name}`);
+                    const value = inputEl.value;
+            
+                    if (!value) {
+                        alert(`Please fill in ${field.name}`);
+                        return; // Actually exits the function
+                    }
+                }
+
                 // Process storyteller template
                 messageContent = currentTemplate.template;
                 
                 currentTemplate.fields.forEach(field => {
                     const inputEl = document.getElementById(`field_${field.name}`);
                     const value = inputEl.value;
-                    
-                    if (!value) {
-                        alert(`Please fill in ${field.name}`);
-                        return;
-                    }
+                    // we know value is present (and truthy) because we checked it above
                     
                     templateData[field.name] = value;
                     
