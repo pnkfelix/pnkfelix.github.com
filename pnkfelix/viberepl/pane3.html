@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {margin:0; display:flex; height:100vh; font-family:monospace;}
+    #visual {flex:1; position:relative;}
+    #text {flex:1; display:flex; flex-direction:column;}
+    #defs, #repl {flex:1; display:flex; flex-direction:column; padding:5px;}
+    #defs {border-bottom:1px solid #ccc;}
+    textarea, #output {flex:1; font-family:monospace;}
+    select, #cmd {width:100%; margin-bottom:5px;}
+  </style>
+</head>
+<body>
+  <div id="visual">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="text">
+    <div id="defs">
+      <select id="lang">
+        <option value="lisp">Lisp</option>
+        <option value="forth">Forth</option>
+        <option value="logo">LOGO</option>
+      </select>
+      <textarea id="editor"></textarea>
+    </div>
+    <div id="repl">
+      <div id="output"></div>
+      <input id="cmd" placeholder="Enter command..." onkeydown="if(event.key==='Enter'){run()}">
+      <button onclick="run()">Run</button>
+    </div>
+  </div>
+
+  <script>
+    // Setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const output = document.getElementById('output');
+    const cmd = document.getElementById('cmd');
+    let shapes = [], dragging = null, offsetX = 0, offsetY = 0;
+    let lang = 'lisp';
+    
+    // Initialize canvas
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      redraw();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    
+    // Language selector
+    document.getElementById('lang').addEventListener('change', function() {
+      lang = this.value;
+      print(`Language: ${lang}`);
+    });
+    
+    // REPL functions
+    function print(text) {
+      output.textContent += text + '\n';
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    function run() {
+      const code = cmd.value.trim();
+      if (!code) return;
+      
+      print(`> ${code}`);
+      try {
+        // Parse based on language
+        if (lang === 'lisp') {
+          if (code.startsWith('(circle')) {
+            const m = code.match(/\(circle\s+(\d+)\s+(\d+)\s+(\d+)\)/);
+            if (m) create('circle', +m[1], +m[2], +m[3]);
+          } else if (code.startsWith('(rect')) {
+            const m = code.match(/\(rect\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\)/);
+            if (m) create('rect', +m[1], +m[2], +m[3], +m[4]);
+          } else if (code === '(clear)') clear();
+        } else if (lang === 'forth') {
+          const p = code.split(/\s+/);
+          if (p.includes('circle')) {
+            const i = p.indexOf('circle');
+            if (i >= 3) create('circle', +p[i-3], +p[i-2], +p[i-1]);
+          } else if (p.includes('rect')) {
+            const i = p.indexOf('rect');
+            if (i >= 4) create('rect', +p[i-4], +p[i-3], +p[i-2], +p[i-1]);
+          } else if (code === 'clear') clear();
+        } else if (lang === 'logo') {
+          if (code.startsWith('circle')) {
+            const m = code.match(/circle\s+(\d+)\s+(\d+)\s+(\d+)/);
+            if (m) create('circle', +m[1], +m[2], +m[3]);
+          } else if (code.startsWith('rect')) {
+            const m = code.match(/rect\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
+            if (m) create('rect', +m[1], +m[2], +m[3], +m[4]);
+          } else if (code === 'clear') clear();
+        }
+      } catch (e) {
+        print(`Error: ${e.message}`);
+      }
+      cmd.value = '';
+    }
+    
+    // Canvas functions
+    function create(type, x, y, a, b) {
+      if (type === 'circle') {
+        shapes.push({type, x, y, r: a, color: randColor()});
+        print(`Circle at (${x},${y}) r=${a}`);
+      } else if (type === 'rect') {
+        shapes.push({type, x, y, w: a, h: b, color: randColor()});
+        print(`Rect at (${x},${y}) ${a}x${b}`);
+      }
+      redraw();
+    }
+    
+    function clear() {
+      shapes = [];
+      redraw();
+      print("Cleared");
+    }
+    
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      shapes.forEach(s => {
+        ctx.fillStyle = s.color;
+        if (s.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (s.type === 'rect') {
+          ctx.fillRect(s.x, s.y, s.w, s.h);
+        }
+      });
+    }
+    
+    function randColor() {
+      return `hsl(${Math.random()*360},70%,50%)`;
+    }
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        const s = shapes[i];
+        if (s.type === 'circle' && Math.hypot(x - s.x, y - s.y) <= s.r) {
+          dragging = s;
+          offsetX = x - s.x;
+          offsetY = y - s.y;
+          shapes.splice(i, 1);
+          shapes.push(s);
+          print(`Selected circle (${s.x},${s.y})`);
+          break;
+        } else if (s.type === 'rect' && 
+                 x >= s.x && x <= s.x + s.w && 
+                 y >= s.y && y <= s.y + s.h) {
+          dragging = s;
+          offsetX = x - s.x;
+          offsetY = y - s.y;
+          shapes.splice(i, 1);
+          shapes.push(s);
+          print(`Selected rect (${s.x},${s.y})`);
+          break;
+        }
+      }
+    });
+    
+    canvas.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const rect = canvas.getBoundingClientRect();
+      dragging.x = e.clientX - rect.left - offsetX;
+      dragging.y = e.clientY - rect.top - offsetY;
+      redraw();
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+      if (dragging) {
+        print(`Moved to (${dragging.x},${dragging.y})`);
+        dragging = null;
+      }
+    });
+    
+    // Initialize
+    print("Interactive Environment");
+    print("Examples:");
+    print(" Lisp: (circle 100 100 30)");
+    print(" Forth: 100 100 30 circle");
+    print(" Logo: circle 100 100 30");
+  </script>
+</body>
+</html>

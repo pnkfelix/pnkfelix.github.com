@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {margin:0; display:flex; height:100vh; font-family:monospace;}
+    #visual {flex:1; position:relative;}
+    #text {flex:1; display:flex; flex-direction:column;}
+    #defs, #repl {flex:1; display:flex; flex-direction:column; padding:5px;}
+    #defs {border-bottom:1px solid #ccc;}
+    textarea, #output {flex:1; font-family:monospace;}
+    select, #cmd {width:100%; margin-bottom:5px;}
+  </style>
+</head>
+<body>
+  <div id="visual">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="text">
+    <div id="defs">
+      <select id="lang">
+        <option value="lisp">Lisp</option>
+        <option value="forth">Forth</option>
+        <option value="logo">LOGO</option>
+      </select>
+      <textarea id="editor"></textarea>
+    </div>
+    <div id="repl">
+      <div id="output"></div>
+      <input id="cmd" placeholder="Enter command..." onkeydown="if(event.key==='Enter'){run()}">
+      <button onclick="run()">Run</button>
+    </div>
+  </div>
+
+  <script>
+    // Setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const output = document.getElementById('output');
+    const cmd = document.getElementById('cmd');
+    let shapes = [], dragging = null, offsetX = 0, offsetY = 0;
+    let lang = 'lisp';
+    
+    // Initialize canvas
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      redraw();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    
+    // Language selector
+    document.getElementById('lang').addEventListener('change', function() {
+      lang = this.value;
+      print(`Language: ${lang}`);
+    });
+    
+    // REPL functions
+    function print(text) {
+      output.textContent += text + '\n';
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    // Command parser - extracts command name and args from different syntaxes
+    function parse(code) {
+      if (!code) return null;
+      
+      // Define syntax patterns for each language
+      const patterns = {
+        lisp: {
+          circle: /\(circle\s+(\d+)\s+(\d+)\s+(\d+)\)/,
+          rect: /\(rect\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\)/,
+          clear: /\(clear\)/
+        },
+        forth: {
+          // For Forth, we'll handle it differently due to its postfix nature
+          tokenize: str => str.split(/\s+/)
+        },
+        logo: {
+          circle: /circle\s+(\d+)\s+(\d+)\s+(\d+)/,
+          rect: /rect\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/,
+          clear: /^clear$/
+        }
+      };
+      
+      // Extract command and args based on language
+      if (lang === 'forth') {
+        const tokens = patterns.forth.tokenize(code);
+        const lastToken = tokens[tokens.length - 1];
+        
+        if (lastToken === 'circle' && tokens.length >= 4) {
+          return {
+            cmd: 'circle',
+            args: [+tokens[tokens.length - 4], +tokens[tokens.length - 3], +tokens[tokens.length - 2]]
+          };
+        } else if (lastToken === 'rect' && tokens.length >= 5) {
+          return {
+            cmd: 'rect',
+            args: [+tokens[tokens.length - 5], +tokens[tokens.length - 4], 
+                   +tokens[tokens.length - 3], +tokens[tokens.length - 2]]
+          };
+        } else if (code === 'clear') {
+          return { cmd: 'clear' };
+        }
+      } else {
+        // Handle prefix notations (Lisp and Logo)
+        for (const cmd of ['circle', 'rect', 'clear']) {
+          const match = code.match(patterns[lang][cmd]);
+          if (match) {
+            if (cmd === 'clear') return { cmd };
+            // Extract numeric arguments, removing the first element (full match)
+            return { 
+              cmd, 
+              args: match.slice(1).map(arg => +arg)
+            };
+          }
+        }
+      }
+      
+      return null;
+    }
+    
+    // Run the entered command
+    function run() {
+      const code = cmd.value.trim();
+      print(`> ${code}`);
+      
+      try {
+        // Parse command
+        const command = parse(code);
+        
+        // Execute command if valid
+        if (command) {
+          switch (command.cmd) {
+            case 'circle':
+              createShape('circle', ...command.args);
+              break;
+            case 'rect':
+              createShape('rect', ...command.args);
+              break;
+            case 'clear':
+              clearCanvas();
+              break;
+          }
+        } else {
+          print(`Unknown command in ${lang} syntax`);
+        }
+      } catch (e) {
+        print(`Error: ${e.message}`);
+      }
+      
+      cmd.value = '';
+    }
+    
+    // Unified shape creation
+    function createShape(type, ...args) {
+      if (type === 'circle') {
+        const [x, y, r] = args;
+        shapes.push({type, x, y, r, color: randColor()});
+        print(`Circle at (${x},${y}) r=${r}`);
+      } else if (type === 'rect') {
+        const [x, y, w, h] = args;
+        shapes.push({type, x, y, w, h, color: randColor()});
+        print(`Rect at (${x},${y}) ${w}x${h}`);
+      }
+      redraw();
+    }
+    
+    function clearCanvas() {
+      shapes = [];
+      redraw();
+      print("Canvas cleared");
+    }
+    
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      shapes.forEach(s => {
+        ctx.fillStyle = s.color;
+        if (s.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (s.type === 'rect') {
+          ctx.fillRect(s.x, s.y, s.w, s.h);
+        }
+      });
+    }
+    
+    function randColor() {
+      return `hsl(${Math.random()*360},70%,50%)`;
+    }
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        const s = shapes[i];
+        if (s.type === 'circle' && Math.hypot(x - s.x, y - s.y) <= s.r) {
+          selectShape(s, i, x, y);
+          break;
+        } else if (s.type === 'rect' && 
+                 x >= s.x && x <= s.x + s.w && 
+                 y >= s.y && y <= s.y + s.h) {
+          selectShape(s, i, x, y);
+          break;
+        }
+      }
+    });
+    
+    function selectShape(shape, index, mouseX, mouseY) {
+      dragging = shape;
+      offsetX = mouseX - shape.x;
+      offsetY = mouseY - shape.y;
+      // Move to end of array to draw on top
+      shapes.splice(index, 1);
+      shapes.push(shape);
+      print(`Selected ${shape.type} at (${shape.x},${shape.y})`);
+    }
+    
+    canvas.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const rect = canvas.getBoundingClientRect();
+      dragging.x = e.clientX - rect.left - offsetX;
+      dragging.y = e.clientY - rect.top - offsetY;
+      redraw();
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+      if (dragging) {
+        print(`Moved to (${dragging.x},${dragging.y})`);
+        dragging = null;
+      }
+    });
+    
+    // Initialize
+    print("Interactive Environment");
+    print("Examples:");
+    print(" Lisp: (circle 100 100 30)");
+    print(" Forth: 100 100 30 circle");
+    print(" Logo: circle 100 100 30");
+  </script>
+</body>
+</html>
