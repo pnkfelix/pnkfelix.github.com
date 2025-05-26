@@ -676,7 +676,228 @@
                     14: { townsfolk: 9, outsider: 1, minion: 3, demon: 1 },
                     15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 }
                 }
-            }
+            },
+            'bad_moon_rising': {
+                id: 'bad_moon_rising',
+                name: 'Bad Moon Rising',
+                author: 'Steven Medway & The Pandemonium Institute',
+                description: 'An intermediate script featuring madness, dead votes, and exile.',
+                roles: [
+                    {
+                        id: 'grandmother',
+                        name: 'Grandmother',
+                        team: 'townsfolk',
+                        ability: 'You start knowing a good player & their character. If the Demon kills them, you die too.',
+                        firstNight: true,
+                        otherNights: false
+                    },
+                    {
+                        id: 'sailor',
+                        name: 'Sailor',
+                        team: 'townsfolk',
+                        ability: 'Each night, choose a player: they are drunk until dusk. You cannot die.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'chambermaid',
+                        name: 'Chambermaid',
+                        team: 'townsfolk',
+                        ability: 'Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'exorcist',
+                        name: 'Exorcist',
+                        team: 'townsfolk',
+                        ability: 'Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn\'t wake tonight.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'innkeeper',
+                        name: 'Innkeeper',
+                        team: 'townsfolk',
+                        ability: 'Each night*, choose 2 players: they can\'t die tonight, but 1 is drunk until dusk.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'gambler',
+                        name: 'Gambler',
+                        team: 'townsfolk',
+                        ability: 'Each night*, choose a player & guess their character: if you guess wrong, you die.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'gossip',
+                        name: 'Gossip',
+                        team: 'townsfolk',
+                        ability: 'Each day, you may make a public statement. Tonight, if it was true, a player dies.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'courtier',
+                        name: 'Courtier',
+                        team: 'townsfolk',
+                        ability: 'Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'professor',
+                        name: 'Professor',
+                        team: 'townsfolk',
+                        ability: 'Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'minstrel',
+                        name: 'Minstrel',
+                        team: 'townsfolk',
+                        ability: 'When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'tea_lady',
+                        name: 'Tea Lady',
+                        team: 'townsfolk',
+                        ability: 'If both your alive neighbors are good, they can\'t die.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'pacifist',
+                        name: 'Pacifist',
+                        team: 'townsfolk',
+                        ability: 'Executed good players might not die.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'fool',
+                        name: 'Fool',
+                        team: 'townsfolk',
+                        ability: 'The first time you die, you don\'t.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'goon',
+                        name: 'Goon',
+                        team: 'outsider',
+                        ability: 'Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'lunatic',
+                        name: 'Lunatic',
+                        team: 'outsider',
+                        ability: 'You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'tinker',
+                        name: 'Tinker',
+                        team: 'outsider',
+                        ability: 'You might die at night.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'moonchild',
+                        name: 'Moonchild',
+                        team: 'outsider',
+                        ability: 'When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'godfather',
+                        name: 'Godfather',
+                        team: 'minion',
+                        ability: 'You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'devils_advocate',
+                        name: 'Devil\'s Advocate',
+                        team: 'minion',
+                        ability: 'Each night, choose a living player (different to last night): if executed tomorrow, they don\'t die.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'assassin',
+                        name: 'Assassin',
+                        team: 'minion',
+                        ability: 'Once per game, at night*, choose a player: they die, even if for some reason they could not.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'mastermind',
+                        name: 'Mastermind',
+                        team: 'minion',
+                        ability: 'If the Demon dies by execution (not 3rd day), play for 1 more day. If a player is then executed, evil wins.',
+                        firstNight: false,
+                        otherNights: false
+                    },
+                    {
+                        id: 'zombuul',
+                        name: 'Zombuul',
+                        team: 'demon',
+                        ability: 'Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'pukka',
+                        name: 'Pukka',
+                        team: 'demon',
+                        ability: 'Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.',
+                        firstNight: true,
+                        otherNights: true
+                    },
+                    {
+                        id: 'shabaloth',
+                        name: 'Shabaloth',
+                        team: 'demon',
+                        ability: 'Each night*, choose 2 players: they die. A dead player regains their ability until dusk tomorrow & poison/drunk don\'t affect them.',
+                        firstNight: false,
+                        otherNights: true
+                    },
+                    {
+                        id: 'po',
+                        name: 'Po',
+                        team: 'demon',
+                        ability: 'Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight.',
+                        firstNight: false,
+                        otherNights: true
+                    }
+                ],
+                setup: {
+                    5: { townsfolk: 3, outsider: 0, minion: 1, demon: 1 },
+                    6: { townsfolk: 3, outsider: 1, minion: 1, demon: 1 },
+                    7: { townsfolk: 5, outsider: 0, minion: 1, demon: 1 },
+                    8: { townsfolk: 5, outsider: 1, minion: 1, demon: 1 },
+                    9: { townsfolk: 5, outsider: 2, minion: 1, demon: 1 },
+                    10: { townsfolk: 7, outsider: 0, minion: 2, demon: 1 },
+                    11: { townsfolk: 7, outsider: 1, minion: 2, demon: 1 },
+                    12: { townsfolk: 7, outsider: 2, minion: 2, demon: 1 },
+                    13: { townsfolk: 9, outsider: 0, minion: 3, demon: 1 },
+                    14: { townsfolk: 9, outsider: 1, minion: 3, demon: 1 },
+                    15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 }
+                }
+            },
         };
         
         let currentScript = null;
