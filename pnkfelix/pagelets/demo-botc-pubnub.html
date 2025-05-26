@@ -928,7 +928,17 @@
         function handleIncomingMessage(message, isFromHistory = false) {
             if (message.type === 'game_setup') {
                 players = message.players;
-                currentScript = message.script;
+
+                // Look up the full script object from the script name/id
+                if (typeof message.script === 'string') {
+                    // If it's just a name, find the script by name
+                    currentScript = Object.values(EMBEDDED_SCRIPTS).find(s => s.name === message.script) || 
+                                   EMBEDDED_SCRIPTS[message.script];
+                } else {
+                    // If it's already an object, use it directly
+                    currentScript = message.script;
+                }
+
                 updatePlayersList();
             } else if (message.type === 'request_game_state' && userType === 'storyteller') {
                 // Don't respond to historical requests
