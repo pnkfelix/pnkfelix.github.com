@@ -811,6 +811,11 @@
                 },
                 status: function(statusEvent) {
                     handleConnectionStatus(statusEvent);
+
+                    // When successfully connected, fetch message history
+                    if (statusEvent.category === 'PNConnectedCategory') {
+                        fetchMessageHistory();
+                    }
                 }
             });
             
@@ -820,6 +825,28 @@
                     sendGameSetup();
                 }, 1000);
             }
+        }
+
+        function fetchMessageHistory() {
+            // Fetch the last 100 messages (adjust count as needed)
+            pubnub.history({
+                channel: currentRoom,
+                count: 100, // Max messages to fetch
+                reverse: false // false = newest first, true = oldest first
+            }).then((response) => {
+                if (response.messages && response.messages.length > 0) {
+                    // Process messages in chronological order (oldest first)
+                    const messages = response.messages.reverse();
+                    
+                    messages.forEach(messageWrapper => {
+                        // PubNub history wraps messages in an object with timetoken
+                        const message = messageWrapper.entry;
+                        handleIncomingMessage(message, true); // true = from history
+                    });
+                }
+            }).catch((error) => {
+                console.log('Error fetching message history:', error);
+            });
         }
         
         function handleConnectionStatus(statusEvent) {
@@ -851,13 +878,16 @@
             });
         }
         
-        function handleIncomingMessage(message) {
+        function handleIncomingMessage(message, isFromHistory = false) {
             if (message.type === 'game_setup') {
                 players = message.players;
                 currentScript = message.script;
                 updatePlayersList();
             } else if (message.type === 'request_game_state' && userType === 'storyteller') {
-                sendGameSetup();
+                // Don't respond to historical requests
+                if (!isFromHistory) {
+                    sendGameSetup();
+                }
             } else if (message.type === 'private_message') {
                 displayMessage(message);
             }
@@ -1423,4 +1453,10 @@ In case its not clear, I do want this to be a single page web app that I can jus
      F: I'm not quite sure if your state machine is set up correctly here. In particular, I was thinking that if the Storyteller has already created the game, then each player should just have to type the correct room id. Once they've typed a correct room id, then they select their name from the list of players associated with that room, and get to join. The way your code seems to be set up, the player is given a button to Generate a New Room, and it never fills the combo box with the names. But maybe I am doing something wrong with my own flow?
 
      (Claude fixed the above. We then went on a wild goose chase eplorting ways to modularize the code, which is probably important for a long-lived vibe-coded engineering effort, but I eventually recognized as being a bad use of time for this small scale thing.)
+
+
+     F: I'm working on a little prototype. I'm actually pretty happy with it so far. Here's the one big thing that I think is missing: It is meant to capture semi-private messaging between some players in a game. It uses PubNub to deal with sending the messages. (They aren't real secrets.) Here's the problem: I was hoping that if I reloaded the page, and then reconnected to the same room, that I would see my current state reloaded; as in, the past messages that were still accessible via PubNub would load up. Is that not the way that PubNub works? Do the messages disappear from PubNub after a participant observes them? Or do I just need to adjust the code to reload the visible messages when connecting to a running game?
+
+    F: Can you show me the necessary changes as a diff that I would need to apply to the file I showed you?
+
 -->
