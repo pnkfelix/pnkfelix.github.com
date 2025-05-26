@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="-20 -20 500 500" style="background_color: white;">
+    <style>
+     .black1 {  stroke: black; stroke-width: 1; } 
+     .sibling {  stroke: orange; stroke-width: 1; fill: none; } 
+     .child {  stroke: blue; stroke-width: 1; fill: none; } 
+     .middle_text {  text-anchor: middle; dominant-baseline: middle; } 
+    </style>
+    <path d="M 0 0 L 40 0" class="sibling"/>
+    <path d="M 0 0 L 0 175" class="child"/>
+    <path d="M 0 175 L 40 175" class="sibling"/>
+    <path d="M 40 175 L 40 200" class="child"/>
+    <path d="M 40 0 L 40 25" class="child"/>
+    <path d="M 40 25 L 80 25" class="sibling"/>
+    <path d="M 40 25 L 40 125" class="child"/>
+    <path d="M 80 25 L 120 25" class="sibling"/>
+    <path d="M 80 25 L 80 75" class="child"/>
+    <g transform="translate(0, 0)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">A</text>
+    </g>
+    <g transform="translate(40, 0)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">D</text>
+    </g>
+    <g transform="translate(40, 25)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">E</text>
+    </g>
+    <g transform="translate(80, 25)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">F</text>
+    </g>
+    <g transform="translate(120, 25)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">G</text>
+    </g>
+    <g transform="translate(80, 75)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">J</text>
+    </g>
+    <g transform="translate(40, 125)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">H</text>
+    </g>
+    <g transform="translate(0, 175)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">B</text>
+    </g>
+    <g transform="translate(40, 175)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">C</text>
+    </g>
+    <g transform="translate(40, 200)">
+        <circle r="15" fill="white" class="black1"/>
+        <text class="middle_text">K</text>
+    </g>
+</svg>

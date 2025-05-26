@@ -58,9 +58,9 @@ fn bsearch<V>(s: &[(i32,V)], k: i32) -> Option<&(i32,V)> {
         if curr.0 == k {
             return Some(curr);
         } else if curr.0 > k {
-            b = mid - 1;
+            b = mid - 1; // was `b = mid;`
         } else {
-            a = mid + 1;
+            a = mid + 1; // was `a = mid;`
         }
         
     }

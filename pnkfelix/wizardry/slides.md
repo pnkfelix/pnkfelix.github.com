@@ -8,6 +8,145 @@
 * Tools
 
 ---
+
+## Scientific Method
+
+```mermaid
+graph LR
+%%  Question --> Research
+  Research --> Model
+  Question --> Hypothesis
+  Model --> Hypothesis --> Experiment --> Observation --> Analysis --> Model
+%%  Analysis --> Publish --> Research
+%%  style start stroke-width:0px 
+```
+
+
+
+---
+layout: quote
+---
+
+# What is the shortest lie in software development?
+
+<v-click>
+
+## "It works"
+
+</v-click>
+
+<v-click at=3>
+
+(Almost no software ships with all features complete and no bugs.)
+
+</v-click>
+
+<v-click>
+
+## "Done!"
+
+</v-click>
+
+<v-click at=4>
+
+(Success with customers usually means you are never "done.")
+
+</v-click>
+
+---
+
+# Software Delivery Cycle
+
+```mermaid
+graph LR
+    Problem(["Problem"])
+    Spec(["Specification"])
+    Test(["Testing"])
+    Impl(["Implementation"])
+    Delivery(["Delivery"])
+
+    Problem --> Spec
+    Spec --> Impl
+	Impl --> Test
+	Test --> Delivery
+	Delivery --> Problem
+```	
+
+---
+layout: quote
+disabled: true
+---
+
+<img src="./images/bertrand-russell.jpg"/>
+
+"Most people would rather die than think and many of them do!"
+<br/>
+-- Bertrand Russell
+
+
+---
+layout: center
+---
+
+# Debugging philosophies
+
+---
+layout: two-cols-header
+clicks: 3
+---
+
+<v-click at='1'>
+
+<center>
+
+## They're both right!
+
+</center>
+
+</v-click>
+
+<v-click at='2'>
+
+<div style="text-align: right">
+
+Cannot fix mistakes in mental model without making *observations*.
+
+</div>
+
+Cannot efficiently search for bugs without *thinking systematically*.
+
+
+</v-click>
+
+
+::left::
+
+
+<img src="./images/john-guttag.jpg"/>
+
+"A debugger is no substitute for thinking."
+<br/> 
+-- John Guttag (paraphrased)
+
+
+<v-click at='3'>
+
+(actual quote: "There is no substitute for reading your code
+...
+People are often resistant to that.
+They'd rather single step through it ..., than just read it and try and figure things out.")
+
+</v-click>
+
+::right::
+
+<img src="./images/dave-agans.jpg"/>
+
+"Stop thinking, and look!"
+<br/>
+-- Dave Agans
+
+---
 layout: two-cols
 clicks: 8
 ---
@@ -52,7 +191,8 @@ clicks: 8
 <<< bin_search.rs#demo2 rust
   </div>
   <div v-if="$clicks >= 7">
-The above works as expected.
+
+This works as expected; returns `Some((2, "two"))`.
 
 But...
   </div>
@@ -64,7 +204,7 @@ But...
  </div>
  <div v-if="$clicks >= 8">
 
-This second one does not work. It infinite loops.
+... this second one does not work; it infinite loops.
 
 </div>
 
@@ -133,7 +273,7 @@ clicks: 3
 
 ::right::
 
-The old code infinite looped, because it kept reconsidering the same element repeatedly.
+Old code kept reconsidering same range repeatedly.
 
 Cursory inspection: "Lets update the places where `mid` is used to compute new endpoints."
 
@@ -141,7 +281,7 @@ Cursory inspection: "Lets update the places where `mid` is used to compute new e
 
 ## **Warning: *incorrect* fix!**
 
-(Challenge for those who know correct fix: Why is symmetry inapplicable here?)
+(Challenge for those who know correct fix: Why is arguing for symmetry inapplicable here?)
 
 </div>
 
