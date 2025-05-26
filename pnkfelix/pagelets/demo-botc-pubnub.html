@@ -1,5 +1,9 @@
 <!--
-     TODO LIST
+## NOTES FOR CLAUDE
+
+* If you have concrete suggestions for changes, present them as diffs. Do not attempt to present the whole file rewritten, as that wastes tokens.
+
+## TODO LIST
      
      [ ] WHen storyteller clicks a message, make that be the current "Send to" if one isn't already set.
      [ ] Add name of current msg target in the "Type your message..." box, i.e. "Type your messager to Neha."
@@ -220,7 +224,44 @@
             text-align: center;
             border: 2px solid transparent;
         }
+
+        .player-card .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
         
+        .player-card .player-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .player-card .role-none {
+            color: #9e9e9e;
+            font-style: italic;
+        }
+        
+        .player-card .role-townsfolk {
+            color: #4a90e2;
+        }
+        
+        .player-card .role-outsider {
+            color: #9e9e9e;
+        }
+        
+        .player-card .role-minion {
+            color: #ff6b6b;
+        }
+        
+        .player-card .role-demon {
+            color: #8b0000;
+        }
+        
+        .player-card.storyteller-view:hover {
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+        }
+      
         .player-card.storyteller {
             border-color: #ffd93d;
         }
@@ -229,6 +270,27 @@
             border-color: #26de81;
         }
         
+        .role-assignment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .role-assignment-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
         .status {
             text-align: center;
             padding: 10px;
@@ -463,6 +525,28 @@
         </div>
     </div>
 
+    <!-- Role Assignment Modal -->
+    <div id="roleAssignmentModal" class="role-assignment-modal hidden">
+        <div class="role-assignment-content">
+            <h3 id="roleAssignmentTitle">Assign Role</h3>
+            <div class="input-group">
+                <label for="roleSelect">Role:</label>
+                <select id="roleSelect">
+                    <option value="">No role assigned</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="confirmRoleAssignment()" style="flex: 1;">Assign Role</button>
+                <button onclick="closeRoleAssignmentModal()" style="flex: 1; background: #666;">Cancel</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <button onclick="randomlyAssignAllRoles()" style="width: 100%; background: linear-gradient(45deg, #26de81, #20bf6b);">
+                    🎲 Randomly Assign All Roles
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // PubNub Configuration - Replace with your keys
         const PUBNUB_PUBLISH_KEY = 'demo';
@@ -477,7 +561,9 @@
         let currentTemplate = null;
         let sentMessages = new Map(); // Track messages we've sent locally
         let mostRecentSetupTimestamp = 0;
-
+        let playerRoles = {}; // Track role assignments
+        let selectedPlayerForRole = null;
+      
         // Embedded script definitions
         const EMBEDDED_SCRIPTS = {
             'trouble_brewing': {
@@ -1054,6 +1140,7 @@
                     // Load the selected script
                     currentScript = EMBEDDED_SCRIPTS[scriptId];
                     players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
+                    initializePlayerRoles();
 
                     // Populate target player dropdown for new games
                     const targetSelect = document.getElementById('targetPlayer');
@@ -1083,6 +1170,13 @@
                 mostRecentSetupTimestamp = Date.now();
             }
             switchToGameScreen();
+        }
+
+        function initializePlayerRoles() {
+            playerRoles = {};
+            players.forEach(player => {
+                playerRoles[player] = null;
+            });
         }
         
         function initializePubNub() {
@@ -1158,6 +1252,7 @@
                 type: 'game_setup',
                 players: players,
                 script: currentScript,
+                playerRoles: playerRoles,
                 storyteller: currentUser,
                 timestamp: Date.now()
             };
@@ -1174,6 +1269,10 @@
                 if (message.timestamp >= mostRecentSetupTimestamp) {
                     mostRecentSetupTimestamp = message.timestamp;
                     players = message.players;
+
+                    if (message.playerRoles) {
+                        playerRoles = message.playerRoles;
+                    }
 
                     // Look up the full script object from the script name/id
                     if (typeof message.script === 'string') {
@@ -1192,6 +1291,12 @@
                 // Don't respond to historical requests
                 if (!isFromHistory) {
                     sendGameSetup();
+                }
+            } else if (message.type === 'role_assignment' && userType === 'storyteller') {
+                // Update local role assignments
+                if (message.playerRoles) {
+                    playerRoles = message.playerRoles;
+                    updatePlayersList();
                 }
             } else if (message.type === 'private_message') {
                 // Check if this is an echo of our own message
@@ -1232,7 +1337,26 @@
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
                 playerCard.textContent = player;
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'player-name';
+                nameDiv.textContent = player;
+                playerCard.appendChild(nameDiv);
                 
+                // Show role if storyteller
+                if (userType === 'storyteller') {
+                    const roleDiv = document.createElement('div');
+                    roleDiv.className = 'player-role';
+                    const role = playerRoles[player] ? getRoleById(playerRoles[player]) : null;
+                    roleDiv.innerHTML = role ? 
+                        `<span class="role-${role.team}">${role.name}</span>` : 
+                        '<span class="role-none">No role</span>';
+                    playerCard.appendChild(roleDiv);
+                    
+                    playerCard.classList.add('storyteller-view');
+                    playerCard.onclick = () => openRoleAssignmentModal(player);
+                }
+              
                 if (player === currentUser) {
                     playerCard.classList.add('online');
                 }
@@ -1256,6 +1380,172 @@
                     targetSelect.appendChild(option);
                 });
             }
+        }
+
+        function getRoleById(roleId) {
+            if (!currentScript || !currentScript.roles) return null;
+            return currentScript.roles.find(role => role.id === roleId);
+        }
+        
+        function openRoleAssignmentModal(playerName) {
+            selectedPlayerForRole = playerName;
+            
+            const modal = document.getElementById('roleAssignmentModal');
+            const title = document.getElementById('roleAssignmentTitle');
+            const roleSelect = document.getElementById('roleSelect');
+            
+            title.textContent = `Assign Role to ${playerName}`;
+            
+            // Populate role dropdown
+            roleSelect.innerHTML = '<option value="">No role assigned</option>';
+            
+            if (currentScript && currentScript.roles) {
+                // Group roles by team
+                const rolesByTeam = {
+                    townsfolk: [],
+                    outsider: [],
+                    minion: [],
+                    demon: []
+                };
+                
+                currentScript.roles.forEach(role => {
+                    rolesByTeam[role.team].push(role);
+                });
+                
+                // Add roles grouped by team
+                const teamNames = {
+                    townsfolk: '👥 Townsfolk',
+                    outsider: '🚪 Outsiders', 
+                    minion: '😈 Minions',
+                    demon: '👹 Demons'
+                };
+                
+                Object.entries(rolesByTeam).forEach(([team, roles]) => {
+                    if (roles.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = teamNames[team];
+                        
+                        roles.forEach(role => {
+                            const option = document.createElement('option');
+                            option.value = role.id;
+                            option.textContent = role.name;
+                            optgroup.appendChild(option);
+                        });
+                        
+                        roleSelect.appendChild(optgroup);
+                    }
+                });
+            }
+            
+            // Set current role if any
+            if (playerRoles[playerName]) {
+                roleSelect.value = playerRoles[playerName];
+            }
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeRoleAssignmentModal() {
+            document.getElementById('roleAssignmentModal').classList.add('hidden');
+            selectedPlayerForRole = null;
+        }
+        
+        function confirmRoleAssignment() {
+            if (!selectedPlayerForRole) return;
+            
+            const roleSelect = document.getElementById('roleSelect');
+            const selectedRole = roleSelect.value || null;
+            
+            // Update local state
+            playerRoles[selectedPlayerForRole] = selectedRole;
+            
+            // Broadcast role assignment to other storytellers (if any)
+            pubnub.publish({
+                channel: currentRoom,
+                message: {
+                    type: 'role_assignment',
+                    playerRoles: playerRoles,
+                    timestamp: Date.now()
+                }
+            });
+            
+            updatePlayersList();
+            closeRoleAssignmentModal();
+        }
+        
+        function randomlyAssignAllRoles() {
+            if (!currentScript || !currentScript.roles || players.length === 0) {
+                alert('No script loaded or no players');
+                return;
+            }
+            
+            const playerCount = players.length;
+            let setup;
+            
+            // Find setup for this player count
+            if (currentScript.setup && currentScript.setup[playerCount]) {
+                setup = currentScript.setup[playerCount];
+            } else {
+                alert(`No setup defined for ${playerCount} players in this script`);
+                return;
+            }
+            
+            // Get available roles by team
+            const rolesByTeam = {
+                townsfolk: currentScript.roles.filter(r => r.team === 'townsfolk'),
+                outsider: currentScript.roles.filter(r => r.team === 'outsider'),
+                minion: currentScript.roles.filter(r => r.team === 'minion'),
+                demon: currentScript.roles.filter(r => r.team === 'demon')
+            };
+            
+            // Randomly select roles based on setup
+            const selectedRoles = [];
+            
+            Object.entries(setup).forEach(([team, count]) => {
+                const availableRoles = [...rolesByTeam[team]]; // Copy array
+                
+                for (let i = 0; i < count; i++) {
+                    if (availableRoles.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * availableRoles.length);
+                        const selectedRole = availableRoles.splice(randomIndex, 1)[0];
+                        selectedRoles.push(selectedRole);
+                    }
+                }
+            });
+            
+            // Shuffle selected roles
+            for (let i = selectedRoles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [selectedRoles[i], selectedRoles[j]] = [selectedRoles[j], selectedRoles[i]];
+            }
+            
+            // Assign roles to players
+            const shuffledPlayers = [...players];
+            for (let i = shuffledPlayers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
+            }
+            
+            // Clear existing assignments
+            initializePlayerRoles();
+            
+            // Assign roles
+            for (let i = 0; i < Math.min(shuffledPlayers.length, selectedRoles.length); i++) {
+                playerRoles[shuffledPlayers[i]] = selectedRoles[i].id;
+            }
+            
+            // Broadcast the new assignments
+            pubnub.publish({
+                channel: currentRoom,
+                message: {
+                    type: 'role_assignment',
+                    playerRoles: playerRoles,
+                    timestamp: Date.now()
+                }
+            });
+            
+            updatePlayersList();
+            closeRoleAssignmentModal();
         }
         
         // Template Functions
