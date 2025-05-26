@@ -2409,6 +2409,9 @@
                 return;
             }
             
+            // Hide the role selection screen
+            document.getElementById('roleSelectionScreen').classList.add('hidden');
+
             // Now continue with the normal game setup flow
             currentUser = 'Storyteller';
             initializePlayerRoles();
