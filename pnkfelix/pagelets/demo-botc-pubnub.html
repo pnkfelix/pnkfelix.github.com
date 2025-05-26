@@ -120,7 +120,12 @@
             opacity: 0.7;
             margin-bottom: 5px;
         }
-        
+
+        .delivery-status {
+            color: #26de81;
+            font-size: 0.8rem;
+        }
+      
         .template-ui {
             background: rgba(255, 107, 107, 0.2);
             border: 1px dashed #ff6b6b;
@@ -446,7 +451,7 @@
         let players = [];
         let isConnected = false;
         let currentTemplate = null;
-        
+        let sentMessages = new Map(); // Track messages we've sent locally        
         // Embedded script definitions
         const EMBEDDED_SCRIPTS = {
             'trouble_brewing': {
@@ -889,6 +894,14 @@
                     sendGameSetup();
                 }
             } else if (message.type === 'private_message') {
+                // Check if this is an echo of our own message
+                if (message.from === currentUser && sentMessages.has(message.timestamp)) {
+                    // This is an echo - mark the local message as delivered
+                    markMessageDelivered(message.timestamp);
+                    return; // Don't display duplicate
+                }
+                
+                // If it's not our message or not in sent messages, display normally
                 displayMessage(message);
             }
         }
@@ -1078,13 +1091,16 @@
                 templateData: templateData,
                 timestamp: Date.now()
             };
-            
+
+            // Display locally first (as "sending")
+            displayMessage(message, true);
+            sentMessages.set(message.timestamp, true);
+
             pubnub.publish({
                 channel: currentRoom,
                 message: message
             });
             
-            displayMessage(message);
             cancelTemplate();
         }
         
@@ -1117,17 +1133,20 @@
                 content: messageText,
                 timestamp: Date.now()
             };
+
+            // Display locally first (as "sending")
+            displayMessage(message, true);
+            sentMessages.set(message.timestamp, true);
             
             pubnub.publish({
                 channel: currentRoom,
                 message: message
             });
             
-            displayMessage(message);
             messageInput.value = '';
         }
         
-        function displayMessage(message) {
+        function displayMessage(message, isLocalSend = false) {
             // Only show messages for current user
             if (message.to !== currentUser && message.from !== currentUser) {
                 return;
@@ -1146,11 +1165,21 @@
             const headerEl = document.createElement('div');
             headerEl.className = 'message-header';
             const time = new Date(message.timestamp).toLocaleTimeString();
-            headerEl.textContent = `${message.from} → ${message.to} (${time})`;
             
+            let statusIcon = '';
+            if (isLocalSend) {
+                statusIcon = ' ⏳'; // Sending indicator
+            } else if (message.from === currentUser) {
+                statusIcon = ' ✓'; // Delivered indicator
+            }
+            
+            headerEl.innerHTML = `${message.from} → ${message.to} (${time})<span class="delivery-status">${statusIcon}</span>`;
+                 
             const contentEl = document.createElement('div');
             contentEl.textContent = message.content;
             
+            // Store reference for delivery confirmation
+            messageEl.dataset.timestamp = message.timestamp;
             messageEl.appendChild(headerEl);
             messageEl.appendChild(contentEl);
             
@@ -1167,6 +1196,15 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
+        function markMessageDelivered(timestamp) {
+            // Find the message element and update its delivery status
+            const messageEl = document.querySelector(`[data-timestamp="${timestamp}"]`);
+            if (messageEl) {
+                const headerEl = messageEl.querySelector('.message-header');
+                headerEl.innerHTML = headerEl.innerHTML.replace('⏳', '✓');
+            }
+        }
+
         function createResponseUI(responseData, originalMessage) {
             const responseDiv = document.createElement('div');
             responseDiv.className = 'template-ui';
@@ -1293,12 +1331,14 @@
                 timestamp: Date.now()
             };
             
+            // Display locally first (as "sending")
+            displayMessage(message, true);
+            sentMessages.set(message.timestamp, true);
+
             pubnub.publish({
                 channel: currentRoom,
                 message: message
             });
-            
-            displayMessage(message);
             
             // Disable the response UI
             responseDiv.style.opacity = '0.5';
@@ -1457,6 +1497,12 @@ In case its not clear, I do want this to be a single page web app that I can jus
 
      F: I'm working on a little prototype. I'm actually pretty happy with it so far. Here's the one big thing that I think is missing: It is meant to capture semi-private messaging between some players in a game. It uses PubNub to deal with sending the messages. (They aren't real secrets.) Here's the problem: I was hoping that if I reloaded the page, and then reconnected to the same room, that I would see my current state reloaded; as in, the past messages that were still accessible via PubNub would load up. Is that not the way that PubNub works? Do the messages disappear from PubNub after a participant observes them? Or do I just need to adjust the code to reload the visible messages when connecting to a running game?
 
-    F: Can you show me the necessary changes as a diff that I would need to apply to the file I showed you?
+     F: Can you show me the necessary changes as a diff that I would need to apply to the file I showed you?
+
+
+     F: I'm really happy with your help with this app I'm making. One problem I've noticed (or maybe its deliberate): Each message is showing up twice in a senders view. Its seen once on the recipients view. I assume this is something where the code is probably adding the text to the local buffer based on it being locally typed, and then adding it again when it shows up in the pubnub service. Does that sound plausible? See attached. Also, please show your suggestions on how to change this as diffs against the code.
+
+
+     F: I don't necessarily want to remove the immediate local display. Could we consider detecting the echo and rendering some kind of annotation on the message showing that it made it to the pubnub service, like a little checkmark or something in the rendering near the timestamp?     
 
 -->
