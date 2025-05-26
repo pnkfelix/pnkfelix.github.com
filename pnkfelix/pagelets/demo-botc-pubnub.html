@@ -997,6 +997,16 @@
                 storytellerCard.className = 'player-card storyteller';
                 storytellerCard.textContent = '👑 Storyteller';
                 playersList.appendChild(storytellerCard);
+            } else if (userType == 'storyteller') {
+                // Update target player dropdown for storytellers
+                const targetSelect = document.getElementById('targetPlayer');
+                targetSelect.innerHTML = '<option value="">Select player...</option>';
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = player;
+                    option.textContent = player;
+                    targetSelect.appendChild(option);
+                });
             }
         }
         
