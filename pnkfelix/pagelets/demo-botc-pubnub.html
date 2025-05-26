@@ -691,6 +691,7 @@
         let mostRecentSetupTimestamp = 0;
         let playerRoles = {}; // Track role assignments
         let selectedPlayerForRole = null;
+        let currentGameId = null;
       
         // Embedded script definitions
         const EMBEDDED_SCRIPTS = {
@@ -1119,8 +1120,33 @@
         let gameMode = 'new'; // 'new' or 'reconnect'
         let selectedRoles = []; // Roles selected for the current game
         let targetDistribution = {}; // Target role distribution
+
+        function generateGameId(roomId) {
+            // Extract room name and increment counter
+            const baseRoom = roomId.replace(/_game\d+$/, ''); // Remove existing game suffix
+            
+            // For new games, we'll increment. For now, just generate based on timestamp
+            // This could be made more sophisticated with history parsing if needed
+            const gameNumber = Math.floor(Date.now() / 1000) % 10000; // Simple incrementing number
+            return `${baseRoom}_game${gameNumber}`;
+        }
         
-        function selectGameMode(mode) {
+        function extractLatestGameId(roomId, messageHistory) {
+            // Look through message history to find the highest game number
+            let maxGameNumber = 0;
+            const baseRoom = roomId.replace(/_game\d+$/, '');
+            
+            messageHistory.forEach(msg => {
+                if (msg.gameId && msg.gameId.startsWith(baseRoom + '_game')) {
+                    const gameNum = parseInt(msg.gameId.split('_game')[1]) || 0;
+                    maxGameNumber = Math.max(maxGameNumber, gameNum);
+                }
+            });
+            
+            return `${baseRoom}_game${maxGameNumber + 1}`;
+        }
+      
+      function selectGameMode(mode) {
             gameMode = mode;
             const newBtn = document.getElementById('newGameBtn');
             const reconnectBtn = document.getElementById('reconnectBtn');
@@ -1275,6 +1301,7 @@
                     const playerCount = players.length;
                     if (currentScript.setup && currentScript.setup[playerCount]) {
                         targetDistribution = currentScript.setup[playerCount];
+	  	        currentGameId = generateGameId(currentRoom);
                         showRoleSelectionScreen();
                         return; // Don't proceed to game yet
                     } else {
@@ -1308,6 +1335,11 @@
             // If storyteller starting new game, mark current time to ignore older setups
             if (userType === 'storyteller' && gameMode === 'new') {
                 mostRecentSetupTimestamp = Date.now();
+            } else if (userType === 'storyteller' && gameMode === 'reconnect') {
+                // For reconnect, we'll determine gameId from message history
+                currentGameId = null; // Will be set when we process history
+            } else {
+               // Players will get gameId from storyteller's setup message
             }
             switchToGameScreen();
         }
@@ -1389,6 +1421,7 @@
         function sendGameSetup() {
 	  console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
           const setupMessage = {
+                gameId: currentGameId,
                 type: 'game_setup',
                 players: players,
                 script: currentScript,
@@ -1405,8 +1438,13 @@
         
         function handleIncomingMessage(message, isFromHistory = false) {
             if (message.type === 'game_setup') {
-                // Only process if this is the most recent setup message we've seen
-                if (message.timestamp >= mostRecentSetupTimestamp) {
+               // Only process messages with gameId that matches our current game
+               if (message.gameId === currentGameId) {
+  		    // Update our current game ID if we don't have one or this is newer
+		    if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
+	 	       currentGameId = message.gameId;
+                    }
+
                     mostRecentSetupTimestamp = message.timestamp;
                     players = message.players;
 
@@ -1432,13 +1470,15 @@
                 if (!isFromHistory) {
                     sendGameSetup();
                 }
-            } else if (message.type === 'role_assignment' && userType === 'storyteller') {
+            } else if (message.type === 'role_assignment' && userType === 'storyteller' && 
+                      message.gameId === currentGameId) {
                 // Update local role assignments
                 if (message.playerRoles) {
                     playerRoles = message.playerRoles;
                     updatePlayersList();
                 }
-            } else if (message.type === 'private_message') {
+            } else if (message.type === 'private_message' &&
+                      message.gameId === currentGameId) {
                 // Check if this is an echo of our own message
                 if (message.from === currentUser && sentMessages.has(message.timestamp)) {
                     // This is an echo - mark the local message as delivered
@@ -1472,9 +1512,13 @@
         function updatePlayersList() {
             const playersList = document.getElementById('playersList');
             playersList.innerHTML = '';
-            
-            players.forEach(player => {
-                const playerCard = document.createElement('div');
+
+            // Debug log to see what we're working with
+            console.log('updatePlayersList called, playerRoles:', playerRoles);
+            console.log('currentScript:', currentScript);
+          
+          players.forEach(player => {
+            const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
                 playerCard.textContent = player;
 
@@ -1487,10 +1531,15 @@
                 if (userType === 'storyteller') {
                     const roleDiv = document.createElement('div');
                     roleDiv.className = 'player-role';
-                    const role = playerRoles[player] ? getRoleById(playerRoles[player]) : null;
+                    const roleId = playerRoles[player];
+                    const role = roleId ? getRoleById(roleId) : null;
+                    
+                    // Debug individual role lookup
+                    console.log(`Player ${player}: roleId=${roleId}, role=`, role);
+                    
                     roleDiv.innerHTML = role ? 
                         `<span class="role-${role.team}">${role.name}</span>` : 
-                        '<span class="role-none">No role</span>';
+				      '<span class="role-none">No role</span>';
                     playerCard.appendChild(roleDiv);
                     
                     playerCard.classList.add('storyteller-view');
@@ -1524,6 +1573,8 @@
 
         function getRoleById(roleId) {
             if (!currentScript || !currentScript.roles) return null;
+            console.log(`getRoleById: looking for ${roleId} in script with ${currentScript.roles.length} roles`);
+            console.log('Available role IDs:', currentScript.roles.map(r => r.id));
             return currentScript.roles.find(role => role.id === roleId);
         }
         
@@ -1603,6 +1654,7 @@
             pubnub.publish({
                 channel: currentRoom,
                 message: {
+                    gameId: currentGameId,
                     type: 'role_assignment',
                     playerRoles: playerRoles,
                     timestamp: Date.now()
@@ -1678,6 +1730,7 @@
             pubnub.publish({
                 channel: currentRoom,
                 message: {
+                    gameId: currentGameId,
                     type: 'role_assignment',
                     playerRoles: playerRoles,
                     timestamp: Date.now()
@@ -1830,6 +1883,7 @@
             }
             
             const message = {
+                gameId: currentGameId,
                 type: 'private_message',
                 messageType: currentTemplate.type === 'storyteller_info' ? 'info' : 'prompt',
                 from: currentUser,
@@ -1873,6 +1927,7 @@
             }
             
             const message = {
+                gameId: currentGameId,
                 type: 'private_message',
                 messageType: 'response',
                 from: currentUser,
@@ -2068,6 +2123,7 @@
             }
             
             const message = {
+                gameId: currentGameId,
                 type: 'private_message',
                 messageType: 'response',
                 from: currentUser,
@@ -2418,6 +2474,11 @@
 
             // Automatically distribute the selected roles to players
             distributeSelectedRolesToPlayers();
+
+            // Update the players list to show the assigned roles AFTER distribution
+            setTimeout(() => {
+                updatePlayersList();
+            }, 100);
           
             // Populate target player dropdown for new games
             const targetSelect = document.getElementById('targetPlayer');
@@ -2434,14 +2495,12 @@
             mostRecentSetupTimestamp = Date.now();
             switchToGameScreen();
 
-            // Update the players list to show the assigned roles
-            updatePlayersList();
-
             // Broadcast the role assignments
             setTimeout(() => {
                 pubnub.publish({
                     channel: currentRoom,
                     message: {
+                        gameId: currentGameId,
                         type: 'role_assignment',
                         playerRoles: playerRoles,
                         timestamp: Date.now()
@@ -2544,5 +2603,18 @@ In case its not clear, I do want this to be a single page web app that I can jus
 
      F: I'm sorry, the second diff you shows looks like you're replacing a line of code with the exact same thing?
 
+     F: Look at this code. Keep in mind the instructions for you (Claude) at the beginning. Immediate Task: Explain to me, in english, how the role assignments work. Both the initial selection of the subset of roles from the script to be distributed amongst the players (and thus ideally will be a count that matches the player count), as well as how the role of each player can be changed by the storyteller during the game itself. Explain the representations involved and how they interact. If you see any potential invariants that we might consider documenting, or any inconsistencies in the code that might be a sign of a mistake, point those out too. (This is all me preparing to try to address a problem I am seeing, but I want you to help me understand the overall code control and dataflow first before I embark on that.)
 
+     F: the other thing to note is that a (probably undocumented) part of the intended design is that the same room can be reused for different games. So if you start a new game within a room, the set of players (which can change, but do not have to), and their assigned roles (which again can change, but do not have to), should update accordingly.
+
+     F: Lets add a gameId identifier to the messages. I am not worried about them being forged (in fact I might well want to let them be forged, in order to join a game midstream). So lets have the gameId just be a simple construction that takes the room-name and appends a number, and then each time someone creates a new game, they just increment the number. (I am willing to live with the potential race condition there from two hypothetical storyteller both trying to create a game at the same time; that scenario simply isn't going to arise for my use case.)
+
+     F: Even with these changes, I am still seeing the incorrect role assignments being presented when I join the room. The console messages say the correct role assignments, but the rendered web page does not show it.
+
+
+     F: Here's a log. I manually swapped in two outsiders and took out two townsfolk. so the end player rendering should show the two outsiders. But it does not. Look at the console log, see the place where the player assignment includes a drunk and a recluse (both outsiders), but that fact is lost in the subsequent console logs.
+
+     F: I don't understand, why don't we just ignore messages that don't have gameId's, since we have now added those and should only look at messages with game Id that match?
+
+ 
 -->
