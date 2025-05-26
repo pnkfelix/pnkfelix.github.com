@@ -386,6 +386,70 @@
         .hidden {
             display: none;
         }
+
+        .role-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .role-selection-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .role-selection-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .role-selection-card.selected {
+            border-color: #26de81;
+            background: rgba(38, 222, 129, 0.2);
+        }
+        
+        .role-selection-card.townsfolk {
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .role-selection-card.outsider {
+            border-left: 4px solid #9e9e9e;
+        }
+        
+        .role-selection-card.minion {
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .role-selection-card.demon {
+            border-left: 4px solid #8b0000;
+        }
+        
+        .role-selection-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .role-selection-ability {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+        
+        .distribution-match {
+            color: #26de81;
+        }
+        
+        .distribution-over {
+            color: #ff6b6b;
+        }
+        
+        .distribution-under {
+            color: #ffd93d;
+        }
         
         @media (max-width: 600px) {
             .compose-area {
@@ -461,6 +525,69 @@
             </div>
             
             <button id="joinGameBtn" onclick="joinGame()">Start Game</button>
+        </div>
+
+        <!-- Role Selection Screen -->
+        <div id="roleSelectionScreen" class="card hidden">
+            <h2>Select Roles for Game</h2>
+            <div class="input-group">
+                <label>Script: <span id="roleSelectionScript"></span> | Players: <span id="roleSelectionPlayerCount"></span></label>
+            </div>
+            
+            <div id="distributionInfo" class="card" style="background: rgba(74, 144, 226, 0.2); margin-bottom: 20px;">
+                <h4>Recommended Distribution</h4>
+                <div id="distributionDisplay"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="randomlySelectRoles()" style="flex: 1; background: linear-gradient(45deg, #26de81, #20bf6b);">
+                    🎲 Random Selection
+                </button>
+                <button onclick="clearAllRoles()" style="flex: 1; background: #666;">
+                    Clear All
+                </button>
+            </div>
+            
+            <div id="currentSelectionStatus" class="status" style="margin-bottom: 20px;"></div>
+            
+            <div id="roleSelectionContent">
+                <div class="team-section">
+                    <div class="team-header team-townsfolk">
+                        👥 Townsfolk (<span id="townsfolkCount">0</span>/<span id="townsfolkTarget">0</span>)
+                    </div>
+                    <div id="townsfolkRoles" class="role-selection-grid"></div>
+                </div>
+                
+                <div class="team-section">
+                    <div class="team-header team-outsider">
+                        🚪 Outsiders (<span id="outsiderCount">0</span>/<span id="outsiderTarget">0</span>)
+                    </div>
+                    <div id="outsiderRoles" class="role-selection-grid"></div>
+                </div>
+                
+                <div class="team-section">
+                    <div class="team-header team-minion">
+                        😈 Minions (<span id="minionCount">0</span>/<span id="minionTarget">0</span>)
+                    </div>
+                    <div id="minionRoles" class="role-selection-grid"></div>
+                </div>
+                
+                <div class="team-section">
+                    <div class="team-header team-demon">
+                        👹 Demons (<span id="demonCount">0</span>/<span id="demonTarget">0</span>)
+                    </div>
+                    <div id="demonRoles" class="role-selection-grid"></div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="goBackToSetup()" style="flex: 1; background: #666;">
+                    ← Back to Setup
+                </button>
+                <button onclick="proceedWithSelectedRoles()" style="flex: 1;" id="proceedButton">
+                    Continue to Game →
+                </button>
+            </div>
         </div>
         
         <!-- Game Screen -->
@@ -990,6 +1117,8 @@
         let currentScript = null;
 
         let gameMode = 'new'; // 'new' or 'reconnect'
+        let selectedRoles = []; // Roles selected for the current game
+        let targetDistribution = {}; // Target role distribution
         
         function selectGameMode(mode) {
             gameMode = mode;
@@ -1141,7 +1270,17 @@
                     // Load the selected script
                     currentScript = EMBEDDED_SCRIPTS[scriptId];
                     players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
-                    initializePlayerRoles();
+
+                    // Calculate target distribution
+                    const playerCount = players.length;
+                    if (currentScript.setup && currentScript.setup[playerCount]) {
+                        targetDistribution = currentScript.setup[playerCount];
+                        showRoleSelectionScreen();
+                        return; // Don't proceed to game yet
+                    } else {
+                        alert(`No setup defined for ${playerCount} players in this script`);
+                        return;
+                    }
 
                     // Populate target player dropdown for new games
                     const targetSelect = document.getElementById('targetPlayer');
@@ -2053,6 +2192,261 @@
         document.getElementById('userType').dispatchEvent(new Event('change'));
       generateRoomId();
       populateScriptDropdown();
+
+        // Role Selection Functions
+        function showRoleSelectionScreen() {
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('roleSelectionScreen').classList.remove('hidden');
+            
+            document.getElementById('roleSelectionScript').textContent = currentScript.name;
+            document.getElementById('roleSelectionPlayerCount').textContent = players.length;
+            
+            // Show target distribution
+            updateDistributionDisplay();
+            
+            // Populate role selection UI
+            populateRoleSelectionUI();
+            
+            // Initialize empty selection
+            selectedRoles = [];
+            updateSelectionCounts();
+        }
+        
+        function updateDistributionDisplay() {
+            const display = document.getElementById('distributionDisplay');
+            display.innerHTML = `
+                Townsfolk: ${targetDistribution.townsfolk} | 
+                Outsiders: ${targetDistribution.outsider} | 
+                Minions: ${targetDistribution.minion} | 
+                Demons: ${targetDistribution.demon}
+            `;
+        }
+        
+        function populateRoleSelectionUI() {
+            const teams = ['townsfolk', 'outsider', 'minion', 'demon'];
+            
+            teams.forEach(team => {
+                const container = document.getElementById(`${team}Roles`);
+                container.innerHTML = '';
+                
+                const teamRoles = currentScript.roles.filter(role => role.team === team);
+                
+                teamRoles.forEach(role => {
+                    const roleCard = document.createElement('div');
+                    roleCard.className = `role-selection-card ${team}`;
+                    roleCard.dataset.roleId = role.id;
+                    roleCard.onclick = () => toggleRoleSelection(role.id);
+                    
+                    roleCard.innerHTML = `
+                        <div class="role-selection-name">${role.name}</div>
+                        <div class="role-selection-ability">${role.ability}</div>
+                    `;
+                    
+                    container.appendChild(roleCard);
+                });
+            });
+        }
+        
+        function toggleRoleSelection(roleId) {
+            const roleCard = document.querySelector(`[data-role-id="${roleId}"]`);
+            const isSelected = selectedRoles.includes(roleId);
+            
+            if (isSelected) {
+                selectedRoles = selectedRoles.filter(id => id !== roleId);
+                roleCard.classList.remove('selected');
+            } else {
+                selectedRoles.push(roleId);
+                roleCard.classList.add('selected');
+            }
+            
+            updateSelectionCounts();
+        }
+        
+        function updateSelectionCounts() {
+            const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 };
+            
+            selectedRoles.forEach(roleId => {
+                const role = currentScript.roles.find(r => r.id === roleId);
+                if (role) {
+                    counts[role.team]++;
+                }
+            });
+            
+            // Update count displays and styling
+            ['townsfolk', 'outsider', 'minion', 'demon'].forEach(team => {
+                const countEl = document.getElementById(`${team}Count`);
+                const targetEl = document.getElementById(`${team}Target`);
+                
+                countEl.textContent = counts[team];
+                targetEl.textContent = targetDistribution[team];
+                
+                // Update styling based on match
+                const headerEl = countEl.closest('.team-header');
+                headerEl.classList.remove('distribution-match', 'distribution-over', 'distribution-under');
+                
+                if (counts[team] === targetDistribution[team]) {
+                    headerEl.classList.add('distribution-match');
+                } else if (counts[team] > targetDistribution[team]) {
+                    headerEl.classList.add('distribution-over');
+                } else {
+                    headerEl.classList.add('distribution-under');
+                }
+            });
+            
+            // Update overall status
+            updateSelectionStatus(counts);
+        }
+        
+        function updateSelectionStatus(counts) {
+            const statusEl = document.getElementById('currentSelectionStatus');
+            const totalSelected = Object.values(counts).reduce((a, b) => a + b, 0);
+            const totalTarget = Object.values(targetDistribution).reduce((a, b) => a + b, 0);
+            
+            let statusText = `Selected: ${totalSelected}/${totalTarget} roles`;
+            let statusClass = 'status ';
+            
+            if (totalSelected === totalTarget) {
+                const isExactMatch = ['townsfolk', 'outsider', 'minion', 'demon'].every(
+                    team => counts[team] === targetDistribution[team]
+                );
+                
+                if (isExactMatch) {
+                    statusText += ' - Perfect match! ✓';
+                    statusClass += 'connected';
+                } else {
+                    statusText += ' - Total matches, but distribution differs';
+                    statusClass += 'status'; // neutral
+                }
+            } else {
+                statusClass += 'disconnected';
+            }
+            
+            statusEl.textContent = statusText;
+            statusEl.className = statusClass;
+        }
+        
+        function randomlySelectRoles() {
+            // Clear current selection
+            selectedRoles = [];
+            document.querySelectorAll('.role-selection-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Select roles randomly based on distribution
+            const rolesByTeam = {
+                townsfolk: currentScript.roles.filter(r => r.team === 'townsfolk'),
+                outsider: currentScript.roles.filter(r => r.team === 'outsider'),
+                minion: currentScript.roles.filter(r => r.team === 'minion'),
+                demon: currentScript.roles.filter(r => r.team === 'demon')
+            };
+            
+            Object.entries(targetDistribution).forEach(([team, count]) => {
+                const availableRoles = [...rolesByTeam[team]];
+                
+                for (let i = 0; i < count && availableRoles.length > 0; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableRoles.length);
+                    const selectedRole = availableRoles.splice(randomIndex, 1)[0];
+                    selectedRoles.push(selectedRole.id);
+                    
+                    const roleCard = document.querySelector(`[data-role-id="${selectedRole.id}"]`);
+                    roleCard.classList.add('selected');
+                }
+            });
+            
+            updateSelectionCounts();
+        }
+        
+        function clearAllRoles() {
+            selectedRoles = [];
+            document.querySelectorAll('.role-selection-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateSelectionCounts();
+        }
+        
+        function goBackToSetup() {
+            document.getElementById('roleSelectionScreen').classList.add('hidden');
+            document.getElementById('setupScreen').classList.remove('hidden');
+        }
+
+        function distributeSelectedRolesToPlayers() {
+            if (selectedRoles.length === 0 || players.length === 0) {
+                return;
+            }
+            
+            // Create array of selected role objects
+            const rolesToDistribute = selectedRoles.map(roleId => 
+                currentScript.roles.find(role => role.id === roleId)
+            ).filter(role => role); // Remove any undefined roles
+            
+            // Shuffle the roles
+            for (let i = rolesToDistribute.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [rolesToDistribute[i], rolesToDistribute[j]] = [rolesToDistribute[j], rolesToDistribute[i]];
+            }
+            
+            // Shuffle the players
+            const shuffledPlayers = [...players];
+            for (let i = shuffledPlayers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
+            }
+            
+            // Clear existing assignments
+            initializePlayerRoles();
+            
+            // Assign roles to players
+            for (let i = 0; i < Math.min(shuffledPlayers.length, rolesToDistribute.length); i++) {
+                playerRoles[shuffledPlayers[i]] = rolesToDistribute[i].id;
+            }
+
+	    console.log('Roles distributed:', playerRoles); // Debug line
+        }
+        
+        function proceedWithSelectedRoles() {
+            if (selectedRoles.length === 0) {
+                alert('Please select at least one role');
+                return;
+            }
+            
+            // Now continue with the normal game setup flow
+            currentUser = 'Storyteller';
+            initializePlayerRoles();
+
+            // Automatically distribute the selected roles to players
+            distributeSelectedRolesToPlayers();
+          
+            // Populate target player dropdown for new games
+            const targetSelect = document.getElementById('targetPlayer');
+            targetSelect.innerHTML = '<option value="">Select player...</option>';
+            players.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player;
+                option.textContent = player;
+                targetSelect.appendChild(option);
+            });
+            
+            initializePubNub();
+            // If storyteller starting new game, mark current time to ignore older setups
+            mostRecentSetupTimestamp = Date.now();
+            switchToGameScreen();
+
+            // Update the players list to show the assigned roles
+            updatePlayersList();
+
+            // Broadcast the role assignments
+            setTimeout(() => {
+                pubnub.publish({
+                    channel: currentRoom,
+                    message: {
+                        type: 'role_assignment',
+                        playerRoles: playerRoles,
+                        timestamp: Date.now()
+                    }
+                });
+	    }, 1000);
+        }
+
     </script>
 </body>
 </html>
@@ -2134,4 +2528,18 @@ In case its not clear, I do want this to be a single page web app that I can jus
      F: Something is wrong with this code. The page is not rendering properly at the outset. All I did was try to add the bad moon rising script but I think I got the syntax wrong.
 
      F: I want to tackle the role assignment problem. Each player can be associated with a role. That role can change during the game, so part of the interface is a way for the storyteller to select a player and change their role, which will then present a combo box with all the roles from the script. But most of the time, the more important thing is that in the storyteller's view, the storyteller sees every player's current role. (In the player's view, they do not see their role, in part because most players cannot actually be certain what their role is, due to characters like the Drunk, the Lunatic, or the Marionette.)
+
+     F: Look at the attached code and the instructions at the top. Note in particular the "NOTES FOR CLAUDE", those are for you to follow in your responses here. Immediate task: I want to refine how role assignment works. The existing way to edit the assigned roles is fine. However, when the storyteller selects "new game" with a certain script and player count, the first step (before actually going to the message communication screen) is for the storyteller to select the subset of roles from the script that will be put into the current game. There should be a way for the storyteller to hand-pick the selection, or to choose it randomly (and then optionally edit the resulting random choices). If the selection is entirely random, it should follow the distribution of the four role categories that is embedded with the script. If the storyteller hand-edits the distribution, then the rendering should include some kind of feedback hint about whether the current set of chosen roles fits the distribution of categories from the script (but the code should not attempt to prevent the storyteller from deviating from the encoded distribution, since in the end this choice is up to the storyteller).
+
+     F: The "Continue To Game" button does not seem to do anything?
+
+     F: Once the subset of the roles has been selected, they should be distributed to the players when we "Continue To Game"
+
+     F: It doesn't seem like the players are being assigned the roles? E.g. in the list of players in the Storyteller view, below "View Script", it says "no role" for most of the players for me?
+
+     F: I see the message on the console ``Roles distributed: Object { Amanda: "mayor", Rob: "slayer", Courtney: "monk", Taylor: "undertaker", Pratik: "imp", Neha: "fortune_teller", Steph: "spy" } demo-botc-pubnub.html:2403:14'' but the rendered page still doesn't include the assignments (see attached partial screenshot).
+
+     F: I'm sorry, the second diff you shows looks like you're replacing a line of code with the exact same thing?
+
+
 -->
