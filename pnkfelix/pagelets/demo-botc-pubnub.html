@@ -475,7 +475,9 @@
         let players = [];
         let isConnected = false;
         let currentTemplate = null;
-        let sentMessages = new Map(); // Track messages we've sent locally        
+        let sentMessages = new Map(); // Track messages we've sent locally
+        let mostRecentSetupTimestamp = 0;
+
         // Embedded script definitions
         const EMBEDDED_SCRIPTS = {
             'trouble_brewing': {
@@ -855,6 +857,10 @@
             }
             
             initializePubNub();
+            // If storyteller starting new game, mark current time to ignore older setups
+            if (userType === 'storyteller' && gameMode === 'new') {
+                mostRecentSetupTimestamp = Date.now();
+            }
             switchToGameScreen();
         }
         
@@ -943,19 +949,24 @@
         
         function handleIncomingMessage(message, isFromHistory = false) {
             if (message.type === 'game_setup') {
-                players = message.players;
+                // Only process if this is the most recent setup message we've seen
+                if (message.timestamp >= mostRecentSetupTimestamp) {
+                    mostRecentSetupTimestamp = message.timestamp;
+                    players = message.players;
 
-                // Look up the full script object from the script name/id
-                if (typeof message.script === 'string') {
-                    // If it's just a name, find the script by name
-                    currentScript = Object.values(EMBEDDED_SCRIPTS).find(s => s.name === message.script) || 
-                                   EMBEDDED_SCRIPTS[message.script];
-                } else {
-                    // If it's already an object, use it directly
-                    currentScript = message.script;
-                }
+                    // Look up the full script object from the script name/id
+                    if (typeof message.script === 'string') {
+                        // If it's just a name, find the script by name
+                        currentScript = Object.values(EMBEDDED_SCRIPTS).find(s => s.name === message.script) ||
+                                       EMBEDDED_SCRIPTS[message.script];
+                    } else {
+                        // If it's already an object, use it directly
+                        currentScript = message.script;
+                    }
 
-                updatePlayersList();
+                    updatePlayersList();
+               }
+               // If it's an older setup message, just ignore it
             } else if (message.type === 'request_game_state' && userType === 'storyteller') {
                 // Don't respond to historical requests
                 if (!isFromHistory) {
@@ -1590,4 +1601,19 @@ In case its not clear, I do want this to be a single page web app that I can jus
 
      F: I don't necessarily want to remove the immediate local display. Could we consider detecting the echo and rendering some kind of annotation on the message showing that it made it to the pubnub service, like a little checkmark or something in the rendering near the timestamp?     
 
+     F: Look at this code, especially the todo list at the top of the file.
+
+     F: I'm very concerned about the oddities I'm seeing with the set of players and seeming corruption
+
+     F: Wow that's a lot more code than I was expecting. I'm not terribly familiar wit hthis domain; is there no simpler way to accomplish this?
+
+     F: what's wrong with looking at the timestamps and treating the most recent ones as the source of truth?
+
+     F: Well you don't have to take my word at face value. Is there any potential issue with this approach?
+
+     F: Okay. So what does this fix look like as a diff to the current file?
+
+     F: Hmm. It didn't seem to work; I made a new game with the new code and with a larger player list, but it still seems to inherit the old player set associated with this room.
+
+     F: Why did you reduce the delay?
 -->
