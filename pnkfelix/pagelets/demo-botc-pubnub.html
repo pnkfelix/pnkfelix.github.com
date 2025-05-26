@@ -338,19 +338,27 @@
             
             <div id="storytellerSetup" class="hidden">
                 <div class="input-group">
+                    <label>Game Mode:</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button type="button" id="newGameBtn" onclick="selectGameMode('new')" style="flex: 1;">🎲 New Game</button>
+                        <button type="button" id="reconnectBtn" onclick="selectGameMode('reconnect')" style="flex: 1; background: #666;">🔄 Reconnect</button>
+                    </div>
+                </div>
+
+                 <div class="input-group">
                     <label for="gameRoom">Game Room ID:</label>
                     <input type="text" id="gameRoom" placeholder="Enter or create room ID">
-                    <button type="button" onclick="generateRoomId()">Generate New Room</button>
+                    <button type="button" id="generateRoomBtn" onclick="generateRoomId()">Generate New Room</button>
                 </div>
                 
-                <div class="input-group">
+                <div id="newGameFields" class="input-group">
                     <label for="scriptSelect">Script:</label>
                     <select id="scriptSelect">
                         <option value="">Select a script...</option>
                     </select>
                 </div>
                 
-                <div class="input-group">
+                <div id="playerNamesField" class="input-group">
                     <label for="playerNames">Player Names (one per line):</label>
                     <textarea id="playerNames" rows="6" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve"></textarea>
                 </div>
@@ -373,7 +381,7 @@
                 <div id="roomStatus" class="hidden"></div>
             </div>
             
-            <button onclick="joinGame()">Start Game</button>
+            <button id="joinGameBtn" onclick="joinGame()">Start Game</button>
         </div>
         
         <!-- Game Screen -->
@@ -413,9 +421,9 @@
                 </div>
                 
                 <div class="template-buttons">
-                    <button class="template-btn" onclick="useSimpleTemplate('Your role is [ROLE]. {role}', 'role')">Assign Role</button>
+                    <button class="template-btn" onclick="useSimpleTemplate('Your role is {role}', 'role')">Assign Role</button>
                     <button class="template-btn" onclick="usePromptTemplate('Choose a player tonight.', 'I choose {player}.', ['player'])">Ask: Choose Player</button>
-                    <button class="template-btn" onclick="useSimpleTemplate('You learn: {info}', 'text')">Give Info</button>
+                    <button class="template-btn" onclick="useSimpleTemplate('You learn: {info}', 'info')">Give Info</button>
                     <button class="template-btn" onclick="usePromptTemplate('Use your ability tonight.', 'I use my ability on {player}.', ['player'])">Use Ability</button>
                 </div>
             </div>
@@ -654,6 +662,34 @@
         };
         
         let currentScript = null;
+
+        let gameMode = 'new'; // 'new' or 'reconnect'
+        
+        function selectGameMode(mode) {
+            gameMode = mode;
+            const newBtn = document.getElementById('newGameBtn');
+            const reconnectBtn = document.getElementById('reconnectBtn');
+            const generateBtn = document.getElementById('generateRoomBtn');
+            const newGameFields = document.getElementById('newGameFields');
+            const playerNamesField = document.getElementById('playerNamesField');
+            const joinBtn = document.getElementById('joinGameBtn');
+
+            if (mode === 'new') {
+                newBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+                reconnectBtn.style.background = '#666';
+                generateBtn.style.display = 'inline-block';
+                newGameFields.style.display = 'block';
+                playerNamesField.style.display = 'block';
+                joinBtn.textContent = 'Start Game';
+            } else {
+                newBtn.style.background = '#666';
+                reconnectBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+                generateBtn.style.display = 'none';
+                newGameFields.style.display = 'none';
+                playerNamesField.style.display = 'none';
+                joinBtn.textContent = 'Rejoin Game';
+            }
+        }
         
         // Initialize user type selection and populate scripts
         document.getElementById('userType').addEventListener('change', function() {
@@ -754,39 +790,44 @@
             
             if (userType === 'storyteller') {
                 currentRoom = document.getElementById('gameRoom').value.trim();
-                const scriptId = document.getElementById('scriptSelect').value;
                 
                 if (!currentRoom) {
                     alert('Please enter a room ID');
                     return;
                 }
                 
-                if (!scriptId) {
-                    alert('Please select a script');
-                    return;
+                if (gameMode === 'new') {
+                    const scriptId = document.getElementById('scriptSelect').value;
+                    console.log('scriptId:', scriptId);
+                    console.log('EMBEDDED_SCRIPTS[scriptId]:', EMBEDDED_SCRIPTS[scriptId]);
+                    
+                    if (!scriptId) {
+                        alert('Please select a script');
+                        return;
+                    }
+                    
+                    const playerNamesText = document.getElementById('playerNames').value.trim();
+                    if (!playerNamesText) {
+                        alert('Please enter player names');
+                        return;
+                    }
+                    
+                    // Load the selected script
+                    currentScript = EMBEDDED_SCRIPTS[scriptId];
+                    players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
+
+                    // Populate target player dropdown for new games
+                    const targetSelect = document.getElementById('targetPlayer');
+                    targetSelect.innerHTML = '<option value="">Select player...</option>';
+                    players.forEach(player => {
+                        const option = document.createElement('option');
+                        option.value = player;
+                        option.textContent = player;
+                        targetSelect.appendChild(option);
+                    });
                 }
-                
-                const playerNamesText = document.getElementById('playerNames').value.trim();
-                if (!playerNamesText) {
-                    alert('Please enter player names');
-                    return;
-                }
-                
-                // Load the selected script
-                currentScript = EMBEDDED_SCRIPTS[scriptId];
-                players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
+
                 currentUser = 'Storyteller';
-                
-                // Populate target player dropdown
-                const targetSelect = document.getElementById('targetPlayer');
-                targetSelect.innerHTML = '<option value="">Select player...</option>';
-                players.forEach(player => {
-                    const option = document.createElement('option');
-                    option.value = player;
-                    option.textContent = player;
-                    targetSelect.appendChild(option);
-                });
-                
             } else {
                 currentRoom = document.getElementById('gameRoomPlayer').value.trim();
                 currentUser = document.getElementById('playerName').value;
@@ -869,7 +910,8 @@
         }
         
         function sendGameSetup() {
-            const setupMessage = {
+	  console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
+          const setupMessage = {
                 type: 'game_setup',
                 players: players,
                 script: currentScript,
