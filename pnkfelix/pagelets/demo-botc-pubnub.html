@@ -1437,12 +1437,27 @@
         }
         
         function handleIncomingMessage(message, isFromHistory = false) {
+
+            let debug_payload = {
+                messageType: message.type,
+                messageGameId: message.gameId,
+                currentGameId: currentGameId,
+                userType: userType,
+                from: message.from,
+                to: message.to,
+                currentUser: currentUser
+            };
+		    // console.log('handleIncomingMessage called:', debug_payload);
+
+
             if (message.type === 'game_setup') {
-               // Only process messages with gameId that matches our current game
-               if (message.gameId === currentGameId) {
-  		    // Update our current game ID if we don't have one or this is newer
-		    if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
-	 	       currentGameId = message.gameId;
+
+                // For players, adopt the most recent gameId. For storytellers, only process matching gameId
+                if (userType === 'player' || message.gameId === currentGameId) {
+                    // Update our current game ID if we don't have one or this is newer
+                    if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
+                        currentGameId = message.gameId;
+					    console.log('Updated currentGameId to:', currentGameId);
                     }
 
                     mostRecentSetupTimestamp = message.timestamp;
@@ -1478,7 +1493,16 @@
                     updatePlayersList();
                 }
             } else if (message.type === 'private_message' &&
-                      message.gameId === currentGameId) {
+                       (message.gameId === currentGameId || (userType === 'player' && !currentGameId))) {
+
+			  console.log('Processing private message:', message);
+
+			  // If player doesn't have gameId yet, adopt it from this message
+			  if (userType === 'player' && !currentGameId && message.gameId) {
+				currentGameId = message.gameId;
+				console.log('Player adopted gameId from message:', currentGameId);
+			  }
+
                 // Check if this is an echo of our own message
                 if (message.from === currentUser && sentMessages.has(message.timestamp)) {
                     // This is an echo - mark the local message as delivered
@@ -1488,6 +1512,8 @@
                 
                 // If it's not our message or not in sent messages, display normally
                 displayMessage(message);
+            } else {
+			    console.log('Message rejected - no matching condition');
             }
         }
         
