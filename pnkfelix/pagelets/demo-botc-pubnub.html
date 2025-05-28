@@ -2164,9 +2164,7 @@ Steph</textarea>
                     fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
                     fieldHtml += '<option value="">Select player...</option>';
                     players.forEach(player => {
-                        if (!currentTemplate.to || player !== currentTemplate.to) {
-                            fieldHtml += `<option value="${player}">${player}</option>`;
-                        }
+                        fieldHtml += `<option value="${player}">${player}</option>`;
                     });
                     fieldHtml += '</select>';
                     
@@ -2445,12 +2443,10 @@ Steph</textarea>
                     input = document.createElement('select');
                     input.innerHTML = '<option value="">Select player...</option>';
                     players.forEach(player => {
-                        if (player !== currentUser) { // Don't include self
-                            const option = document.createElement('option');
-                            option.value = player;
-                            option.textContent = player;
-                            input.appendChild(option);
-                        }
+                        const option = document.createElement('option');
+                        option.value = player;
+                        option.textContent = player;
+                        input.appendChild(option);
                     });
                 } else {
                     input = document.createElement('input');
@@ -3481,6 +3477,11 @@ Remove reminder brings up a model with a combo box with all the current reminder
      F: Either Alice or Bob is the washerwoman
 
      F: sorry, can you print the diff here?
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top.  Immediate task: I think the code has a premature assumption that for every case of "choose a player", the current player is not a valid option. But this is not generally true; it is only for a few roles, such as the monk. So while we could add a different subtemplate form, such as {other_player}, the template for {player} should absolutely include the current player as an option in the combo box.
+
+     F: is there another instance of the same problem in createResponseUI ?
+
 
 
 -->
