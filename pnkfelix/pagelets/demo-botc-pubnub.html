@@ -2244,11 +2244,12 @@ Steph</textarea>
                     templateData[field.name] = value;
                     
                     // Replace placeholder in message
-                    if (field.type === 'role' && currentScript) {
-                        const role = getScriptRoles(currentScript).find(r => r.id === value);
+                    if (is_role(field.type) && currentScript) {
+                        const role = getRoleById(value);
                         if (role) {
                             messageContent = messageContent.replace(`{${field.name}}`, role.name);
                         } else {
+                            console.log('Role not found for ID:', value);
                             messageContent = messageContent.replace(`{${field.name}}`, value);
                         }
                     } else {
@@ -3468,5 +3469,18 @@ Remove reminder brings up a model with a combo box with all the current reminder
      F: hmm. is an additional field the cleanest option here? I was myself thinking that adding new template categories would look nice.
 
      F: refactor that predicate into an is_role function rather than inlining that disjunction.
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: For some reason, when I send notice to e.g. the Washerwoman about what they learn about other players, it is rendering the role with the first letter in lowercase. Is it because it is plugging in the id instead of the name, or something else?
+
+     F: its weird that the lookup by current script wasn't working. Unless it was an artifact of us moving the role objects out of the script in the first place?
+
+     F: hmm. it didn't seem to resolve the problem. But I also am not seeing that console.log output. The current output is unfortunately flooded with all the console.log for each private message that is processed.
+
+     F: The option values were capitalized in the combo box before, so I'm not sure if that can possibly be the problem.
+
+     F: Either Alice or Bob is the washerwoman
+
+     F: sorry, can you print the diff here?
+
 
 -->
