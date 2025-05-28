@@ -764,7 +764,7 @@ Steph</textarea>
                 ability: 'You start knowing that 1 of 2 players is a particular Townsfolk.',
                 firstNight: true,
                 otherNights: false,
-                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
+                nightActionTemplates: [['Either {player1} or {player2} is the {townsfolk_role}.']],
             },
             'librarian': {
                 id: 'librarian',
@@ -773,7 +773,7 @@ Steph</textarea>
                 ability: 'You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play.)',
                 firstNight: true,
                 otherNights: false,
-                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
+                nightActionTemplates: [['Either {player1} or {player2} is the {outsider_role}.']],
             },
             'investigator': {
                 id: 'investigator',
@@ -782,7 +782,7 @@ Steph</textarea>
                 ability: 'You start knowing that 1 of 2 players is a particular Minion.',
                 firstNight: true,
                 otherNights: false,
-                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
+                nightActionTemplates: [['Either {player1} or {player2} is the {minion_role}.']],
             },
             'chef': {
                 id: 'chef',
@@ -2058,6 +2058,10 @@ Steph</textarea>
             return fields;
         }
 
+        function is_role(fieldType) {
+            return fieldType === 'role' || fieldType.endsWith('_role');
+        }
+
         function useSimpleTemplate(template, fieldType) {
             const targetPlayer = document.getElementById('targetPlayer').value;
             if (!targetPlayer) {
@@ -2166,13 +2170,28 @@ Steph</textarea>
                     });
                     fieldHtml += '</select>';
                     
-                } else if (field.type === 'role') {
+                } else if (is_role(field.type)) {
                     fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
                     fieldHtml += '<option value="">Select role...</option>';
                     if (currentScript) {
-                        getScriptRoles(currentScript).forEach(role => {
+                        let availableRoles = getScriptRoles(currentScript);
+                        
+                        // Filter roles based on field type
+                        if (field.type === 'townsfolk_role') {
+                            availableRoles = availableRoles.filter(role => role.team === 'townsfolk');
+                        } else if (field.type === 'outsider_role') {
+                            availableRoles = availableRoles.filter(role => role.team === 'outsider');
+                        } else if (field.type === 'minion_role') {
+                            availableRoles = availableRoles.filter(role => role.team === 'minion');
+                        } else if (field.type === 'demon_role') {
+                            availableRoles = availableRoles.filter(role => role.team === 'demon');
+                        }
+                        // field.type === 'role' shows all roles (no filtering)
+                        
+                        availableRoles.forEach(role => {
                             fieldHtml += `<option value="${role.id}">${role.name}</option>`;
                         });
+
                     }
                     fieldHtml += '</select>';
                     
@@ -3443,5 +3462,11 @@ Remove reminder brings up a model with a combo box with all the current reminder
      F: Uh, I don't think you should toggle based on receiving a 'phase_change' message alone. I mean, its fine to signal that the event occurred, but I think it will be more robust if you add explicit "daybreak" and "nightfall" events (rather than just "phase_change"). That way, if we inadvertantly issue a nightfall or daybreak multiple times ( due to race conditions or a storyteller reconnect, for example), then it will remain an idempotent operation.
 
      F: sorry, I lost track of what the diff was being applied to. what changes remain for me to make to this file (see attachment)
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: The template string system is pretty good. But, we could be a little more fine grained in how we narrow the combo boxes in some cases. In particular, the washerwoman will only see townsfolk, there's no reason to show all the roles on the script in the combo box. Likewise, the librarian will only see outsiders. We do not need to try to encode all of the possible constraints (e.g. some constraints, such as that of Devil's Advocate or Exorcist, are based on game history that I do not want to try to implement). But the highest level constraints, like categories such as townfolk, lets at least put that into place.
+
+     F: hmm. is an additional field the cleanest option here? I was myself thinking that adding new template categories would look nice.
+
+     F: refactor that predicate into an is_role function rather than inlining that disjunction.
 
 -->
