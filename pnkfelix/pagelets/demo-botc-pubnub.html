@@ -2669,6 +2669,12 @@ Steph</textarea>
             
             document.getElementById('roleSelectionScript').textContent = currentScript.name;
             document.getElementById('roleSelectionPlayerCount').textContent = players.length;
+
+            // Initialize PubNub connection and send game setup so players can join during role selection
+            currentUser = 'Storyteller';
+            initializePlayerRoles();
+            initializePubNub();
+            mostRecentSetupTimestamp = Date.now();
             
             // Show target distribution
             updateDistributionDisplay();
@@ -2881,10 +2887,6 @@ Steph</textarea>
             // Hide the role selection screen
             document.getElementById('roleSelectionScreen').classList.add('hidden');
 
-            // Now continue with the normal game setup flow
-            currentUser = 'Storyteller';
-            initializePlayerRoles();
-
             // Automatically distribute the selected roles to players
             distributeSelectedRolesToPlayers();
 
@@ -2903,9 +2905,6 @@ Steph</textarea>
                 targetSelect.appendChild(option);
             });
             
-            initializePubNub();
-            // If storyteller starting new game, mark current time to ignore older setups
-            mostRecentSetupTimestamp = Date.now();
             switchToGameScreen();
 
             // Broadcast the role assignments
@@ -3482,6 +3481,8 @@ Remove reminder brings up a model with a combo box with all the current reminder
 
      F: is there another instance of the same problem in createResponseUI ?
 
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top.  Immediate task: The players are currently not able to join the room until after the roles have been distributed. But there is no real reason for that limitation that I can see; after the storyteller has created the room and is in the process of selecting roles, we should let the players go ahead and join the room concurrently.
 
+     F: I don't think that's the fix; my players still cannot join the room while I am on the role selection screen. Is there something important from the "Continue to Game" button that we need to do as soon as we get to the Role Selection screen?
 
 -->
