@@ -639,7 +639,6 @@ Steph</textarea>
                 </div>
                 
                 <div class="template-buttons">
-                    <button class="template-btn" onclick="usePromptTemplate('Choose a player tonight.', 'I choose {player}.', ['player'])">Ask: Choose Player</button>
                     <button class="template-btn" onclick="useNightActionTemplate()">Night Action</button>
                     <button class="template-btn" onclick="distributeAllRoles()">Distribute Roles</button>
                 </div>
@@ -1934,10 +1933,40 @@ Steph</textarea>
                 alert('This role has no night action templates available');
                 return;
             }
+
+
+            // If there's only one template, use it directly
+            if (role.nightActionTemplates.length === 1) {
+                const template = role.nightActionTemplates[0];
+                processNightActionTemplate(template, targetPlayer, role);
+            } else {
+                // Show template selection modal
+                showTemplateSelectionModal(role.nightActionTemplates, targetPlayer, role);
+            }
+        }
+
+        function showTemplateSelectionModal(templates, targetPlayer, role) {
+            // Create a simple selection using confirm dialogs for now
+            // In a more sophisticated UI, this could be a proper modal
+            let templateChoices = templates.map((template, index) => {
+                const displayText = template[0]; // First string is what storyteller sees
+                return `${index + 1}. ${displayText}`;
+            }).join('\n');
             
-            // For now, use the first template - we can add template selection later
-            const template = role.nightActionTemplates[0];
-            processNightActionTemplate(template, targetPlayer, role);
+            const choice = prompt(`Choose a template for ${targetPlayer} (${role.name}):\n\n${templateChoices}\n\nEnter number (1-${templates.length}):`);
+            
+            if (choice === null) {
+                return; // User cancelled
+            }
+            
+            const templateIndex = parseInt(choice) - 1;
+            if (isNaN(templateIndex) || templateIndex < 0 || templateIndex >= templates.length) {
+                alert('Invalid choice. Please try again.');
+                return;
+            }
+            
+            const selectedTemplate = templates[templateIndex];
+            processNightActionTemplate(selectedTemplate, targetPlayer, role);
         }
         
         function processNightActionTemplate(template, targetPlayer, role) {
@@ -2064,7 +2093,10 @@ Steph</textarea>
                 promptContainer.innerHTML = `<p><strong>You will send:</strong> "${currentTemplate.promptText}"</p>`;
                 templateFields.appendChild(promptContainer);
                 
-                if (currentTemplate.fields.length > 0) {
+                // The code below would provide the storyteller with a rendered view (as in combo boxes)
+                // of what the player will see when they compose their response. However, such a
+                // preview is really overkill for our purposes, and so I have guarded it by an if-false.
+                if (false && currentTemplate.fields.length > 0) {
                     const responseContainer = document.createElement('div');
                     responseContainer.className = 'inline-template';
                     responseContainer.style.fontSize = '1.1rem';
@@ -3324,5 +3356,13 @@ Remove reminder brings up a model with a combo box with all the current reminder
     F: you don't see them in createInlineTemplate ?
 
     F: At this point I think this is more a problem in Emacs than in my code.
+
+    F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: If there is more than one entry in the nightActionTemplates array, then the night action button for a player with that role should prompt the story teller to pick which template they want, by showing them the first template string in each of the available arrays. For example, for fortune teller, the storyteller should pick whether they are sending the "choose two players" message or the "yes" message or the "no" message.
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: We do not need the "Ask: Choose Player button" anymore. Lets remove it.
+
+     F: Also, when the storyteller is sending a message to a player, do not bother giving the storyteller a preview of the rendered message that will be presented to the player. Its enough to just let the storyteller see what the storyteller needs to fill in, and trust that the embedded roles array is correctly structured.
+
+     F: To be clear: the player will still get their template that they will fill in, right? This only affects the storyteller's preview, right?
 
 -->
