@@ -2926,13 +2926,18 @@ Steph</textarea>
                 if (roleId) {
                     const role = getRoleById(roleId);
                     if (role) {
+                        // Determine team alignment
+                        const teamAlignment = (role.team === 'townsfolk' || role.team === 'outsider') 
+                            ? 'You are good.' 
+                            : 'You are evil.';
+
                         const message = {
                             gameId: currentGameId,
                             type: 'private_message',
                             messageType: 'info',
                             from: currentUser,
                             to: player,
-                            content: `Your role is ${role.name}`,
+                            content: `Your role is ${role.name}. ${teamAlignment}`,
                             templateData: { role: roleId },
                             timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
                         };
@@ -3365,4 +3370,6 @@ Remove reminder brings up a model with a combo box with all the current reminder
 
      F: To be clear: the player will still get their template that they will fill in, right? This only affects the storyteller's preview, right?
 
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: When we distribute the roles, in addition to saying to each player what their role is, add an extra sentence after that (in the same message) that just says "You are good." for townsfolk and outsiders, and "You are evil." for minions and the demon. This is just to reenforce what team they are on, since the text they are getting isn't necessarily colored.
 -->
