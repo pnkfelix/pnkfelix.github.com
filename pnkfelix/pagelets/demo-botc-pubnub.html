@@ -1521,12 +1521,62 @@ Steph</textarea>
                     messages.forEach(messageWrapper => {
                         // PubNub history wraps messages in an object with timetoken
                         const message = messageWrapper.entry;
+                        reconstructGameStateFromMessage(message);
                         handleIncomingMessage(message, true); // true = from history
                     });
                 }
             }).catch((error) => {
                 console.log('Error fetching message history:', error);
             });
+        }
+
+        function reconstructGameStateFromMessage(message) {
+            // Only reconstruct for storytellers in reconnect mode
+            if (userType !== 'storyteller' || gameMode !== 'reconnect') {
+                return;
+            }
+            
+            // Find the most recent game_setup message to establish current game
+            if (message.type === 'game_setup' && message.gameId) {
+                if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
+                    currentGameId = message.gameId;
+                    mostRecentSetupTimestamp = message.timestamp;
+                    
+                    // Reconstruct basic game state
+                    if (message.players) {
+                        players = message.players;
+                    }
+                    if (message.script) {
+                        if (typeof message.script === 'string') {
+                            currentScript = Object.values(EMBEDDED_SCRIPTS).find(s => s.name === message.script) ||
+                                           EMBEDDED_SCRIPTS[message.script];
+                        } else {
+                            currentScript = message.script;
+                        }
+                    }
+                    if (message.playerRoles) {
+                        playerRoles = message.playerRoles;
+                    }
+                    if (message.playerReminders) {
+                        playerReminders = message.playerReminders;
+                    }
+                }
+            }
+            
+            // Update role assignments from more recent role_assignment messages
+            if (message.type === 'role_assignment' && message.gameId === currentGameId && message.playerRoles) {
+                playerRoles = { ...playerRoles, ...message.playerRoles };
+            }
+            
+            // Update reminders from more recent reminder_update messages  
+            if (message.type === 'reminder_update' && message.gameId === currentGameId && message.playerReminders) {
+                playerReminders = { ...playerReminders, ...message.playerReminders };
+            }
+            
+            // Reconstruct phase state from daybreak/nightfall messages
+            if ((message.type === 'daybreak' || message.type === 'nightfall') && message.gameId === currentGameId) {
+                isNightTime = (message.type === 'nightfall');
+            }
         }
         
         function handleConnectionStatus(statusEvent) {
@@ -1541,7 +1591,18 @@ Steph</textarea>
                 statusEl.textContent = 'Connection lost';
                 statusEl.className = 'status disconnected';
             }
+
+            // After connection is established and history is processed, update UI for reconnecting storytellers
+            if (statusEvent.category === 'PNConnectedCategory' && userType === 'storyteller' && gameMode === 'reconnect') {
+                setTimeout(() => {
+                    updatePlayersList();
+                    updatePhaseUI();
+                    populateTargetPlayerDropdown();
+                }, 2000); // Give time for history processing
+            }
         }
+
+
         
         function sendGameSetup() {
 	  console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
@@ -1760,6 +1821,19 @@ Steph</textarea>
                 playersList.appendChild(storytellerCard);
             } else if (userType == 'storyteller') {
                 // Update target player dropdown for storytellers
+                const targetSelect = document.getElementById('targetPlayer');
+                targetSelect.innerHTML = '<option value="">Select player...</option>';
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = player;
+                    option.textContent = player;
+                    targetSelect.appendChild(option);
+                });
+            }
+        }
+
+        function populateTargetPlayerDropdown() {
+            if (userType === 'storyteller' && players.length > 0) {
                 const targetSelect = document.getElementById('targetPlayer');
                 targetSelect.innerHTML = '<option value="">Select player...</option>';
                 players.forEach(player => {
@@ -3484,5 +3558,9 @@ Remove reminder brings up a model with a combo box with all the current reminder
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top.  Immediate task: The players are currently not able to join the room until after the roles have been distributed. But there is no real reason for that limitation that I can see; after the storyteller has created the room and is in the process of selecting roles, we should let the players go ahead and join the room concurrently.
 
      F: I don't think that's the fix; my players still cannot join the room while I am on the role selection screen. Is there something important from the "Continue to Game" button that we need to do as soon as we get to the Role Selection screen?
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top.  Immediate task: When I reconnect as the storyteller, I do not get a reconstruction of the game state, even though I think I should be able to derive much of it from the pubnub messages. E.g. the set of players and the messages that I have sent to them and their responses.
+
+     TODO: while this does re-establish the set of players, it does not load up past messages that we have sent. Also, we could easily include the player assignments in the pubnub messages for later retrieval in these situations.
 
 -->
