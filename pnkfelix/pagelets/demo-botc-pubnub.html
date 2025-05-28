@@ -638,10 +638,10 @@ Steph</textarea>
                 </div>
                 
                 <div class="template-buttons">
-                    <button class="template-btn" onclick="useSimpleTemplate('Your role is {role}', 'role')">Assign Role</button>
                     <button class="template-btn" onclick="usePromptTemplate('Choose a player tonight.', 'I choose {player}.', ['player'])">Ask: Choose Player</button>
                     <button class="template-btn" onclick="useSimpleTemplate('You learn: {info}', 'info')">Give Info</button>
                     <button class="template-btn" onclick="usePromptTemplate('Use your ability tonight.', 'I use my ability on {player}.', ['player'])">Use Ability</button>
+                    <button class="template-btn" onclick="distributeAllRoles()">Distribute Roles</button>
                 </div>
             </div>
             
@@ -2548,6 +2548,51 @@ Steph</textarea>
 	    }, 1000);
         }
 
+        function distributeAllRoles() {
+            if (!playerRoles || Object.keys(playerRoles).length === 0) {
+                alert('No roles assigned yet');
+                return;
+            }
+            
+            let sentCount = 0;
+            
+            players.forEach(player => {
+                const roleId = playerRoles[player];
+                if (roleId) {
+                    const role = getRoleById(roleId);
+                    if (role) {
+                        const message = {
+                            gameId: currentGameId,
+                            type: 'private_message',
+                            messageType: 'info',
+                            from: currentUser,
+                            to: player,
+                            content: `Your role is ${role.name}`,
+                            templateData: { role: roleId },
+                            timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
+                        };
+                        
+                        // Display locally first (as "sending")
+                        displayMessage(message, true);
+                        sentMessages.set(message.timestamp, true);
+                        
+                        pubnub.publish({
+                            channel: currentRoom,
+                            message: message
+                        });
+                        
+                        sentCount++;
+                    }
+                }
+            });
+            
+            if (sentCount > 0) {
+                alert(`Sent role assignments to ${sentCount} players`);
+            } else {
+                alert('No roles to distribute');
+            }
+        }
+
     </script>
 </body>
 </html>
@@ -2660,5 +2705,25 @@ In case its not clear, I do want this to be a single page web app that I can jus
      F: Even with those changes: I can connect to the game, and I see the list of players and can choose myself, and I can view the script after I connect. But I do not see any messages that the storyteller sends to me, and the messages I send are not seen by the storyteller.
 
      F: handleIncomingMessage called: ... currentGameId: undefined
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: I want to prefill the player list with the following list of people (so that I can stop retyping it every time I test), though the list should remain editable in the product. Here is the list of people:
+Amanda
+Rob
+Pratik
+Neha
+Kunjal
+Courtney
+Taylor
+Steph
+
+     F: Also make the "I am the" default to Player instead of Storyteller
+
+     F: And make the game room id default to "botc_ddt"
+
+     F: The game room id ends up overwritten by the random generation. Can I turn that off temporarily?
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: Remove the "Assign Role" button; it is following a separate code path that is causing more harm than good for right now, because the actual roles are assigned via a separate process.
+
+     F: Now, add a new button, "Distribute Roles", where its effect is to tell *all *the players what their assigned role is, as set in the playerRoles array.
 
 -->
