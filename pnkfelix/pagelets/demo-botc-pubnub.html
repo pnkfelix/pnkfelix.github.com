@@ -3117,4 +3117,6 @@ Remove reminder brings up a model with a combo box with all the current reminder
 
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: For some reason each players name is showing up on two lines out of four lines in the storyteller view. I think we just need: player name, assigned role, and reminders.
 
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task:  I want to refactor. the way that the embedded script is handled. There should be two separate maps: One should map each role id, such as 'washerwoman', to its corresponding role object. The other map should map each script  id to the corresponding script object the same way this one does here, except that the roles in the script object should just be a list of role ids, rather than inlining the role object. This will allow Dont-Repeat-Yourself coding of the scripts, since I expect the same role to occur in multiple scripts in the general case.
+
 -->
