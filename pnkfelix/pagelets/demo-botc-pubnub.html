@@ -1619,7 +1619,7 @@ Steph</textarea>
           players.forEach(player => {
             const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
-                playerCard.textContent = player;
+                // playerCard.textContent = player; // already added in nameDiv below
 
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'player-name';
@@ -3100,6 +3100,6 @@ Remove reminder brings up a model with a combo box with all the current reminder
 
      F: This is great. It made me realize: can we add a similar bit of code that checks, before we distribute the roles, whether two players are being assigned the same role (which is usually but not always a mistake, which I assume could result e.g. from the storyteller swapping a drunk out for a townsfolk without first checking if its a duplicate), and thus make the storyteller confirm before they send out the roles with a duplicate pair in them?
 
-
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: For some reason each players name is showing up on two lines out of four lines in the storyteller view. I think we just need: player name, assigned role, and reminders.
 
 -->
