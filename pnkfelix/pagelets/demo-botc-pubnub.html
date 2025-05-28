@@ -474,8 +474,8 @@
             <div class="input-group">
                 <label for="userType">I am the:</label>
                 <select id="userType">
-                    <option value="storyteller">Storyteller</option>
                     <option value="player">Player</option>
+                    <option value="storyteller">Storyteller</option>
                 </select>
             </div>
             
@@ -490,7 +490,9 @@
 
                  <div class="input-group">
                     <label for="gameRoom">Game Room ID:</label>
-                    <input type="text" id="gameRoom" placeholder="Enter or create room ID">
+                    <input type="text" id="gameRoom" placeholder="Enter or create room ID" 
+			   value="botc_ddt"
+			   >
                     <button type="button" id="generateRoomBtn" onclick="generateRoomId()">Generate New Room</button>
                 </div>
                 
@@ -503,14 +505,23 @@
                 
                 <div id="playerNamesField" class="input-group">
                     <label for="playerNames">Player Names (one per line):</label>
-                    <textarea id="playerNames" rows="6" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve"></textarea>
+                    <textarea id="playerNames" rows="8" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve">Amanda
+Rob
+Pratik
+Neha
+Kunjal
+Courtney
+Taylor
+Steph</textarea>
                 </div>
             </div>
             
             <div id="playerSetup" class="hidden">
                 <div class="input-group">
                     <label for="gameRoomPlayer">Game Room ID:</label>
-                    <input type="text" id="gameRoomPlayer" placeholder="Enter room ID from Storyteller">
+                    <input type="text" id="gameRoomPlayer" placeholder="Enter room ID from Storyteller"
+			   value="botc_ddt"
+			   >
                     <button type="button" onclick="checkRoom()">Check Room</button>
                 </div>
                 
@@ -2272,7 +2283,9 @@
         
         // Initialize setup screen
         document.getElementById('userType').dispatchEvent(new Event('change'));
-      generateRoomId();
+
+      // generateRoomId(); // Temporarily disabled to preserve default room ID
+
       populateScriptDropdown();
 
         // Role Selection Functions
