@@ -642,6 +642,10 @@ Steph</textarea>
                     <button class="template-btn" onclick="useNightActionTemplate()">Night Action</button>
                     <button class="template-btn" onclick="distributeAllRoles()">Distribute Roles</button>
                 </div>
+
+                <div style="margin-top: 15px;">
+                    <button id="phaseToggle" onclick="togglePhase()" style="width: 100%; background: linear-gradient(45deg, #4a90e2, #357abd);">Day Breaks</button>
+                </div>
             </div>
             
             <div class="messaging-area">
@@ -748,7 +752,9 @@ Steph</textarea>
         let selectedPlayerForRole = null;
         let currentGameId = null;
         let playerReminders = {}; // Track reminders for each player
-      
+        let isNightTime = true; // Game starts at night      
+
+
         // Embedded script definitions
         const ROLES = {
             'washerwoman': {
@@ -1555,6 +1561,27 @@ Steph</textarea>
                 message: setupMessage
             });
         }
+
+        function togglePhase() {
+            const newPhase = isNightTime ? 'daybreak' : 'nightfall';
+            
+            // Broadcast the specific phase event
+            pubnub.publish({
+                channel: currentRoom,
+                message: { 
+                    type: newPhase, 
+                    gameId: currentGameId, 
+                    timestamp: Date.now() 
+                }
+            });
+            
+            // Apply the change locally for storyteller
+            if (newPhase === 'daybreak') {
+                setDayPhase();
+            } else {
+                setNightPhase();
+            }
+        }
         
         function handleIncomingMessage(message, isFromHistory = false) {
 
@@ -1623,6 +1650,10 @@ Steph</textarea>
                     playerReminders = message.playerReminders;
                     updatePlayersList();
                 }
+            } else if (message.type === 'daybreak' && message.gameId === currentGameId) {
+                setDayPhase();
+            } else if (message.type === 'nightfall' && message.gameId === currentGameId) {
+                setNightPhase();
             } else if (message.type === 'private_message' &&
                        (message.gameId === currentGameId || (userType === 'player' && !currentGameId))) {
 
@@ -2328,6 +2359,40 @@ Steph</textarea>
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
+        function setDayPhase() {
+            isNightTime = false;
+            updatePhaseUI();
+            updatePlayerMessageVisibility();
+        }
+        
+        function setNightPhase() {
+            isNightTime = true;
+            updatePhaseUI();
+            updatePlayerMessageVisibility();
+        }
+        
+        function updatePhaseUI() {
+            const button = document.getElementById('phaseToggle');
+            if (button) {
+                button.textContent = isNightTime ? 'Day Breaks' : 'Night Falls';
+                button.style.background = isNightTime ? 
+                    'linear-gradient(45deg, #ffd93d, #f39c12)' : 
+                    'linear-gradient(45deg, #4a90e2, #357abd)';
+            }
+        }
+
+        function updatePlayerMessageVisibility() {
+            if (userType !== 'player') return;
+            
+            const messagesContainer = document.getElementById('messages');
+            if (!messagesContainer) return;
+            
+            const messageElements = messagesContainer.querySelectorAll('.message');
+            messageElements.forEach(messageEl => {
+                messageEl.style.display = isNightTime ? 'block' : 'none';
+            });
+        }
+ 
         function markMessageDelivered(timestamp) {
             // Find the message element and update its delivery status
             const messageEl = document.querySelector(`[data-timestamp="${timestamp}"]`);
@@ -3372,4 +3437,11 @@ Remove reminder brings up a model with a combo box with all the current reminder
 
 
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: When we distribute the roles, in addition to saying to each player what their role is, add an extra sentence after that (in the same message) that just says "You are good." for townsfolk and outsiders, and "You are evil." for minions and the demon. This is just to reenforce what team they are on, since the text they are getting isn't necessarily colored.
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: Add a button to the storyteller's view that toggles between day and night phases (i.e., during the night, which is how the game starts, the button will say "day breaks", and during the day, the button will say "night falls"). The effect this has: When it is night time, the players can see the messages on their screen for this night.  (But not for previous nights.) When it is day time, the players see no messages at all.
+
+     F: Uh, I don't think you should toggle based on receiving a 'phase_change' message alone. I mean, its fine to signal that the event occurred, but I think it will be more robust if you add explicit "daybreak" and "nightfall" events (rather than just "phase_change"). That way, if we inadvertantly issue a nightfall or daybreak multiple times ( due to race conditions or a storyteller reconnect, for example), then it will remain an idempotent operation.
+
+     F: sorry, I lost track of what the diff was being applied to. what changes remain for me to make to this file (see attachment)
+
 -->
