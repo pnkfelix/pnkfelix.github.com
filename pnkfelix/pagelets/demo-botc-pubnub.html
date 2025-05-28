@@ -2642,5 +2642,10 @@ In case its not clear, I do want this to be a single page web app that I can jus
 
      F: I don't understand, why don't we just ignore messages that don't have gameId's, since we have now added those and should only look at messages with game Id that match?
 
- 
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: The storyteller view seems like its working locally, but the player view does not seem like it is getting the storyteller's messages any more (and likewise the player messages are not making it over the the storyteller view). Did I mess something up with the gameId establishment for players? (They should just look for the most recent game when they connect, and use its game-id. IF a new game id comes in for the room while they are playing, then they should reset themselves to that new game id, since it has invalidated the old one for that room.)
+
+     F: Even with those changes: I can connect to the game, and I see the list of players and can choose myself, and I can view the script after I connect. But I do not see any messages that the storyteller sends to me, and the messages I send are not seen by the storyteller.
+
+     F: handleIncomingMessage called: ... currentGameId: undefined
+
 -->
