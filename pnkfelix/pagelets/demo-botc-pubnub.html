@@ -2,6 +2,7 @@
 ## NOTES FOR CLAUDE
 
 * If you have concrete suggestions for changes, present them as diffs. Do not attempt to present the whole file rewritten, as that wastes tokens.
+* If you make an array expression whose elements are written one-per-line, then prefer to include a trailing comma after the last element.
 
 ## TODO LIST
      
@@ -639,8 +640,7 @@ Steph</textarea>
                 
                 <div class="template-buttons">
                     <button class="template-btn" onclick="usePromptTemplate('Choose a player tonight.', 'I choose {player}.', ['player'])">Ask: Choose Player</button>
-                    <button class="template-btn" onclick="useSimpleTemplate('You learn: {info}', 'info')">Give Info</button>
-                    <button class="template-btn" onclick="usePromptTemplate('Use your ability tonight.', 'I use my ability on {player}.', ['player'])">Use Ability</button>
+                    <button class="template-btn" onclick="useNightActionTemplate()">Night Action</button>
                     <button class="template-btn" onclick="distributeAllRoles()">Distribute Roles</button>
                 </div>
             </div>
@@ -758,7 +758,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You start knowing that 1 of 2 players is a particular Townsfolk.',
                 firstNight: true,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
             },
             'librarian': {
                 id: 'librarian',
@@ -766,7 +767,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play.)',
                 firstNight: true,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
             },
             'investigator': {
                 id: 'investigator',
@@ -774,7 +776,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You start knowing that 1 of 2 players is a particular Minion.',
                 firstNight: true,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [['Either {player1} or {player2} is the {role}.']],
             },
             'chef': {
                 id: 'chef',
@@ -782,7 +785,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You start knowing how many pairs of evil players there are.',
                 firstNight: true,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [['You learn that there are {number} pairs of evil players.']],
             },
             'empath': {
                 id: 'empath',
@@ -790,7 +794,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night, you learn how many of your 2 alive neighbors are evil.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['{number} of your living neighbors are evil.']],
             },
             'fortune_teller': {
                 id: 'fortune_teller',
@@ -798,7 +803,12 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night, choose 2 players: you learn if either is a Demon. There is a good player that registers as a Demon to you.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [
+                    ['Choose two players tonight.', 'I choose {player1} and {player2}.'],
+                    ['Yes, one of {player1} or {player2} is the Demon.'],
+                    ['No, neither {player1} nor {player2} is the Demon.'],
+                ]
             },
             'undertaker': {
                 id: 'undertaker',
@@ -806,7 +816,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night*, you learn which character died by execution today.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Today, the {role} died by execution.']],
             },
             'monk': {
                 id: 'monk',
@@ -814,7 +825,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night*, choose a player (not yourself): they are safe from the Demon tonight.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+	        nightActionTemplates: [['Choose a player to protect tonight.', 'I choose to protect {player1}.']],
             },
             'ravenkeeper': {
                 id: 'ravenkeeper',
@@ -822,7 +834,11 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'If you die at night, you are woken to choose a player: you learn their character.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [
+                    ['Choose a player to learn their character.', 'I choose {player1}.'],
+                    ['You learn that {player1} is the {role}.']
+                ]
             },
             'virgin': {
                 id: 'virgin',
@@ -830,7 +846,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'The first time you are nominated, if the nominator is a Townsfolk, they are executed immediately.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'slayer': {
                 id: 'slayer',
@@ -838,7 +854,7 @@ Steph</textarea>
                 team: 'townsfolk',  
                 ability: 'Once per game, during the day, publicly choose a player: if they are the Demon, they die.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'soldier': {
                 id: 'soldier',
@@ -846,7 +862,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You are safe from the Demon.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'mayor': {
                 id: 'mayor',
@@ -854,7 +870,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'butler': {
                 id: 'butler',
@@ -862,7 +878,8 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose your master for tomorrow.', 'I choose {player1} as my master.']],
             },
             'drunk': {
                 id: 'drunk',
@@ -871,7 +888,7 @@ Steph</textarea>
                 ability: 'You do not know you are the Drunk. You think you are a Townsfolk character, but your ability malfunctions.',
                 believesToBe: 'townsfolk',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'recluse': {
                 id: 'recluse',
@@ -879,7 +896,7 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'You might register as evil & as a Minion or Demon, even when dead.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'saint': {
                 id: 'saint',
@@ -887,7 +904,7 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'If you die by execution, your team loses.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'poisoner': {
                 id: 'poisoner',
@@ -895,7 +912,8 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'Each night, choose a player: they are poisoned tonight and tomorrow day.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player to poison.', 'I choose to poison {player1}.']],
             },
             'spy': {
                 id: 'spy',
@@ -903,7 +921,7 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
             },
             'scarlet_woman': {
                 id: 'scarlet_woman',
@@ -911,7 +929,7 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'If there are 5 or more players alive & the Demon dies, you become the Demon.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'baron': {
                 id: 'baron',
@@ -919,7 +937,7 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'There are extra Outsiders in play. [+2 Outsiders]',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'imp': {
                 id: 'imp',
@@ -927,7 +945,8 @@ Steph</textarea>
                 team: 'demon',
                 ability: 'Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']],
             },
             'grandmother': {
                 id: 'grandmother',
@@ -935,7 +954,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'You start knowing a good player & their character. If the Demon kills them, you die too.',
                 firstNight: true,
-                otherNights: false
+                otherNights: false,
+                nightActionTemplates: [['You learn {player} is the {role}.']]
             },
             'sailor': {
                 id: 'sailor',
@@ -943,7 +963,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night, choose a player: they are drunk until dusk. You cannot die.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player.', 'I choose {player}.']],
             },
             'chambermaid': {
                 id: 'chambermaid',
@@ -951,7 +972,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose two alive players.', 'I choose {player1} and {player2}.']],
             },
             'exorcist': {
                 id: 'exorcist',
@@ -959,7 +981,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn\'t wake tonight.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player.', 'I choose {player}.']],
             },
             'innkeeper': {
                 id: 'innkeeper',
@@ -967,7 +990,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night*, choose 2 players: they can\'t die tonight, but 1 is drunk until dusk.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose two players.', 'I choose {player1} and {player2}.']],
             },
             'gambler': {
                 id: 'gambler',
@@ -975,7 +999,8 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each night*, choose a player & guess their character: if you guess wrong, you die.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player and a character.', 'I guess {player} is {role}.']],
             },
             'gossip': {
                 id: 'gossip',
@@ -983,7 +1008,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Each day, you may make a public statement. Tonight, if it was true, a player dies.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
             },
             'courtier': {
                 id: 'courtier',
@@ -991,7 +1016,11 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [
+                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Choose a character.', 'I choose {role}.'],
+                ],
             },
             'professor': {
                 id: 'professor',
@@ -999,7 +1028,11 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [
+                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Choose a dead player.', 'I choose {player}.'],
+                ],
             },
             'minstrel': {
                 id: 'minstrel',
@@ -1007,7 +1040,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'tea_lady': {
                 id: 'tea_lady',
@@ -1015,7 +1048,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'If both your alive neighbors are good, they can\'t die.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'pacifist': {
                 id: 'pacifist',
@@ -1023,7 +1056,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'Executed good players might not die.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'fool': {
                 id: 'fool',
@@ -1031,7 +1064,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'The first time you die, you don\'t.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'goon': {
                 id: 'goon',
@@ -1039,7 +1072,7 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'lunatic': {
                 id: 'lunatic',
@@ -1048,7 +1081,7 @@ Steph</textarea>
                 ability: 'You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.',
                 believesToBe: 'demon',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
             },
             'tinker': {
                 id: 'tinker',
@@ -1056,7 +1089,7 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'You might die at night.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
             },
             'moonchild': {
                 id: 'moonchild',
@@ -1064,7 +1097,7 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'godfather': {
                 id: 'godfather',
@@ -1072,7 +1105,8 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['You learn that {role} is in play'], ['Choose a player to kill.', 'I choose {player}.']],
             },
             'devils_advocate': {
                 id: 'devils_advocate',
@@ -1080,7 +1114,8 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'Each night, choose a living player (different to last night): if executed tomorrow, they don\'t die.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player.', 'I choose {player}.']],
             },
             'assassin': {
                 id: 'assassin',
@@ -1088,7 +1123,11 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'Once per game, at night*, choose a player: they die, even if for some reason they could not.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [
+                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Choose a player.', 'I choose {player}.'],
+                ],
             },
             'mastermind': {
                 id: 'mastermind',
@@ -1096,7 +1135,7 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'If the Demon dies by execution (not 3rd day), play for 1 more day. If a player is then executed, evil wins.',
                 firstNight: false,
-                otherNights: false
+                otherNights: false,
             },
             'zombuul': {
                 id: 'zombuul',
@@ -1104,7 +1143,8 @@ Steph</textarea>
                 team: 'demon',
                 ability: 'Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player to kill tonight.', 'I choose to kill {player1}.']],
             },
             'pukka': {
                 id: 'pukka',
@@ -1112,15 +1152,17 @@ Steph</textarea>
                 team: 'demon',
                 ability: 'Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.',
                 firstNight: true,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose a player to poison tonight and kill tomorrow.', 'I choose {player1}.']],
             },
             'shabaloth': {
                 id: 'shabaloth',
                 name: 'Shabaloth',
                 team: 'demon',
-                ability: 'Each night*, choose 2 players: they die. A dead player regains their ability until dusk tomorrow & poison/drunk don\'t affect them.',
+                ability: 'Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [['Choose two players.', 'I choose {player1} and {player2}.']],
             },
             'po': {
                 id: 'po',
@@ -1128,7 +1170,11 @@ Steph</textarea>
                 team: 'demon',
                 ability: 'Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight.',
                 firstNight: false,
-                otherNights: true
+                otherNights: true,
+                nightActionTemplates: [
+                    ['Choose a player.', 'I choose {player}.'],
+                    ['Choose three players.', 'I choose {player1}, {player2}, and {player3}.'],
+                ],
             }
         };
         
@@ -1866,8 +1912,92 @@ Steph</textarea>
             updatePlayersList();
             closeRoleAssignmentModal();
         }
+
+
         
         // Template Functions
+        function useNightActionTemplate() {
+            const targetPlayer = document.getElementById('targetPlayer').value;
+            if (!targetPlayer) {
+                alert('Please select a target player first');
+                return;
+            }
+            
+            const roleId = playerRoles[targetPlayer];
+            if (!roleId) {
+                alert('Selected player has no assigned role');
+                return;
+            }
+            
+            const role = getRoleById(roleId);
+            if (!role || !role.nightActionTemplates || role.nightActionTemplates.length === 0) {
+                alert('This role has no night action templates available');
+                return;
+            }
+            
+            // For now, use the first template - we can add template selection later
+            const template = role.nightActionTemplates[0];
+            processNightActionTemplate(template, targetPlayer, role);
+        }
+        
+        function processNightActionTemplate(template, targetPlayer, role) {
+            if (template.length === 1) {
+                // Storyteller info template - just send info to player
+                const templateText = template[0];
+                
+                currentTemplate = {
+                    type: 'storyteller_info',
+                    template: templateText,
+                    to: targetPlayer,
+                    fields: extractTemplateFields(templateText)
+                };
+                
+                showTemplateUI();
+            } else if (template.length === 2) {
+                // Player prompt template - send prompt and expect response
+                const promptText = template[0];
+                const responseTemplate = template[1];
+                
+                currentTemplate = {
+                    type: 'player_prompt',
+                    promptText: promptText,
+                    responseTemplate: responseTemplate,
+                    to: targetPlayer,
+                    fields: extractTemplateFields(responseTemplate)
+                };
+                
+                showTemplateUI();
+            }
+        }
+        
+        function extractTemplateFields(templateText) {
+            const fields = [];
+            const fieldRegex = /\{(\w+)\}/g;
+            let match;
+            
+            while ((match = fieldRegex.exec(templateText)) !== null) {
+                const fieldName = match[1];
+                if (!fields.find(f => f.name === fieldName)) {
+                    let fieldType = fieldName;
+                    
+                    // Map common field names to types
+                    if (fieldName.startsWith('player')) {
+                        fieldType = 'player';
+                    } else if (fieldName === 'role') {
+                        fieldType = 'role';
+                    } else if (fieldName === 'number') {
+                        fieldType = 'number';
+                    } else if (fieldName === 'yesno') {
+                        fieldType = 'yesno';
+                    }
+                    
+                    fields.push({ name: fieldName, type: fieldType });
+                }
+            }
+            
+            return fields;
+        }
+
         function useSimpleTemplate(template, fieldType) {
             const targetPlayer = document.getElementById('targetPlayer').value;
             if (!targetPlayer) {
@@ -1913,52 +2043,94 @@ Steph</textarea>
             if (currentTemplate.type === 'storyteller_info') {
                 templateTitle.textContent = `Send Info to ${currentTemplate.to}`;
                 templateFields.innerHTML = '';
+
+                // Create inline template with embedded form fields
+                const templateContainer = document.createElement('div');
+                templateContainer.className = 'inline-template';
+                templateContainer.style.fontSize = '1.1rem';
+                templateContainer.style.lineHeight = '1.8';
+                templateContainer.style.padding = '15px';
+                templateContainer.style.background = 'rgba(0,0,0,0.2)';
+                templateContainer.style.borderRadius = '8px';
                 
-                currentTemplate.fields.forEach(field => {
-                    const fieldDiv = document.createElement('div');
-                    fieldDiv.className = 'template-field';
-                    
-                    const label = document.createElement('label');
-                    label.textContent = field.name.charAt(0).toUpperCase() + field.name.slice(1) + ':';
-                    
-                    let input;
-                    if (field.type === 'player') {
-                        input = document.createElement('select');
-                        input.innerHTML = '<option value="">Select player...</option>';
-                        players.forEach(player => {
-                            const option = document.createElement('option');
-                            option.value = player;
-                            option.textContent = player;
-                            input.appendChild(option);
-                        });
-                    } else if (field.type === 'role') {
-                        input = document.createElement('select');
-                        input.innerHTML = '<option value="">Select role...</option>';
-                        if (currentScript) {
-                            getScriptRoles(currentScript).forEach(role => {
-                                const option = document.createElement('option');
-                                option.value = role.id;
-                                option.textContent = role.name;
-                                input.appendChild(option);
-                            });
-                        }
-                    } else {
-                        input = document.createElement('input');
-                        input.type = 'text';
-                        input.placeholder = `Enter ${field.name}...`;
-                    }
-                    
-                    input.id = `field_${field.name}`;
-                    
-                    fieldDiv.appendChild(label);
-                    fieldDiv.appendChild(input);
-                    templateFields.appendChild(fieldDiv);
-                });
+                templateContainer.innerHTML = createInlineTemplate(currentTemplate.template);
+                templateFields.appendChild(templateContainer);
                 
             } else if (currentTemplate.type === 'player_prompt') {
                 templateTitle.textContent = `Send Prompt to ${currentTemplate.to}`;
-                templateFields.innerHTML = `<p><strong>You will send:</strong> "${currentTemplate.promptText}"</p>`;
+                templateFields.innerHTML = '';
+                
+                const promptContainer = document.createElement('div');
+                promptContainer.innerHTML = `<p><strong>You will send:</strong> "${currentTemplate.promptText}"</p>`;
+                templateFields.appendChild(promptContainer);
+                
+                if (currentTemplate.fields.length > 0) {
+                    const responseContainer = document.createElement('div');
+                    responseContainer.className = 'inline-template';
+                    responseContainer.style.fontSize = '1.1rem';
+                    responseContainer.style.lineHeight = '1.8';
+                    responseContainer.style.padding = '15px';
+                    responseContainer.style.background = 'rgba(0,0,0,0.2)';
+                    responseContainer.style.borderRadius = '8px';
+                    responseContainer.style.marginTop = '10px';
+                    
+                    const responseLabel = document.createElement('p');
+                    responseLabel.innerHTML = '<strong>Player will respond with:</strong>';
+                    responseLabel.style.marginBottom = '10px';
+                    templateFields.appendChild(responseLabel);
+                    
+                    responseContainer.innerHTML = createInlineTemplate(currentTemplate.responseTemplate);
+                    templateFields.appendChild(responseContainer);
+                }
             }
+        }
+
+        function createInlineTemplate(templateText) {
+            let html = templateText;
+            
+            // Replace each placeholder with an appropriate form field
+            currentTemplate.fields.forEach(field => {
+                const placeholder = `{${field.name}}`;
+                let fieldHtml = '';
+                
+                if (field.type === 'player') {
+                    fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
+                    fieldHtml += '<option value="">Select player...</option>';
+                    players.forEach(player => {
+                        if (!currentTemplate.to || player !== currentTemplate.to) {
+                            fieldHtml += `<option value="${player}">${player}</option>`;
+                        }
+                    });
+                    fieldHtml += '</select>';
+                    
+                } else if (field.type === 'role') {
+                    fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
+                    fieldHtml += '<option value="">Select role...</option>';
+                    if (currentScript) {
+                        getScriptRoles(currentScript).forEach(role => {
+                            fieldHtml += `<option value="${role.id}">${role.name}</option>`;
+                        });
+                    }
+                    fieldHtml += '</select>';
+                    
+                } else if (field.type === 'yesno') {
+                    fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
+                    fieldHtml += '<option value="">Choose...</option>';
+                    fieldHtml += '<option value="Yes">Yes</option>';
+                    fieldHtml += '<option value="No">No</option>';
+                    fieldHtml += '</select>';
+                    
+                } else if (field.type === 'number') {
+                    fieldHtml = `<input type="number" id="field_${field.name}" placeholder="${field.name}" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 80px;">`;
+                    
+                } else {
+                    fieldHtml = `<input type="text" id="field_${field.name}" placeholder="${field.name}" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 120px;">`;
+                }
+                
+                html = html.replace(placeholder, fieldHtml);
+            });
+            
+            return html;
         }
         
         function sendTemplateMessage() {
@@ -3118,5 +3290,39 @@ Remove reminder brings up a model with a combo box with all the current reminder
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: For some reason each players name is showing up on two lines out of four lines in the storyteller view. I think we just need: player name, assigned role, and reminders.
 
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task:  I want to refactor. the way that the embedded script is handled. There should be two separate maps: One should map each role id, such as 'washerwoman', to its corresponding role object. The other map should map each script  id to the corresponding script object the same way this one does here, except that the roles in the script object should just be a list of role ids, rather than inlining the role object. This will allow Dont-Repeat-Yourself coding of the scripts, since I expect the same role to occur in multiple scripts in the general case.
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task:  I want to unify the "Give Info" and "Use Ability" buttons into a single "Night Action" button. As part of this, I want to add a field to each role that holds an array of template strings, such that the storyteller, when they hit the "Night Action" button, it will let the storyteller choose which template string is appropriate for the message they want to send at this point. For example, for the washerwoman a potential template string is "Either {player1} or {player2} is the {role}", and so the storyteller, upon choosing that string, will then be prompt to choose player1 (via combo box of all the players) and  player2 (via another instance of the combo box of all the players) and a role (via a third combo box, but this one now has a list of the roles on the script). Feel free to attempt to fill in the template strings for each role in ROLES.
+
+    F: Okay this is close to what I was thinking of. You've even jumped ahead to think about the case where the player on the other end will need to respond to the message. Lets take care of that issue first: the truly general system here, is to have a night action template be an array of strings of length 1 or 2. The first string is the string that is used on the storytellers side, such as you have chosen for washerwoman or empath, where the information flow is solely from storyteller to player.  The second string is used on the player's side: It tells the code on the players end what it should use when composing its own response to  what the storyteller has asked. For example, the fortune teller should have the storyteller template be something like: ["Choose two players tonight", "I choose {player1} and {player2}"]. (Don't try to go all the way to the third part of the conversation where the storyteller then responds to the fortune teller's choice; I will get to that later, but not now.) So, please revise this whole diff to account for what I described here.
+
+    F: By the way, are trailing commas legal after the last element in a JavaScript array?
+
+    F: Oops I think I made a typo in my attempt to start transcribing your changes to the roles. Can you identify where my mistake(s) are?
+
+    F: How about this version
+
+    F: I want the nightActionTemplates to be optional for now.
+
+    F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: I have added some nightActionTemplates, but I did not yet put in the code that will process them. Can you show me the diff that will add that functionality?
+
+    F: This is a good start.  But: right now, when  I do a night action, it just says e.g. "Send info to rob" and the combo box. I need a reminder of what the message is going to look like. Could you present things so that the text that surrounds the placeholders shows up around the combo boxes?
+
+    F: I don't think this is quite what I meant, but I'm not sure yet. Consider if Amanda is. the Washerwoman. Then I want her night action, when I hit the button, to look to me like "Either" [player combo box here] "or" [player combo box here] " is the " [role combo box here]". Of course since this needs to be mobile-friendly, its fine if there are line breaks or if the combo boxes have to be on the their own lines, that is absolutely fine. The more important thing is to use the template to provide the user with a view of what the meaning is of each thing they are choosing, by showing them the surrounding context i.e. the text of the template for the message that will be constructed after they make their picks in the combo boxes.
+
+    F: sorry to interrupt you, but can you show me the diff relative to this file here: (and I do welcome you identifying potential redundancies. Do try to reuse the existing work that is there. But also, if you can avoid reprinting large blocks of unchanged code in the diffs you construct, that would be nice too.)
+
+    F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: I think something went wrong in my attempt to apply a diff related to night action templates. Can you help me debug this?
+
+    F: what? I thought I have that on line 1943 ...
+
+    F: Uncaught SyntaxError: missing } after function bodydemo-botc-pubnub.html:3139:5note: { opened at line 2036, column 35
+
+    F: weird. emacs is indicating that the parentheses aren't quite right yet. Is there potentially also an undelimited string or something?
+
+    F: Whoa, is '`' a valid quote for JavaScript code?
+
+    F: you don't see them in createInlineTemplate ?
+
+    F: At this point I think this is more a problem in Emacs than in my code.
 
 -->
