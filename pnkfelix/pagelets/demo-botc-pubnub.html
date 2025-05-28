@@ -668,6 +668,19 @@ Steph</textarea>
     <div id="roleAssignmentModal" class="role-assignment-modal hidden">
         <div class="role-assignment-content">
             <h3 id="roleAssignmentTitle">Assign Role</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <button onclick="showAddReminderModal()" style="background: linear-gradient(45deg, #ffd93d, #f39c12);">📝 Add Reminder</button>
+                <button onclick="showRemoveReminderModal()" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24);">🗑️ Remove Reminder</button>
+                <button onclick="showChangeRoleModal()" style="background: linear-gradient(45deg, #26de81, #20bf6b);">🎭 Change Role</button>
+                <button onclick="closeRoleAssignmentModal()" style="background: #666;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Role Modal -->
+    <div id="changeRoleModal" class="role-assignment-modal hidden">
+        <div class="role-assignment-content">
+            <h3 id="changeRoleTitle">Change Role</h3>
             <div class="input-group">
                 <label for="roleSelect">Role:</label>
                 <select id="roleSelect">
@@ -675,13 +688,45 @@ Steph</textarea>
                 </select>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button onclick="confirmRoleAssignment()" style="flex: 1;">Assign Role</button>
-                <button onclick="closeRoleAssignmentModal()" style="flex: 1; background: #666;">Cancel</button>
+                <button onclick="confirmRoleChange()" style="flex: 1;">Change Role</button>
+                <button onclick="closeChangeRoleModal()" style="flex: 1; background: #666;">Cancel</button>
             </div>
             <div style="margin-top: 10px;">
                 <button onclick="randomlyAssignAllRoles()" style="width: 100%; background: linear-gradient(45deg, #26de81, #20bf6b);">
                     🎲 Randomly Assign All Roles
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Reminder Modal -->
+    <div id="addReminderModal" class="role-assignment-modal hidden">
+        <div class="role-assignment-content">
+            <h3 id="addReminderTitle">Add Reminder</h3>
+            <div class="input-group">
+                <label for="reminderText">Reminder Note:</label>
+                <textarea id="reminderText" rows="3" placeholder="Enter reminder note..." style="resize: vertical;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="confirmAddReminder()" style="flex: 1;">Add Reminder</button>
+                <button onclick="closeAddReminderModal()" style="flex: 1; background: #666;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove Reminder Modal -->
+    <div id="removeReminderModal" class="role-assignment-modal hidden">
+        <div class="role-assignment-content">
+            <h3 id="removeReminderTitle">Remove Reminder</h3>
+            <div class="input-group">
+                <label for="reminderSelect">Select Reminder to Remove:</label>
+                <select id="reminderSelect">
+                    <option value="">Select reminder...</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="confirmRemoveReminder()" style="flex: 1;">Remove Reminder</button>
+                <button onclick="closeRemoveReminderModal()" style="flex: 1; background: #666;">Cancel</button>
             </div>
         </div>
     </div>
@@ -703,6 +748,7 @@ Steph</textarea>
         let playerRoles = {}; // Track role assignments
         let selectedPlayerForRole = null;
         let currentGameId = null;
+        let playerReminders = {}; // Track reminders for each player
       
         // Embedded script definitions
         const EMBEDDED_SCRIPTS = {
@@ -829,6 +875,7 @@ Steph</textarea>
                         name: 'Drunk',
                         team: 'outsider',
                         ability: 'You do not know you are the Drunk. You think you are a Townsfolk character, but your ability malfunctions.',
+	                believesToBe: 'townsfolk',
                         firstNight: false,
                         otherNights: false
                     },
@@ -1026,6 +1073,7 @@ Steph</textarea>
                         name: 'Lunatic',
                         team: 'outsider',
                         ability: 'You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.',
+                        believesToBe: 'demon',
                         firstNight: true,
                         otherNights: true
                     },
@@ -1357,8 +1405,10 @@ Steph</textarea>
 
         function initializePlayerRoles() {
             playerRoles = {};
+	    playerReminders = {};
             players.forEach(player => {
                 playerRoles[player] = null;
+                playerReminders[player] = [];
             });
         }
         
@@ -1437,6 +1487,7 @@ Steph</textarea>
                 players: players,
                 script: currentScript,
                 playerRoles: playerRoles,
+                playerReminders: playerReminders,
                 storyteller: currentUser,
                 timestamp: Date.now()
             };
@@ -1478,6 +1529,10 @@ Steph</textarea>
                         playerRoles = message.playerRoles;
                     }
 
+                    if (message.playerReminders) {
+                        playerReminders = message.playerReminders;
+                    }
+
                     // Look up the full script object from the script name/id
                     if (typeof message.script === 'string') {
                         // If it's just a name, find the script by name
@@ -1501,6 +1556,13 @@ Steph</textarea>
                 // Update local role assignments
                 if (message.playerRoles) {
                     playerRoles = message.playerRoles;
+                    updatePlayersList();
+                }
+            } else if (message.type === 'reminder_update' && userType === 'storyteller' &&
+                       message.gameId === currentGameId) {
+                // Update local reminder assignments
+                if (message.playerReminders) {
+                    playerReminders = message.playerReminders;
                     updatePlayersList();
                 }
             } else if (message.type === 'private_message' &&
@@ -1578,6 +1640,18 @@ Steph</textarea>
                         `<span class="role-${role.team}">${role.name}</span>` : 
 				      '<span class="role-none">No role</span>';
                     playerCard.appendChild(roleDiv);
+
+                    // Show reminders if any
+                    if (playerReminders[player] && playerReminders[player].length > 0) {
+                        const remindersDiv = document.createElement('div');
+                        remindersDiv.className = 'player-reminders';
+                        remindersDiv.style.fontSize = '0.7rem';
+                        remindersDiv.style.opacity = '0.8';
+                        remindersDiv.style.marginTop = '3px';
+                        remindersDiv.style.fontStyle = 'italic';
+                        remindersDiv.innerHTML = playerReminders[player].map(reminder => `• ${reminder}`).join('<br>');
+                        playerCard.appendChild(remindersDiv);
+                    }
                     
                     playerCard.classList.add('storyteller-view');
                     playerCard.onclick = () => openRoleAssignmentModal(player);
@@ -2553,6 +2627,78 @@ Steph</textarea>
                 alert('No roles assigned yet');
                 return;
             }
+
+
+            // Check for roles with believesToBe property
+            const playersWithMisimpressions = [];
+            
+            players.forEach(player => {
+                const roleId = playerRoles[player];
+                if (roleId) {
+                    const role = getRoleById(roleId);
+                    if (role && role.believesToBe) {
+                        playersWithMisimpressions.push({
+                            player: player,
+                            actualRole: role.name,
+                            believesToBe: role.believesToBe
+                        });
+                    }
+                }
+            });
+
+            // Check for duplicate role assignments
+            const roleAssignments = {};
+            const duplicateRoles = [];
+            
+            players.forEach(player => {
+                const roleId = playerRoles[player];
+                if (roleId) {
+                    if (roleAssignments[roleId]) {
+                        // This role is already assigned to someone else
+                        if (!duplicateRoles.find(d => d.roleId === roleId)) {
+                            const role = getRoleById(roleId);
+                            duplicateRoles.push({
+                                roleId: roleId,
+                                roleName: role ? role.name : roleId,
+                                players: [roleAssignments[roleId]]
+                            });
+                        }
+                        duplicateRoles.find(d => d.roleId === roleId).players.push(player);
+                    } else {
+                        roleAssignments[roleId] = player;
+                    }
+                }
+            });
+            
+            // If there are duplicate roles, show confirmation
+            if (duplicateRoles.length > 0) {
+                const duplicateList = duplicateRoles.map(d => 
+                    `• ${d.roleName}: ${d.players.join(', ')}`
+                ).join('\n');
+                
+                const confirmMessage = `WARNING: The following roles are assigned to multiple players:\n\n${duplicateList}\n\nThis is usually a mistake. Are you sure you want to distribute roles with duplicates?`;
+                
+                if (!confirm(confirmMessage)) {
+                    return; // Cancel distribution
+                }
+            }
+            
+            
+            // If there are players with misimpressions, show confirmation
+            if (playersWithMisimpressions.length > 0) {
+                const playerList = playersWithMisimpressions.map(p => 
+                    `• ${p.player} (actually ${p.actualRole}, believes to be ${p.believesToBe})`
+                ).join('\n');
+                
+                const confirmMessage = `WARNING: The following players have roles where they should NOT know their true identity:\n\n${playerList}\n\nThese players should receive tokens for roles they believe they have, not their actual roles. Are you sure you want to distribute roles now?`;
+                
+                if (!confirm(confirmMessage)) {
+                    return; // Cancel distribution
+                }
+            }
+
+            
+
             
             let sentCount = 0;
             
@@ -2591,6 +2737,216 @@ Steph</textarea>
             } else {
                 alert('No roles to distribute');
             }
+        }
+
+        function showChangeRoleModal() {
+            if (!selectedPlayerForRole) return;
+            
+            const modal = document.getElementById('changeRoleModal');
+            const title = document.getElementById('changeRoleTitle');
+            const roleSelect = document.getElementById('roleSelect');
+            
+            title.textContent = `Change Role for ${selectedPlayerForRole}`;
+            
+            // Populate role dropdown (same logic as before)
+            roleSelect.innerHTML = '<option value="">No role assigned</option>';
+            
+            if (currentScript && currentScript.roles) {
+                const rolesByTeam = {
+                    townsfolk: [],
+                    outsider: [],
+                    minion: [],
+                    demon: []
+                };
+                
+                currentScript.roles.forEach(role => {
+                    rolesByTeam[role.team].push(role);
+                });
+                
+                const teamNames = {
+                    townsfolk: '👥 Townsfolk',
+                    outsider: '🚪 Outsiders', 
+                    minion: '😈 Minions',
+                    demon: '👹 Demons'
+                };
+                
+                Object.entries(rolesByTeam).forEach(([team, roles]) => {
+                    if (roles.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = teamNames[team];
+                        
+                        roles.forEach(role => {
+                            const option = document.createElement('option');
+                            option.value = role.id;
+                            option.textContent = role.name;
+                            optgroup.appendChild(option);
+                        });
+                        
+                        roleSelect.appendChild(optgroup);
+                    }
+                });
+            }
+            
+            // Set current role if any
+            if (playerRoles[selectedPlayerForRole]) {
+                roleSelect.value = playerRoles[selectedPlayerForRole];
+            }
+            
+            // Hide main modal and show change role modal
+            document.getElementById('roleAssignmentModal').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+        
+        function closeChangeRoleModal() {
+            document.getElementById('changeRoleModal').classList.add('hidden');
+            document.getElementById('roleAssignmentModal').classList.remove('hidden');
+        }
+        
+        function confirmRoleChange() {
+            if (!selectedPlayerForRole) return;
+            
+            const roleSelect = document.getElementById('roleSelect');
+            const selectedRole = roleSelect.value || null;
+            
+            // Update local state
+            playerRoles[selectedPlayerForRole] = selectedRole;
+            
+            // Broadcast role assignment
+            pubnub.publish({
+                channel: currentRoom,
+                message: {
+                    gameId: currentGameId,
+                    type: 'role_assignment',
+                    playerRoles: playerRoles,
+                    timestamp: Date.now()
+                }
+            });
+            
+            updatePlayersList();
+            closeChangeRoleModal();
+            closeRoleAssignmentModal();
+        }
+        
+        function showAddReminderModal() {
+            if (!selectedPlayerForRole) return;
+            
+            const modal = document.getElementById('addReminderModal');
+            const title = document.getElementById('addReminderTitle');
+            const textArea = document.getElementById('reminderText');
+            
+            title.textContent = `Add Reminder for ${selectedPlayerForRole}`;
+            textArea.value = '';
+            
+            // Hide main modal and show add reminder modal
+            document.getElementById('roleAssignmentModal').classList.add('hidden');
+            modal.classList.remove('hidden');
+            textArea.focus();
+        }
+        
+        function closeAddReminderModal() {
+            document.getElementById('addReminderModal').classList.add('hidden');
+            document.getElementById('roleAssignmentModal').classList.remove('hidden');
+        }
+        
+        function confirmAddReminder() {
+            if (!selectedPlayerForRole) return;
+            
+            const textArea = document.getElementById('reminderText');
+            const reminderText = textArea.value.trim();
+            
+            if (!reminderText) {
+                alert('Please enter a reminder note');
+                return;
+            }
+            
+            // Initialize reminders array if it doesn't exist
+            if (!playerReminders[selectedPlayerForRole]) {
+                playerReminders[selectedPlayerForRole] = [];
+            }
+            
+            // Add reminder
+            playerReminders[selectedPlayerForRole].push(reminderText);
+            
+            // Broadcast reminder update
+            pubnub.publish({
+                channel: currentRoom,
+                message: {
+                    gameId: currentGameId,
+                    type: 'reminder_update',
+                    playerReminders: playerReminders,
+                    timestamp: Date.now()
+                }
+            });
+            
+            updatePlayersList();
+            closeAddReminderModal();
+            closeRoleAssignmentModal();
+        }
+        
+        function showRemoveReminderModal() {
+            if (!selectedPlayerForRole) return;
+            
+            const reminders = playerReminders[selectedPlayerForRole] || [];
+            if (reminders.length === 0) {
+                alert('No reminders to remove for this player');
+                return;
+            }
+            
+            const modal = document.getElementById('removeReminderModal');
+            const title = document.getElementById('removeReminderTitle');
+            const select = document.getElementById('reminderSelect');
+            
+            title.textContent = `Remove Reminder for ${selectedPlayerForRole}`;
+            
+            // Populate reminder dropdown
+            select.innerHTML = '<option value="">Select reminder...</option>';
+            reminders.forEach((reminder, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = reminder.length > 50 ? reminder.substring(0, 50) + '...' : reminder;
+                select.appendChild(option);
+            });
+            
+            // Hide main modal and show remove reminder modal
+            document.getElementById('roleAssignmentModal').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+        
+        function closeRemoveReminderModal() {
+            document.getElementById('removeReminderModal').classList.add('hidden');
+            document.getElementById('roleAssignmentModal').classList.remove('hidden');
+        }
+        
+        function confirmRemoveReminder() {
+            if (!selectedPlayerForRole) return;
+            
+            const select = document.getElementById('reminderSelect');
+            const reminderIndex = parseInt(select.value);
+            
+            if (isNaN(reminderIndex)) {
+                alert('Please select a reminder to remove');
+                return;
+            }
+            
+            // Remove reminder
+            if (playerReminders[selectedPlayerForRole]) {
+                playerReminders[selectedPlayerForRole].splice(reminderIndex, 1);
+            }
+            
+            // Broadcast reminder update
+            pubnub.publish({
+                channel: currentRoom,
+                message: {
+                    gameId: currentGameId,
+                    type: 'reminder_update',
+                    playerReminders: playerReminders,
+                    timestamp: Date.now()
+                }
+            });
+            
+            updatePlayersList();
+            closeRemoveReminderModal();
+            closeRoleAssignmentModal();
         }
 
     </script>
@@ -2725,5 +3081,25 @@ Steph
      F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: Remove the "Assign Role" button; it is following a separate code path that is causing more harm than good for right now, because the actual roles are assigned via a separate process.
 
      F: Now, add a new button, "Distribute Roles", where its effect is to tell *all *the players what their assigned role is, as set in the playerRoles array.
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: In this code, I want to add a way to add reminder tokens in the storyteller view. Right now, when I click on a player, it just lets me assign a role or cancel. Change this interface, so that instead of the primary thing being role reassignment (and having an associated combo box right in my face), instead have four buttons: add reminder, remove reminder, change role, and cancel.
+Cancel at this level just brings us back to the main view.
+Change role brings up a new modal with the combo box of all the current roles, or cancel.
+Add reminder brings up a new modal with a text field where I as storyteller can add an arbitrary note, or cancel. This arbitrary note, if present, should show up below the current three lines of text (i.e. add space for a fourth line, which is where the reminder tokens go).
+Remove reminder brings up a model with a combo box with all the current reminders, and the user chooses which one to remove (or cancels).
+
+     F: Look at this code. Pay attention to the instructions for CLAUDE at the top. Immediate task: In this game, there are certain roles, like "Drunk", "Lunatic", or "Marionette", where part of the point is that the player who is that role does not actually know they have that role, and they get a different token entirely. The storyteller tracks this with reminder tokens. E.g. a player who is a Drunk Librarian will receive the Librarian token, and the storyteller adds a reminder "Is the Drunk" to them. Here's what I want: 1. What's a good name for this characteristic, of a role where the player thinks it is one thing but in reality it is another? 2. Once you think of such a name (and get confirmation from me that it is indeed a good choice of name), add a way to represent this characteristic to the embedded script definition. Most roles will not have this attribute at all, so I think an optional field that, if present, marks this role as being one of these special ones is probably best. Perhaps the optional field should indicate what kind of character they think they are; e.g. the Drunk always thinks it is a Townsfolk, while the Marionette always thinks that it is some Good character (i.e. either Townsfolk or Outsider), and the Lunatic always thinks it is an (Evil) Demon. 3. The reason we are adding this state explicitly is the third change I want you to make: If the user, as storyteller, hits the "Distribute Roles" button while one of the players has actually been assigned one of these roles (rather than the replacement that it is supposed to believe it has), then make the user go through a confirmation step, pointing out the cases of which players have one of these special roles that is meant to be a secret from them, since we do not want to spoil this fun aspect of the game.
+
+     F: I prefer "believesToBe" or even maybe "misimpression". The problem with all the other alternatives you have listed ("disguise", "masquerade", "appear"), is that they imply that the player knows about the ruse and is acting on it. But that's not the case here; these are all cases (as implied by names like "Lunatic") where the player is meant to think they are something totally different than what they actually are.
+
+     F: I don't see the diff to distrbuteAllRoles. Can you print it here?
+
+     F: Is confirm a built-in javascript function?
+
+     F: I'll try this first, I'm hoping this will barely ever matter.
+
+     F: This is great. It made me realize: can we add a similar bit of code that checks, before we distribute the roles, whether two players are being assigned the same role (which is usually but not always a mistake, which I assume could result e.g. from the storyteller swapping a drunk out for a townsfolk without first checking if its a duplicate), and thus make the storyteller confirm before they send out the roles with a duplicate pair in them?
+
+
 
 -->
