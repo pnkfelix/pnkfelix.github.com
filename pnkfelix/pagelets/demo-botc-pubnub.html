@@ -952,7 +952,7 @@ Steph</textarea>
                 ability: 'Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.',
                 firstNight: false,
                 otherNights: true,
-                nightActionTemplates: [['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']],
+                nightActionTemplates: [['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'], ['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']],
             },
             'grandmother': {
                 id: 'grandmother',
@@ -2258,6 +2258,23 @@ Steph</textarea>
                             availableRoles = availableRoles.filter(role => role.team === 'minion');
                         } else if (field.type === 'demon_role') {
                             availableRoles = availableRoles.filter(role => role.team === 'demon');
+                        } else if (['bluff1_role', 'bluff2_role', 'bluff3_role'].includes(field.type)) {
+                            availableRoles = availableRoles.filter((role) => {
+                                let inPlayGoodRoles = []
+                                const defaultGoodTeamRoles = ['townsfolk', 'outsider']
+                                players.forEach(player => {
+                                    const roleId = playerRoles[player];
+                                    if (roleId) {
+                                        const role = getRoleById(roleId);
+                                        if (role) {
+                                            if (defaultGoodTeamRoles.includes(role.team)) {
+                                                inPlayGoodRoles.push(roleId)
+                                            }
+                                        }
+                                    }
+                                })
+                                return defaultGoodTeamRoles.includes(role.team) && !inPlayGoodRoles.includes(role.id);
+                            })
                         }
                         // field.type === 'role' shows all roles (no filtering)
 
