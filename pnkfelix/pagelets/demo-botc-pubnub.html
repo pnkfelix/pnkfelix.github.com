@@ -5,7 +5,7 @@
 * If you make an array expression whose elements are written one-per-line, then prefer to include a trailing comma after the last element.
 
 ## TODO LIST
-     
+
      [ ] WHen storyteller clicks a message, make that be the current "Send to" if one isn't already set.
      [ ] Add name of current msg target in the "Type your message..." box, i.e. "Type your messager to Neha."
      [ ] Maybe add message drafting for the storyteller, so that they can start a message to someone, then click someone else, start their message, and then come back
@@ -18,7 +18,7 @@
      [ ] Add ability to add/remove players.
      [X] More specifically on the above: there's some issue where If I try to adjust the number of players for a *new game* in a pre-existing room, the overall system seems to grab (maybe old?) messages and allows them to override my more recent choices. There might be a need for some kind of game identification or timestamping to deal with this.
 
-     
+
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +33,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -41,23 +41,23 @@
             min-height: 100vh;
             padding: 10px;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         .title {
             font-size: 1.8rem;
             color: #ff6b6b;
             margin-bottom: 10px;
         }
-        
+
         .card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -66,18 +66,18 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 20px;
         }
-        
+
         .input-group {
             margin-bottom: 15px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #ffd93d;
         }
-        
+
         input, select, textarea {
             width: 100%;
             padding: 12px;
@@ -87,7 +87,7 @@
             color: #333;
             font-size: 16px;
         }
-        
+
         button {
             background: linear-gradient(45deg, #ff6b6b, #ee5a24);
             color: white;
@@ -100,17 +100,17 @@
             transition: transform 0.2s;
             margin: 5px;
         }
-        
+
         button:hover {
             transform: translateY(-2px);
         }
-        
+
         button:disabled {
             background: #666;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .messages {
             height: 300px;
             overflow-y: auto;
@@ -119,24 +119,24 @@
             padding: 15px;
             margin-bottom: 15px;
         }
-        
+
         .message {
             margin-bottom: 15px;
             padding: 12px;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
         }
-        
+
         .message.from-storyteller {
             background: rgba(255, 215, 61, 0.2);
             border-left: 4px solid #ffd93d;
         }
-        
+
         .message.from-player {
             background: rgba(38, 222, 129, 0.2);
             border-left: 4px solid #26de81;
         }
-        
+
         .message-header {
             font-size: 0.8rem;
             opacity: 0.7;
@@ -147,7 +147,7 @@
             color: #26de81;
             font-size: 0.8rem;
         }
-      
+
         .template-ui {
             background: rgba(255, 107, 107, 0.2);
             border: 1px dashed #ff6b6b;
@@ -155,11 +155,11 @@
             padding: 15px;
             margin: 10px 0;
         }
-        
+
         .template-field {
             margin: 10px 0;
         }
-        
+
         .response-preview {
             background: rgba(38, 222, 129, 0.2);
             border: 1px solid #26de81;
@@ -168,38 +168,38 @@
             margin: 10px 0;
             font-style: italic;
         }
-        
+
         .compose-area {
             display: flex;
             gap: 10px;
             align-items: flex-end;
         }
-        
+
         .compose-area textarea {
             flex: 1;
             min-height: 50px;
             resize: vertical;
         }
-        
+
         .compose-area button {
             margin: 0;
             min-width: 80px;
         }
-        
+
         .storyteller-controls {
             background: rgba(255, 215, 61, 0.1);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 20px;
         }
-        
+
         .template-buttons {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 10px;
             margin-top: 10px;
         }
-        
+
         .template-btn {
             background: rgba(255, 215, 61, 0.3);
             border: 1px solid #ffd93d;
@@ -207,18 +207,18 @@
             padding: 10px;
             font-size: 0.9rem;
         }
-        
+
         .template-btn:hover {
             background: rgba(255, 215, 61, 0.5);
         }
-        
+
         .players-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
             margin: 15px 0;
         }
-        
+
         .player-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 10px;
@@ -231,47 +231,47 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        
+
         .player-card .player-role {
             font-size: 0.8rem;
             opacity: 0.8;
             margin-bottom: 5px;
         }
-        
+
         .player-card .role-none {
             color: #9e9e9e;
             font-style: italic;
         }
-        
+
         .player-card .role-townsfolk {
             color: #4a90e2;
         }
-        
+
         .player-card .role-outsider {
             color: #9e9e9e;
         }
-        
+
         .player-card .role-minion {
             color: #ff6b6b;
         }
-        
+
         .player-card .role-demon {
             color: #8b0000;
         }
-        
+
         .player-card.storyteller-view:hover {
             cursor: pointer;
             background: rgba(255, 255, 255, 0.2);
         }
-      
+
         .player-card.storyteller {
             border-color: #ffd93d;
         }
-        
+
         .player-card.online {
             border-color: #26de81;
         }
-        
+
         .role-assignment-modal {
             position: fixed;
             top: 0;
@@ -284,7 +284,7 @@
             align-items: center;
             z-index: 1000;
         }
-        
+
         .role-assignment-content {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -299,26 +299,26 @@
             border-radius: 8px;
             margin-bottom: 15px;
         }
-        
+
         .status.connected {
             background: rgba(38, 222, 129, 0.2);
             color: #26de81;
         }
-        
+
         .status.disconnected {
             background: rgba(255, 107, 107, 0.2);
             color: #ff6b6b;
         }
-        
+
         .script-viewer-content {
             max-height: 400px;
             overflow-y: auto;
         }
-        
+
         .team-section {
             margin: 20px 0;
         }
-        
+
         .team-header {
             font-size: 1.2rem;
             font-weight: bold;
@@ -327,27 +327,27 @@
             border-radius: 6px;
             text-align: center;
         }
-        
+
         .team-townsfolk {
             background: rgba(74, 144, 226, 0.3);
             color: #4a90e2;
         }
-        
+
         .team-outsider {
             background: rgba(158, 158, 158, 0.3);
             color: #9e9e9e;
         }
-        
+
         .team-minion {
             background: rgba(255, 107, 107, 0.3);
             color: #ff6b6b;
         }
-        
+
         .team-demon {
             background: rgba(139, 0, 0, 0.3);
             color: #8b0000;
         }
-        
+
         .role-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
@@ -355,35 +355,35 @@
             margin: 8px 0;
             border-left: 4px solid;
         }
-        
+
         .role-card.townsfolk {
             border-left-color: #4a90e2;
         }
-        
+
         .role-card.outsider {
             border-left-color: #9e9e9e;
         }
-        
+
         .role-card.minion {
             border-left-color: #ff6b6b;
         }
-        
+
         .role-card.demon {
             border-left-color: #8b0000;
         }
-        
+
         .role-name {
             font-weight: bold;
             font-size: 1.1rem;
             margin-bottom: 5px;
         }
-        
+
         .role-ability {
             font-size: 0.9rem;
             line-height: 1.4;
             opacity: 0.9;
         }
-        
+
         .hidden {
             display: none;
         }
@@ -394,7 +394,7 @@
             gap: 10px;
             margin: 15px 0;
         }
-        
+
         .role-selection-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
@@ -403,60 +403,60 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .role-selection-card:hover {
             background: rgba(255, 255, 255, 0.2);
         }
-        
+
         .role-selection-card.selected {
             border-color: #26de81;
             background: rgba(38, 222, 129, 0.2);
         }
-        
+
         .role-selection-card.townsfolk {
             border-left: 4px solid #4a90e2;
         }
-        
+
         .role-selection-card.outsider {
             border-left: 4px solid #9e9e9e;
         }
-        
+
         .role-selection-card.minion {
             border-left: 4px solid #ff6b6b;
         }
-        
+
         .role-selection-card.demon {
             border-left: 4px solid #8b0000;
         }
-        
+
         .role-selection-name {
             font-weight: bold;
             margin-bottom: 5px;
         }
-        
+
         .role-selection-ability {
             font-size: 0.8rem;
             opacity: 0.8;
             line-height: 1.3;
         }
-        
+
         .distribution-match {
             color: #26de81;
         }
-        
+
         .distribution-over {
             color: #ff6b6b;
         }
-        
+
         .distribution-under {
             color: #ffd93d;
         }
-        
+
         @media (max-width: 600px) {
             .compose-area {
                 flex-direction: column;
             }
-            
+
             .compose-area button {
                 width: 100%;
             }
@@ -469,7 +469,7 @@
             <h1 class="title">🩸 Blood on the Clocktower</h1>
             <p>Simple Messaging App</p>
         </div>
-        
+
         <!-- Setup Screen -->
         <div id="setupScreen" class="card">
             <div class="input-group">
@@ -479,7 +479,7 @@
                     <option value="storyteller">Storyteller</option>
                 </select>
             </div>
-            
+
             <div id="storytellerSetup" class="hidden">
                 <div class="input-group">
                     <label>Game Mode:</label>
@@ -491,19 +491,19 @@
 
                  <div class="input-group">
                     <label for="gameRoom">Game Room ID:</label>
-                    <input type="text" id="gameRoom" placeholder="Enter or create room ID" 
+                    <input type="text" id="gameRoom" placeholder="Enter or create room ID"
 			   value="botc_ddt"
 			   >
                     <button type="button" id="generateRoomBtn" onclick="generateRoomId()">Generate New Room</button>
                 </div>
-                
+
                 <div id="newGameFields" class="input-group">
                     <label for="scriptSelect">Script:</label>
                     <select id="scriptSelect">
                         <option value="">Select a script...</option>
                     </select>
                 </div>
-                
+
                 <div id="playerNamesField" class="input-group">
                     <label for="playerNames">Player Names (one per line):</label>
                     <textarea id="playerNames" rows="8" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve">Amanda
@@ -516,7 +516,7 @@ Taylor
 Steph</textarea>
                 </div>
             </div>
-            
+
             <div id="playerSetup" class="hidden">
                 <div class="input-group">
                     <label for="gameRoomPlayer">Game Room ID:</label>
@@ -525,17 +525,17 @@ Steph</textarea>
 			   >
                     <button type="button" onclick="checkRoom()">Check Room</button>
                 </div>
-                
+
                 <div id="playerNameSection" class="input-group hidden">
                     <label for="playerName">Your Name:</label>
                     <select id="playerName">
                         <option value="">Select your name...</option>
                     </select>
                 </div>
-                
+
                 <div id="roomStatus" class="hidden"></div>
             </div>
-            
+
             <button id="joinGameBtn" onclick="joinGame()">Start Game</button>
         </div>
 
@@ -545,12 +545,12 @@ Steph</textarea>
             <div class="input-group">
                 <label>Script: <span id="roleSelectionScript"></span> | Players: <span id="roleSelectionPlayerCount"></span></label>
             </div>
-            
+
             <div id="distributionInfo" class="card" style="background: rgba(74, 144, 226, 0.2); margin-bottom: 20px;">
                 <h4>Recommended Distribution</h4>
                 <div id="distributionDisplay"></div>
             </div>
-            
+
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <button onclick="randomlySelectRoles()" style="flex: 1; background: linear-gradient(45deg, #26de81, #20bf6b);">
                     🎲 Random Selection
@@ -559,9 +559,9 @@ Steph</textarea>
                     Clear All
                 </button>
             </div>
-            
+
             <div id="currentSelectionStatus" class="status" style="margin-bottom: 20px;"></div>
-            
+
             <div id="roleSelectionContent">
                 <div class="team-section">
                     <div class="team-header team-townsfolk">
@@ -569,21 +569,21 @@ Steph</textarea>
                     </div>
                     <div id="townsfolkRoles" class="role-selection-grid"></div>
                 </div>
-                
+
                 <div class="team-section">
                     <div class="team-header team-outsider">
                         🚪 Outsiders (<span id="outsiderCount">0</span>/<span id="outsiderTarget">0</span>)
                     </div>
                     <div id="outsiderRoles" class="role-selection-grid"></div>
                 </div>
-                
+
                 <div class="team-section">
                     <div class="team-header team-minion">
                         😈 Minions (<span id="minionCount">0</span>/<span id="minionTarget">0</span>)
                     </div>
                     <div id="minionRoles" class="role-selection-grid"></div>
                 </div>
-                
+
                 <div class="team-section">
                     <div class="team-header team-demon">
                         👹 Demons (<span id="demonCount">0</span>/<span id="demonTarget">0</span>)
@@ -591,7 +591,7 @@ Steph</textarea>
                     <div id="demonRoles" class="role-selection-grid"></div>
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button onclick="goBackToSetup()" style="flex: 1; background: #666;">
                     ← Back to Setup
@@ -601,33 +601,33 @@ Steph</textarea>
                 </button>
             </div>
         </div>
-        
+
         <!-- Game Screen -->
         <div id="gameScreen" class="card hidden">
             <div id="connectionStatus" class="status disconnected">
                 Connecting...
             </div>
-            
+
             <div class="input-group">
-                <label>Script: <span id="displayScript"></span> | Room: <span id="displayRoom"></span></label>
+                <label>Script: <span id="displayScript"></span> | Room: <span id="displayRoom"></span> | <span id="displayTime"></span></label>
             </div>
-            
+
             <button id="scriptViewerToggle" onclick="toggleScriptViewer()">📜 View Script</button>
-            
+
             <div class="players-list" id="playersList"></div>
-            
+
             <!-- Script Viewer -->
             <div id="scriptViewer" class="card hidden" style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 id="scriptViewerTitle">Script Viewer</h3>
                     <button onclick="toggleScriptViewer()" style="background: #666; padding: 5px 10px; font-size: 12px;">✕ Close</button>
                 </div>
-                
+
                 <div id="scriptContent">
                     <p>No script loaded</p>
                 </div>
             </div>
-            
+
             <!-- Storyteller Controls -->
             <div id="storytellerControls" class="storyteller-controls hidden">
                 <h3>Storyteller Controls</h3>
@@ -637,20 +637,21 @@ Steph</textarea>
                         <option value="">Select player...</option>
                     </select>
                 </div>
-                
+
                 <div class="template-buttons">
                     <button class="template-btn" onclick="useNightActionTemplate()">Night Action</button>
                     <button class="template-btn" onclick="distributeAllRoles()">Distribute Roles</button>
+                    <button class="template-btn" onclick="distributeMinionAndDemonInfo()">Distribute Minion/Demon Info</button>
                 </div>
 
                 <div style="margin-top: 15px;">
                     <button id="phaseToggle" onclick="togglePhase()" style="width: 100%; background: linear-gradient(45deg, #4a90e2, #357abd);">Day Breaks</button>
                 </div>
             </div>
-            
+
             <div class="messaging-area">
                 <div class="messages" id="messages"></div>
-                
+
                 <div id="templateUI" class="template-ui hidden">
                     <h4 id="templateTitle">Template</h4>
                     <div id="templateFields"></div>
@@ -658,7 +659,7 @@ Steph</textarea>
                     <button onclick="sendTemplateMessage()">Send Message</button>
                     <button onclick="cancelTemplate()">Cancel</button>
                 </div>
-                
+
                 <div class="compose-area">
                     <textarea id="messageInput" placeholder="Type your message..."></textarea>
                     <button onclick="sendFreeMessage()">Send</button>
@@ -738,7 +739,7 @@ Steph</textarea>
         // PubNub Configuration - Replace with your keys
         const PUBNUB_PUBLISH_KEY = 'demo';
         const PUBNUB_SUBSCRIBE_KEY = 'demo';
-        
+
         let pubnub;
         let currentUser = '';
         let currentRoom = '';
@@ -752,8 +753,8 @@ Steph</textarea>
         let selectedPlayerForRole = null;
         let currentGameId = null;
         let playerReminders = {}; // Track reminders for each player
-        let isNightTime = true; // Game starts at night      
-
+        let isNightTime = true; // Game starts at night
+        let dayNightCounter = 1; // Game starts on night 1
 
         // Embedded script definitions
         const ROLES = {
@@ -856,7 +857,7 @@ Steph</textarea>
             'slayer': {
                 id: 'slayer',
                 name: 'Slayer',
-                team: 'townsfolk',  
+                team: 'townsfolk',
                 ability: 'Once per game, during the day, publicly choose a player: if they are the Demon, they die.',
                 firstNight: false,
                 otherNights: false,
@@ -951,7 +952,10 @@ Steph</textarea>
                 ability: 'Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.',
                 firstNight: false,
                 otherNights: true,
-                nightActionTemplates: [['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']],
+                nightActionTemplates: [
+                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']
+                ],
             },
             'grandmother': {
                 id: 'grandmother',
@@ -1149,7 +1153,10 @@ Steph</textarea>
                 ability: 'Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.',
                 firstNight: false,
                 otherNights: true,
-                nightActionTemplates: [['Choose a player to kill tonight.', 'I choose to kill {player1}.']],
+                nightActionTemplates: [
+                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['Choose a player to kill tonight.', 'I choose to kill {player1}.']
+                ],
             },
             'pukka': {
                 id: 'pukka',
@@ -1158,7 +1165,10 @@ Steph</textarea>
                 ability: 'Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.',
                 firstNight: true,
                 otherNights: true,
-                nightActionTemplates: [['Choose a player to poison tonight and kill tomorrow.', 'I choose {player1}.']],
+                nightActionTemplates: [
+                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['Choose a player to poison tonight and kill tomorrow.', 'I choose {player1}.']
+                ],
             },
             'shabaloth': {
                 id: 'shabaloth',
@@ -1167,7 +1177,10 @@ Steph</textarea>
                 ability: 'Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated.',
                 firstNight: false,
                 otherNights: true,
-                nightActionTemplates: [['Choose two players.', 'I choose {player1} and {player2}.']],
+                nightActionTemplates: [
+                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['Choose two players.', 'I choose {player1} and {player2}.']
+                ],
             },
             'po': {
                 id: 'po',
@@ -1177,12 +1190,13 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
+                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
                     ['Choose a player.', 'I choose {player}.'],
                     ['Choose three players.', 'I choose {player1}, {player2}, and {player3}.'],
                 ],
             }
         };
-        
+
         const EMBEDDED_SCRIPTS = {
             'trouble_brewing': {
                 id: 'trouble_brewing',
@@ -1237,7 +1251,7 @@ Steph</textarea>
                 }
             },
         };
-        
+
         let currentScript = null;
 
         let gameMode = 'new'; // 'new' or 'reconnect'
@@ -1247,28 +1261,28 @@ Steph</textarea>
         function generateGameId(roomId) {
             // Extract room name and increment counter
             const baseRoom = roomId.replace(/_game\d+$/, ''); // Remove existing game suffix
-            
+
             // For new games, we'll increment. For now, just generate based on timestamp
             // This could be made more sophisticated with history parsing if needed
             const gameNumber = Math.floor(Date.now() / 1000) % 10000; // Simple incrementing number
             return `${baseRoom}_game${gameNumber}`;
         }
-        
+
         function extractLatestGameId(roomId, messageHistory) {
             // Look through message history to find the highest game number
             let maxGameNumber = 0;
             const baseRoom = roomId.replace(/_game\d+$/, '');
-            
+
             messageHistory.forEach(msg => {
                 if (msg.gameId && msg.gameId.startsWith(baseRoom + '_game')) {
                     const gameNum = parseInt(msg.gameId.split('_game')[1]) || 0;
                     maxGameNumber = Math.max(maxGameNumber, gameNum);
                 }
             });
-            
+
             return `${baseRoom}_game${maxGameNumber + 1}`;
         }
-      
+
       function selectGameMode(mode) {
             gameMode = mode;
             const newBtn = document.getElementById('newGameBtn');
@@ -1294,12 +1308,12 @@ Steph</textarea>
                 joinBtn.textContent = 'Rejoin Game';
             }
         }
-        
+
         // Initialize user type selection and populate scripts
         document.getElementById('userType').addEventListener('change', function() {
             const storytellerSetup = document.getElementById('storytellerSetup');
             const playerSetup = document.getElementById('playerSetup');
-            
+
             if (this.value === 'storyteller') {
                 storytellerSetup.classList.remove('hidden');
                 playerSetup.classList.add('hidden');
@@ -1308,12 +1322,12 @@ Steph</textarea>
                 playerSetup.classList.remove('hidden');
             }
         });
-        
+
         // Populate script dropdown
         function populateScriptDropdown() {
             const scriptSelect = document.getElementById('scriptSelect');
             scriptSelect.innerHTML = '<option value="">Select a script...</option>';
-            
+
             Object.values(EMBEDDED_SCRIPTS).forEach(script => {
                 const option = document.createElement('option');
                 option.value = script.id;
@@ -1321,26 +1335,26 @@ Steph</textarea>
                 scriptSelect.appendChild(option);
             });
         }
-        
+
         function generateRoomId() {
             const roomId = 'botc_' + Math.random().toString(36).substr(2, 8);
             document.getElementById('gameRoom').value = roomId;
         }
-        
+
         function checkRoom() {
             const roomId = document.getElementById('gameRoomPlayer').value.trim();
             if (!roomId) {
                 alert('Please enter a room ID');
                 return;
             }
-            
+
             // Simple room check - create temporary connection
             const tempPubNub = new PubNub({
                 publishKey: PUBNUB_PUBLISH_KEY,
                 subscribeKey: PUBNUB_SUBSCRIBE_KEY,
                 userId: 'temp_' + Math.random().toString(36).substr(2, 8)
             });
-            
+
             tempPubNub.addListener({
                 message: function(messageEvent) {
                     if (messageEvent.message.type === 'game_setup') {
@@ -1350,14 +1364,14 @@ Steph</textarea>
                     }
                 }
             });
-            
+
             tempPubNub.subscribe({ channels: [roomId] });
-            
+
             tempPubNub.publish({
                 channel: roomId,
                 message: { type: 'request_game_state', from: 'temp_player', timestamp: Date.now() }
             });
-            
+
             setTimeout(() => {
                 if (document.getElementById('playerNameSection').classList.contains('hidden')) {
                     showRoomStatus('Room not found or no Storyteller online.', 'error');
@@ -1365,11 +1379,11 @@ Steph</textarea>
                 }
             }, 3000);
         }
-        
+
         function populatePlayerNames(playerList) {
             players = playerList;
             showRoomStatus(`Found game with ${playerList.length} players`, 'success');
-            
+
             const playerSelect = document.getElementById('playerName');
             playerSelect.innerHTML = '<option value="">Select your name...</option>';
             playerList.forEach(player => {
@@ -1378,44 +1392,44 @@ Steph</textarea>
                 option.textContent = player;
                 playerSelect.appendChild(option);
             });
-            
+
             document.getElementById('playerNameSection').classList.remove('hidden');
         }
-        
+
         function showRoomStatus(message, type) {
             const statusEl = document.getElementById('roomStatus');
             statusEl.textContent = message;
             statusEl.className = type === 'success' ? 'status connected' : 'status disconnected';
             statusEl.classList.remove('hidden');
         }
-        
+
         function joinGame() {
             userType = document.getElementById('userType').value;
-            
+
             if (userType === 'storyteller') {
                 currentRoom = document.getElementById('gameRoom').value.trim();
-                
+
                 if (!currentRoom) {
                     alert('Please enter a room ID');
                     return;
                 }
-                
+
                 if (gameMode === 'new') {
                     const scriptId = document.getElementById('scriptSelect').value;
                     console.log('scriptId:', scriptId);
                     console.log('EMBEDDED_SCRIPTS[scriptId]:', EMBEDDED_SCRIPTS[scriptId]);
-                    
+
                     if (!scriptId) {
                         alert('Please select a script');
                         return;
                     }
-                    
+
                     const playerNamesText = document.getElementById('playerNames').value.trim();
                     if (!playerNamesText) {
                         alert('Please enter player names');
                         return;
                     }
-                    
+
                     // Load the selected script
                     currentScript = EMBEDDED_SCRIPTS[scriptId];
                     players = playerNamesText.split('\n').map(name => name.trim()).filter(name => name);
@@ -1447,13 +1461,13 @@ Steph</textarea>
             } else {
                 currentRoom = document.getElementById('gameRoomPlayer').value.trim();
                 currentUser = document.getElementById('playerName').value;
-                
+
                 if (!currentRoom || !currentUser) {
                     alert('Please check the room and select your name first');
                     return;
                 }
             }
-            
+
             initializePubNub();
             // If storyteller starting new game, mark current time to ignore older setups
             if (userType === 'storyteller' && gameMode === 'new') {
@@ -1475,16 +1489,16 @@ Steph</textarea>
                 playerReminders[player] = [];
             });
         }
-        
+
         function initializePubNub() {
             pubnub = new PubNub({
                 publishKey: PUBNUB_PUBLISH_KEY,
                 subscribeKey: PUBNUB_SUBSCRIBE_KEY,
                 userId: currentUser
             });
-            
+
             pubnub.subscribe({ channels: [currentRoom] });
-            
+
             pubnub.addListener({
                 message: function(messageEvent) {
                     handleIncomingMessage(messageEvent.message);
@@ -1498,7 +1512,7 @@ Steph</textarea>
                     }
                 }
             });
-            
+
             // If storyteller, send game setup
             if (userType === 'storyteller') {
                 setTimeout(() => {
@@ -1517,7 +1531,7 @@ Steph</textarea>
                 if (response.messages && response.messages.length > 0) {
                     // Process messages in chronological order (oldest first)
                     const messages = response.messages.reverse();
-                    
+
                     messages.forEach(messageWrapper => {
                         // PubNub history wraps messages in an object with timetoken
                         const message = messageWrapper.entry;
@@ -1535,13 +1549,13 @@ Steph</textarea>
             if (userType !== 'storyteller' || gameMode !== 'reconnect') {
                 return;
             }
-            
+
             // Find the most recent game_setup message to establish current game
             if (message.type === 'game_setup' && message.gameId) {
                 if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
                     currentGameId = message.gameId;
                     mostRecentSetupTimestamp = message.timestamp;
-                    
+
                     // Reconstruct basic game state
                     if (message.players) {
                         players = message.players;
@@ -1562,26 +1576,26 @@ Steph</textarea>
                     }
                 }
             }
-            
+
             // Update role assignments from more recent role_assignment messages
             if (message.type === 'role_assignment' && message.gameId === currentGameId && message.playerRoles) {
                 playerRoles = { ...playerRoles, ...message.playerRoles };
             }
-            
-            // Update reminders from more recent reminder_update messages  
+
+            // Update reminders from more recent reminder_update messages
             if (message.type === 'reminder_update' && message.gameId === currentGameId && message.playerReminders) {
                 playerReminders = { ...playerReminders, ...message.playerReminders };
             }
-            
+
             // Reconstruct phase state from daybreak/nightfall messages
             if ((message.type === 'daybreak' || message.type === 'nightfall') && message.gameId === currentGameId) {
                 isNightTime = (message.type === 'nightfall');
             }
         }
-        
+
         function handleConnectionStatus(statusEvent) {
             const statusEl = document.getElementById('connectionStatus');
-            
+
             if (statusEvent.category === 'PNConnectedCategory') {
                 isConnected = true;
                 statusEl.textContent = 'Connected';
@@ -1603,7 +1617,7 @@ Steph</textarea>
         }
 
 
-        
+
         function sendGameSetup() {
 	  console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
           const setupMessage = {
@@ -1616,7 +1630,7 @@ Steph</textarea>
                 storyteller: currentUser,
                 timestamp: Date.now()
             };
-            
+
             pubnub.publish({
                 channel: currentRoom,
                 message: setupMessage
@@ -1625,25 +1639,18 @@ Steph</textarea>
 
         function togglePhase() {
             const newPhase = isNightTime ? 'daybreak' : 'nightfall';
-            
+
             // Broadcast the specific phase event
             pubnub.publish({
                 channel: currentRoom,
-                message: { 
-                    type: newPhase, 
-                    gameId: currentGameId, 
-                    timestamp: Date.now() 
+                message: {
+                    type: newPhase,
+                    gameId: currentGameId,
+                    timestamp: Date.now()
                 }
             });
-            
-            // Apply the change locally for storyteller
-            if (newPhase === 'daybreak') {
-                setDayPhase();
-            } else {
-                setNightPhase();
-            }
         }
-        
+
         function handleIncomingMessage(message, isFromHistory = false) {
 
             let debug_payload = {
@@ -1697,7 +1704,7 @@ Steph</textarea>
                 if (!isFromHistory) {
                     sendGameSetup();
                 }
-            } else if (message.type === 'role_assignment' && userType === 'storyteller' && 
+            } else if (message.type === 'role_assignment' && userType === 'storyteller' &&
                       message.gameId === currentGameId) {
                 // Update local role assignments
                 if (message.playerRoles) {
@@ -1732,32 +1739,33 @@ Steph</textarea>
                     markMessageDelivered(message.timestamp);
                     return; // Don't display duplicate
                 }
-                
+
                 // If it's not our message or not in sent messages, display normally
                 displayMessage(message);
             } else {
 			    console.log('Message rejected - no matching condition');
             }
         }
-        
+
         function switchToGameScreen() {
             document.getElementById('setupScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
-            
+
             document.getElementById('displayRoom').textContent = currentRoom;
-            
+            document.getElementById('displayTime').textContent = 'Night 1';
+
             if (currentScript) {
                 document.getElementById('displayScript').textContent = currentScript.name;
                 updateScriptViewer();
             }
-            
+
             if (userType === 'storyteller') {
                 document.getElementById('storytellerControls').classList.remove('hidden');
             }
-            
+
             updatePlayersList();
         }
-        
+
         function updatePlayersList() {
             const playersList = document.getElementById('playersList');
             playersList.innerHTML = '';
@@ -1765,7 +1773,7 @@ Steph</textarea>
             // Debug log to see what we're working with
             console.log('updatePlayersList called, playerRoles:', playerRoles);
             console.log('currentScript:', currentScript);
-          
+
           players.forEach(player => {
             const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
@@ -1775,19 +1783,19 @@ Steph</textarea>
                 nameDiv.className = 'player-name';
                 nameDiv.textContent = player;
                 playerCard.appendChild(nameDiv);
-                
+
                 // Show role if storyteller
                 if (userType === 'storyteller') {
                     const roleDiv = document.createElement('div');
                     roleDiv.className = 'player-role';
                     const roleId = playerRoles[player];
                     const role = roleId ? getRoleById(roleId) : null;
-                    
+
                     // Debug individual role lookup
                     console.log(`Player ${player}: roleId=${roleId}, role=`, role);
-                    
-                    roleDiv.innerHTML = role ? 
-                        `<span class="role-${role.team}">${role.name}</span>` : 
+
+                    roleDiv.innerHTML = role ?
+                        `<span class="role-${role.team}">${role.name}</span>` :
 				      '<span class="role-none">No role</span>';
                     playerCard.appendChild(roleDiv);
 
@@ -1802,18 +1810,18 @@ Steph</textarea>
                         remindersDiv.innerHTML = playerReminders[player].map(reminder => `• ${reminder}`).join('<br>');
                         playerCard.appendChild(remindersDiv);
                     }
-                    
+
                     playerCard.classList.add('storyteller-view');
                     playerCard.onclick = () => openRoleAssignmentModal(player);
                 }
-              
+
                 if (player === currentUser) {
                     playerCard.classList.add('online');
                 }
-                
+
                 playersList.appendChild(playerCard);
             });
-            
+
             if (userType === 'player') {
                 const storytellerCard = document.createElement('div');
                 storytellerCard.className = 'player-card storyteller';
@@ -1848,7 +1856,7 @@ Steph</textarea>
         function getRoleById(roleId) {
             return ROLES[roleId] || null;
         }
-        
+
         function getScriptRoles(script) {
             if (!script || !script.roles) return [];
             return script.roles.map(roleId => ROLES[roleId]).filter(role => role);
@@ -1856,16 +1864,16 @@ Steph</textarea>
 
         function openRoleAssignmentModal(playerName) {
             selectedPlayerForRole = playerName;
-            
+
             const modal = document.getElementById('roleAssignmentModal');
             const title = document.getElementById('roleAssignmentTitle');
             const roleSelect = document.getElementById('roleSelect');
-            
+
             title.textContent = `Assign Role to ${playerName}`;
-            
+
             // Populate role dropdown
             roleSelect.innerHTML = '<option value="">No role assigned</option>';
-            
+
             if (currentScript) {
                 // Group roles by team
                 const rolesByTeam = {
@@ -1874,58 +1882,58 @@ Steph</textarea>
                     minion: [],
                     demon: []
                 };
-                
+
                 getScriptRoles(currentScript).forEach(role => {
                     rolesByTeam[role.team].push(role);
                 });
-                
+
                 // Add roles grouped by team
                 const teamNames = {
                     townsfolk: '👥 Townsfolk',
-                    outsider: '🚪 Outsiders', 
+                    outsider: '🚪 Outsiders',
                     minion: '😈 Minions',
                     demon: '👹 Demons'
                 };
-                
+
                 Object.entries(rolesByTeam).forEach(([team, roles]) => {
                     if (roles.length > 0) {
                         const optgroup = document.createElement('optgroup');
                         optgroup.label = teamNames[team];
-                        
+
                         roles.forEach(role => {
                             const option = document.createElement('option');
                             option.value = role.id;
                             option.textContent = role.name;
                             optgroup.appendChild(option);
                         });
-                        
+
                         roleSelect.appendChild(optgroup);
                     }
                 });
             }
-            
+
             // Set current role if any
             if (playerRoles[playerName]) {
                 roleSelect.value = playerRoles[playerName];
             }
-            
+
             modal.classList.remove('hidden');
         }
-        
+
         function closeRoleAssignmentModal() {
             document.getElementById('roleAssignmentModal').classList.add('hidden');
             selectedPlayerForRole = null;
         }
-        
+
         function confirmRoleAssignment() {
             if (!selectedPlayerForRole) return;
-            
+
             const roleSelect = document.getElementById('roleSelect');
             const selectedRole = roleSelect.value || null;
-            
+
             // Update local state
             playerRoles[selectedPlayerForRole] = selectedRole;
-            
+
             // Broadcast role assignment to other storytellers (if any)
             pubnub.publish({
                 channel: currentRoom,
@@ -1936,20 +1944,20 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-            
+
             updatePlayersList();
             closeRoleAssignmentModal();
         }
-        
+
         function randomlyAssignAllRoles() {
             if (!currentScript || players.length === 0) {
                 alert('No script loaded or no players');
                 return;
             }
-            
+
             const playerCount = players.length;
             let setup;
-            
+
             // Find setup for this player count
             if (currentScript.setup && currentScript.setup[playerCount]) {
                 setup = currentScript.setup[playerCount];
@@ -1957,7 +1965,7 @@ Steph</textarea>
                 alert(`No setup defined for ${playerCount} players in this script`);
                 return;
             }
-            
+
             // Get available roles by team
             const rolesByTeam = {
                 townsfolk: getScriptRoles(currentScript).filter(r => r.team === 'townsfolk'),
@@ -1965,13 +1973,13 @@ Steph</textarea>
                 minion: getScriptRoles(currentScript).filter(r => r.team === 'minion'),
                 demon: getScriptRoles(currentScript).filter(r => r.team === 'demon')
             };
-            
+
             // Randomly select roles based on setup
             const selectedRoles = [];
-            
+
             Object.entries(setup).forEach(([team, count]) => {
                 const availableRoles = [...rolesByTeam[team]]; // Copy array
-                
+
                 for (let i = 0; i < count; i++) {
                     if (availableRoles.length > 0) {
                         const randomIndex = Math.floor(Math.random() * availableRoles.length);
@@ -1980,28 +1988,28 @@ Steph</textarea>
                     }
                 }
             });
-            
+
             // Shuffle selected roles
             for (let i = selectedRoles.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [selectedRoles[i], selectedRoles[j]] = [selectedRoles[j], selectedRoles[i]];
             }
-            
+
             // Assign roles to players
             const shuffledPlayers = [...players];
             for (let i = shuffledPlayers.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
             }
-            
+
             // Clear existing assignments
             initializePlayerRoles();
-            
+
             // Assign roles
             for (let i = 0; i < Math.min(shuffledPlayers.length, selectedRoles.length); i++) {
                 playerRoles[shuffledPlayers[i]] = selectedRoles[i].id;
             }
-            
+
             // Broadcast the new assignments
             pubnub.publish({
                 channel: currentRoom,
@@ -2012,13 +2020,13 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-            
+
             updatePlayersList();
             closeRoleAssignmentModal();
         }
 
 
-        
+
         // Template Functions
         function useNightActionTemplate() {
             const targetPlayer = document.getElementById('targetPlayer').value;
@@ -2026,13 +2034,13 @@ Steph</textarea>
                 alert('Please select a target player first');
                 return;
             }
-            
+
             const roleId = playerRoles[targetPlayer];
             if (!roleId) {
                 alert('Selected player has no assigned role');
                 return;
             }
-            
+
             const role = getRoleById(roleId);
             if (!role || !role.nightActionTemplates || role.nightActionTemplates.length === 0) {
                 alert('This role has no night action templates available');
@@ -2057,41 +2065,41 @@ Steph</textarea>
                 const displayText = template[0]; // First string is what storyteller sees
                 return `${index + 1}. ${displayText}`;
             }).join('\n');
-            
+
             const choice = prompt(`Choose a template for ${targetPlayer} (${role.name}):\n\n${templateChoices}\n\nEnter number (1-${templates.length}):`);
-            
+
             if (choice === null) {
                 return; // User cancelled
             }
-            
+
             const templateIndex = parseInt(choice) - 1;
             if (isNaN(templateIndex) || templateIndex < 0 || templateIndex >= templates.length) {
                 alert('Invalid choice. Please try again.');
                 return;
             }
-            
+
             const selectedTemplate = templates[templateIndex];
             processNightActionTemplate(selectedTemplate, targetPlayer, role);
         }
-        
+
         function processNightActionTemplate(template, targetPlayer, role) {
             if (template.length === 1) {
                 // Storyteller info template - just send info to player
                 const templateText = template[0];
-                
+
                 currentTemplate = {
                     type: 'storyteller_info',
                     template: templateText,
                     to: targetPlayer,
                     fields: extractTemplateFields(templateText)
                 };
-                
+
                 showTemplateUI();
             } else if (template.length === 2) {
                 // Player prompt template - send prompt and expect response
                 const promptText = template[0];
                 const responseTemplate = template[1];
-                
+
                 currentTemplate = {
                     type: 'player_prompt',
                     promptText: promptText,
@@ -2099,21 +2107,21 @@ Steph</textarea>
                     to: targetPlayer,
                     fields: extractTemplateFields(responseTemplate)
                 };
-                
+
                 showTemplateUI();
             }
         }
-        
+
         function extractTemplateFields(templateText) {
             const fields = [];
             const fieldRegex = /\{(\w+)\}/g;
             let match;
-            
+
             while ((match = fieldRegex.exec(templateText)) !== null) {
                 const fieldName = match[1];
                 if (!fields.find(f => f.name === fieldName)) {
                     let fieldType = fieldName;
-                    
+
                     // Map common field names to types
                     if (fieldName.startsWith('player')) {
                         fieldType = 'player';
@@ -2124,11 +2132,11 @@ Steph</textarea>
                     } else if (fieldName === 'yesno') {
                         fieldType = 'yesno';
                     }
-                    
+
                     fields.push({ name: fieldName, type: fieldType });
                 }
             }
-            
+
             return fields;
         }
 
@@ -2142,24 +2150,24 @@ Steph</textarea>
                 alert('Please select a target player first');
                 return;
             }
-            
+
             currentTemplate = {
                 type: 'storyteller_info',
                 template: template,
                 to: targetPlayer,
                 fields: [{ name: fieldType, type: fieldType }]
             };
-            
+
             showTemplateUI();
         }
-        
+
         function usePromptTemplate(promptText, responseTemplate, fieldTypes) {
             const targetPlayer = document.getElementById('targetPlayer').value;
             if (!targetPlayer) {
                 alert('Please select a target player first');
                 return;
             }
-            
+
             currentTemplate = {
                 type: 'player_prompt',
                 promptText: promptText,
@@ -2167,17 +2175,17 @@ Steph</textarea>
                 to: targetPlayer,
                 fields: fieldTypes.map(type => ({ name: type, type: type }))
             };
-            
+
             showTemplateUI();
         }
-        
+
         function showTemplateUI() {
             const templateUI = document.getElementById('templateUI');
             const templateTitle = document.getElementById('templateTitle');
             const templateFields = document.getElementById('templateFields');
-            
+
             templateUI.classList.remove('hidden');
-            
+
             if (currentTemplate.type === 'storyteller_info') {
                 templateTitle.textContent = `Send Info to ${currentTemplate.to}`;
                 templateFields.innerHTML = '';
@@ -2190,18 +2198,18 @@ Steph</textarea>
                 templateContainer.style.padding = '15px';
                 templateContainer.style.background = 'rgba(0,0,0,0.2)';
                 templateContainer.style.borderRadius = '8px';
-                
+
                 templateContainer.innerHTML = createInlineTemplate(currentTemplate.template);
                 templateFields.appendChild(templateContainer);
-                
+
             } else if (currentTemplate.type === 'player_prompt') {
                 templateTitle.textContent = `Send Prompt to ${currentTemplate.to}`;
                 templateFields.innerHTML = '';
-                
+
                 const promptContainer = document.createElement('div');
                 promptContainer.innerHTML = `<p><strong>You will send:</strong> "${currentTemplate.promptText}"</p>`;
                 templateFields.appendChild(promptContainer);
-                
+
                 // The code below would provide the storyteller with a rendered view (as in combo boxes)
                 // of what the player will see when they compose their response. However, such a
                 // preview is really overkill for our purposes, and so I have guarded it by an if-false.
@@ -2214,12 +2222,12 @@ Steph</textarea>
                     responseContainer.style.background = 'rgba(0,0,0,0.2)';
                     responseContainer.style.borderRadius = '8px';
                     responseContainer.style.marginTop = '10px';
-                    
+
                     const responseLabel = document.createElement('p');
                     responseLabel.innerHTML = '<strong>Player will respond with:</strong>';
                     responseLabel.style.marginBottom = '10px';
                     templateFields.appendChild(responseLabel);
-                    
+
                     responseContainer.innerHTML = createInlineTemplate(currentTemplate.responseTemplate);
                     templateFields.appendChild(responseContainer);
                 }
@@ -2228,12 +2236,12 @@ Steph</textarea>
 
         function createInlineTemplate(templateText) {
             let html = templateText;
-            
+
             // Replace each placeholder with an appropriate form field
             currentTemplate.fields.forEach(field => {
                 const placeholder = `{${field.name}}`;
                 let fieldHtml = '';
-                
+
                 if (field.type === 'player') {
                     fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
                     fieldHtml += '<option value="">Select player...</option>';
@@ -2241,13 +2249,13 @@ Steph</textarea>
                         fieldHtml += `<option value="${player}">${player}</option>`;
                     });
                     fieldHtml += '</select>';
-                    
+
                 } else if (is_role(field.type)) {
                     fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
                     fieldHtml += '<option value="">Select role...</option>';
                     if (currentScript) {
                         let availableRoles = getScriptRoles(currentScript);
-                        
+
                         // Filter roles based on field type
                         if (field.type === 'townsfolk_role') {
                             availableRoles = availableRoles.filter(role => role.team === 'townsfolk');
@@ -2257,48 +2265,65 @@ Steph</textarea>
                             availableRoles = availableRoles.filter(role => role.team === 'minion');
                         } else if (field.type === 'demon_role') {
                             availableRoles = availableRoles.filter(role => role.team === 'demon');
+                        } else if (['bluff1_role', 'bluff2_role', 'bluff3_role'].includes(field.type)) {
+                            availableRoles = availableRoles.filter((role) => {
+                                let inPlayGoodRoles = []
+                                const defaultGoodTeamRoles = ['townsfolk', 'outsider']
+                                players.forEach(player => {
+                                    const roleId = playerRoles[player];
+                                    if (roleId) {
+                                        const role = getRoleById(roleId);
+                                        if (role) {
+                                            if (defaultGoodTeamRoles.includes(role.team)) {
+                                                inPlayGoodRoles.push(roleId)
+                                            }
+                                        }
+                                    }
+                                })
+                                return defaultGoodTeamRoles.includes(role.team) && !inPlayGoodRoles.includes(role.id);
+                            })
                         }
                         // field.type === 'role' shows all roles (no filtering)
-                        
+
                         availableRoles.forEach(role => {
                             fieldHtml += `<option value="${role.id}">${role.name}</option>`;
                         });
 
                     }
                     fieldHtml += '</select>';
-                    
+
                 } else if (field.type === 'yesno') {
                     fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
                     fieldHtml += '<option value="">Choose...</option>';
                     fieldHtml += '<option value="Yes">Yes</option>';
                     fieldHtml += '<option value="No">No</option>';
                     fieldHtml += '</select>';
-                    
+
                 } else if (field.type === 'number') {
                     fieldHtml = `<input type="number" id="field_${field.name}" placeholder="${field.name}" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 80px;">`;
-                    
+
                 } else {
                     fieldHtml = `<input type="text" id="field_${field.name}" placeholder="${field.name}" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 120px;">`;
                 }
-                
+
                 html = html.replace(placeholder, fieldHtml);
             });
-            
+
             return html;
         }
-        
+
         function sendTemplateMessage() {
             if (!currentTemplate) return;
-            
+
             let messageContent;
             let templateData = {};
-            
+
             if (currentTemplate.type === 'storyteller_info') {
                 // First: Validate ALL fields before processing ANY
                 for (const field of currentTemplate.fields) {
                     const inputEl = document.getElementById(`field_${field.name}`);
                     const value = inputEl.value;
-            
+
                     if (!value) {
                         alert(`Please fill in ${field.name}`);
                         return; // Actually exits the function
@@ -2307,14 +2332,14 @@ Steph</textarea>
 
                 // Process storyteller template
                 messageContent = currentTemplate.template;
-                
+
                 currentTemplate.fields.forEach(field => {
                     const inputEl = document.getElementById(`field_${field.name}`);
                     const value = inputEl.value;
                     // we know value is present (and truthy) because we checked it above
-                    
+
                     templateData[field.name] = value;
-                    
+
                     // Replace placeholder in message
                     if (is_role(field.type) && currentScript) {
                         const role = getRoleById(value);
@@ -2328,13 +2353,13 @@ Steph</textarea>
                         messageContent = messageContent.replace(`{${field.name}}`, value);
                     }
                 });
-                
+
             } else if (currentTemplate.type === 'player_prompt') {
                 messageContent = currentTemplate.promptText;
                 templateData.responseTemplate = currentTemplate.responseTemplate;
                 templateData.responseFields = currentTemplate.fields;
             }
-            
+
             const message = {
                 gameId: currentGameId,
                 type: 'private_message',
@@ -2354,22 +2379,22 @@ Steph</textarea>
                 channel: currentRoom,
                 message: message
             });
-            
+
             cancelTemplate();
         }
-        
+
         function cancelTemplate() {
             currentTemplate = null;
             document.getElementById('templateUI').classList.add('hidden');
             document.getElementById('responsePreview').classList.add('hidden');
         }
-        
+
         function sendFreeMessage() {
             const messageInput = document.getElementById('messageInput');
             const messageText = messageInput.value.trim();
-            
+
             if (!messageText || !isConnected) return;
-            
+
             let to = 'Storyteller';
             if (userType === 'storyteller') {
                 to = document.getElementById('targetPlayer').value;
@@ -2378,7 +2403,7 @@ Steph</textarea>
                     return;
                 }
             }
-            
+
             const message = {
                 gameId: currentGameId,
                 type: 'private_message',
@@ -2392,52 +2417,52 @@ Steph</textarea>
             // Display locally first (as "sending")
             displayMessage(message, true);
             sentMessages.set(message.timestamp, true);
-            
+
             pubnub.publish({
                 channel: currentRoom,
                 message: message
             });
-            
+
             messageInput.value = '';
         }
-        
+
         function displayMessage(message, isLocalSend = false) {
             // Only show messages for current user
             if (message.to !== currentUser && message.from !== currentUser) {
                 return;
             }
-            
+
             const messagesContainer = document.getElementById('messages');
             const messageEl = document.createElement('div');
-            
+
             messageEl.className = 'message';
             if (message.from === 'Storyteller' || userType === 'player' && message.from !== currentUser) {
                 messageEl.classList.add('from-storyteller');
             } else {
                 messageEl.classList.add('from-player');
             }
-            
+
             const headerEl = document.createElement('div');
             headerEl.className = 'message-header';
             const time = new Date(message.timestamp).toLocaleTimeString();
-            
+
             let statusIcon = '';
             if (isLocalSend) {
                 statusIcon = ' ⏳'; // Sending indicator
             } else if (message.from === currentUser) {
                 statusIcon = ' ✓'; // Delivered indicator
             }
-            
+
             headerEl.innerHTML = `${message.from} → ${message.to} (${time})<span class="delivery-status">${statusIcon}</span>`;
-                 
+
             const contentEl = document.createElement('div');
             contentEl.textContent = message.content;
-            
+
             // Store reference for delivery confirmation
             messageEl.dataset.timestamp = message.timestamp;
             messageEl.appendChild(headerEl);
             messageEl.appendChild(contentEl);
-            
+
             // Add response UI for prompts
             if (message.messageType === 'prompt' && message.to === currentUser && userType === 'player') {
                 const responseData = message.templateData;
@@ -2446,45 +2471,51 @@ Steph</textarea>
                     messageEl.appendChild(responseUI);
                 }
             }
-            
+
             messagesContainer.appendChild(messageEl);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-        
+
         function setDayPhase() {
             isNightTime = false;
             updatePhaseUI();
             updatePlayerMessageVisibility();
         }
-        
+
         function setNightPhase() {
             isNightTime = true;
+            dayNightCounter++;
             updatePhaseUI();
             updatePlayerMessageVisibility();
         }
-        
+
         function updatePhaseUI() {
             const button = document.getElementById('phaseToggle');
             if (button) {
                 button.textContent = isNightTime ? 'Day Breaks' : 'Night Falls';
-                button.style.background = isNightTime ? 
-                    'linear-gradient(45deg, #ffd93d, #f39c12)' : 
+                button.style.background = isNightTime ?
+                    'linear-gradient(45deg, #ffd93d, #f39c12)' :
                     'linear-gradient(45deg, #4a90e2, #357abd)';
+            }
+
+            const timeSpan = document.getElementById('displayTime');
+            if (timeSpan) {
+                timeSpan.textContent = `${isNightTime ? 'Night' : 'Day'} ${dayNightCounter}`
             }
         }
 
         function updatePlayerMessageVisibility() {
             if (userType !== 'player') return;
-            
+
             const messagesContainer = document.getElementById('messages');
             if (!messagesContainer) return;
-            
+
             const messageElements = messagesContainer.querySelectorAll('.message');
             messageElements.forEach(messageEl => {
                 messageEl.style.display = isNightTime ? 'block' : 'none';
             });
         }
- 
+
         function markMessageDelivered(timestamp) {
             // Find the message element and update its delivery status
             const messageEl = document.querySelector(`[data-timestamp="${timestamp}"]`);
@@ -2498,20 +2529,20 @@ Steph</textarea>
             const responseDiv = document.createElement('div');
             responseDiv.className = 'template-ui';
             responseDiv.style.marginTop = '10px';
-            
+
             const title = document.createElement('h4');
             title.textContent = 'Your Response:';
             responseDiv.appendChild(title);
-            
+
             const fieldsDiv = document.createElement('div');
-            
+
             responseData.responseFields.forEach(field => {
                 const fieldDiv = document.createElement('div');
                 fieldDiv.className = 'template-field';
-                
+
                 const label = document.createElement('label');
                 label.textContent = field.name.charAt(0).toUpperCase() + field.name.slice(1) + ':';
-                
+
                 let input;
                 if (field.type === 'player') {
                     input = document.createElement('select');
@@ -2527,54 +2558,54 @@ Steph</textarea>
                     input.type = 'text';
                     input.placeholder = `Enter ${field.name}...`;
                 }
-                
+
                 input.className = 'response-field';
                 input.dataset.fieldName = field.name;
-                
+
                 // Update preview on change
                 input.addEventListener('input', () => updateResponsePreview(responseDiv, responseData));
                 input.addEventListener('change', () => updateResponsePreview(responseDiv, responseData));
-                
+
                 fieldDiv.appendChild(label);
                 fieldDiv.appendChild(input);
                 fieldsDiv.appendChild(fieldDiv);
             });
-            
+
             responseDiv.appendChild(fieldsDiv);
-            
+
             // Preview area
             const previewDiv = document.createElement('div');
             previewDiv.className = 'response-preview';
             previewDiv.textContent = 'Fill in the fields to see your response...';
             responseDiv.appendChild(previewDiv);
-            
+
             // Send button
             const sendBtn = document.createElement('button');
             sendBtn.textContent = 'Send Response';
             sendBtn.onclick = () => sendPlayerResponse(responseDiv, responseData, originalMessage);
             responseDiv.appendChild(sendBtn);
-            
+
             return responseDiv;
         }
-        
+
         function updateResponsePreview(responseDiv, responseData) {
             const preview = responseDiv.querySelector('.response-preview');
             const fields = responseDiv.querySelectorAll('.response-field');
-            
+
             let responseText = responseData.responseTemplate;
             let allFilled = true;
-            
+
             fields.forEach(field => {
                 const fieldName = field.dataset.fieldName;
                 const value = field.value;
-                
+
                 if (value) {
                     responseText = responseText.replace(`{${fieldName}}`, value);
                 } else {
                     allFilled = false;
                 }
             });
-            
+
             if (allFilled) {
                 preview.textContent = `"${responseText}"`;
                 preview.style.color = '#26de81';
@@ -2583,17 +2614,17 @@ Steph</textarea>
                 preview.style.color = '#ffd93d';
             }
         }
-        
+
         function sendPlayerResponse(responseDiv, responseData, originalMessage) {
             const fields = responseDiv.querySelectorAll('.response-field');
             const fieldData = {};
             let responseText = responseData.responseTemplate;
             let allFilled = true;
-            
+
             fields.forEach(field => {
                 const fieldName = field.dataset.fieldName;
                 const value = field.value;
-                
+
                 if (!value) {
                     allFilled = false;
                 } else {
@@ -2601,12 +2632,12 @@ Steph</textarea>
                     responseText = responseText.replace(`{${fieldName}}`, value);
                 }
             });
-            
+
             if (!allFilled) {
                 alert('Please fill in all fields');
                 return;
             }
-            
+
             const message = {
                 gameId: currentGameId,
                 type: 'private_message',
@@ -2618,7 +2649,7 @@ Steph</textarea>
                 templateData: fieldData,
                 timestamp: Date.now()
             };
-            
+
             // Display locally first (as "sending")
             displayMessage(message, true);
             sentMessages.set(message.timestamp, true);
@@ -2627,32 +2658,32 @@ Steph</textarea>
                 channel: currentRoom,
                 message: message
             });
-            
+
             // Disable the response UI
             responseDiv.style.opacity = '0.5';
             responseDiv.style.pointerEvents = 'none';
             const sendBtn = responseDiv.querySelector('button');
             if (sendBtn) sendBtn.textContent = 'Response Sent';
         }
-        
+
         // Script Viewer Functions
         function toggleScriptViewer() {
             const viewer = document.getElementById('scriptViewer');
             viewer.classList.toggle('hidden');
-            
+
             if (!viewer.classList.contains('hidden') && currentScript) {
                 updateScriptViewer();
             }
         }
-        
+
         function updateScriptViewer() {
             if (!currentScript) return;
-            
+
             const title = document.getElementById('scriptViewerTitle');
             const content = document.getElementById('scriptContent');
-            
+
             title.textContent = currentScript.name;
-            
+
             // Group roles by team
             const rolesByTeam = {
                 townsfolk: [],
@@ -2660,11 +2691,11 @@ Steph</textarea>
                 minion: [],
                 demon: []
             };
-            
+
             getScriptRoles(currentScript).forEach(role => {
                 rolesByTeam[role.team].push(role);
             });
-            
+
             // Build content
             let html = `
                 <div style="margin-bottom: 15px;">
@@ -2673,7 +2704,7 @@ Steph</textarea>
                 </div>
                 <div class="script-viewer-content">
             `;
-            
+
             // Render each team
             const teamInfo = {
                 townsfolk: { name: 'Townsfolk', class: 'team-townsfolk' },
@@ -2681,7 +2712,7 @@ Steph</textarea>
                 minion: { name: 'Minions', class: 'team-minion' },
                 demon: { name: 'Demons', class: 'team-demon' }
             };
-            
+
             Object.entries(rolesByTeam).forEach(([team, roles]) => {
                 if (roles.length > 0) {
                     const info = teamInfo[team];
@@ -2691,7 +2722,7 @@ Steph</textarea>
                                 ${info.name} (${roles.length})
                             </div>
                     `;
-                    
+
                     roles.forEach(role => {
                         let timing = '';
                         if (role.firstNight && role.otherNights) {
@@ -2703,7 +2734,7 @@ Steph</textarea>
                         } else {
                             timing = 'Passive ability';
                         }
-                        
+
                         html += `
                             <div class="role-card ${team}">
                                 <div class="role-name">${role.name}</div>
@@ -2712,15 +2743,15 @@ Steph</textarea>
                             </div>
                         `;
                     });
-                    
+
                     html += '</div>';
                 }
             });
-            
+
             html += '</div>';
             content.innerHTML = html;
         }
-        
+
         // Handle Enter key in message input
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -2728,7 +2759,7 @@ Steph</textarea>
                 sendFreeMessage();
             }
         });
-        
+
         // Initialize setup screen
         document.getElementById('userType').dispatchEvent(new Event('change'));
 
@@ -2740,7 +2771,7 @@ Steph</textarea>
         function showRoleSelectionScreen() {
             document.getElementById('setupScreen').classList.add('hidden');
             document.getElementById('roleSelectionScreen').classList.remove('hidden');
-            
+
             document.getElementById('roleSelectionScript').textContent = currentScript.name;
             document.getElementById('roleSelectionPlayerCount').textContent = players.length;
 
@@ -2749,57 +2780,57 @@ Steph</textarea>
             initializePlayerRoles();
             initializePubNub();
             mostRecentSetupTimestamp = Date.now();
-            
+
             // Show target distribution
             updateDistributionDisplay();
-            
+
             // Populate role selection UI
             populateRoleSelectionUI();
-            
+
             // Initialize empty selection
             selectedRoles = [];
             updateSelectionCounts();
         }
-        
+
         function updateDistributionDisplay() {
             const display = document.getElementById('distributionDisplay');
             display.innerHTML = `
-                Townsfolk: ${targetDistribution.townsfolk} | 
-                Outsiders: ${targetDistribution.outsider} | 
-                Minions: ${targetDistribution.minion} | 
+                Townsfolk: ${targetDistribution.townsfolk} |
+                Outsiders: ${targetDistribution.outsider} |
+                Minions: ${targetDistribution.minion} |
                 Demons: ${targetDistribution.demon}
             `;
         }
-        
+
         function populateRoleSelectionUI() {
             const teams = ['townsfolk', 'outsider', 'minion', 'demon'];
-            
+
             teams.forEach(team => {
                 const container = document.getElementById(`${team}Roles`);
                 container.innerHTML = '';
-                
+
                 const teamRoles = getScriptRoles(currentScript).filter(role => role.team === team);
-                
+
                 teamRoles.forEach(role => {
                     const roleCard = document.createElement('div');
                     roleCard.className = `role-selection-card ${team}`;
                     roleCard.dataset.roleId = role.id;
                     roleCard.onclick = () => toggleRoleSelection(role.id);
-                    
+
                     roleCard.innerHTML = `
                         <div class="role-selection-name">${role.name}</div>
                         <div class="role-selection-ability">${role.ability}</div>
                     `;
-                    
+
                     container.appendChild(roleCard);
                 });
             });
         }
-        
+
         function toggleRoleSelection(roleId) {
             const roleCard = document.querySelector(`[data-role-id="${roleId}"]`);
             const isSelected = selectedRoles.includes(roleId);
-            
+
             if (isSelected) {
                 selectedRoles = selectedRoles.filter(id => id !== roleId);
                 roleCard.classList.remove('selected');
@@ -2807,32 +2838,32 @@ Steph</textarea>
                 selectedRoles.push(roleId);
                 roleCard.classList.add('selected');
             }
-            
+
             updateSelectionCounts();
         }
-        
+
         function updateSelectionCounts() {
             const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 };
-            
+
             selectedRoles.forEach(roleId => {
                 const role = getScriptRoles(currentScript).find(r => r.id === roleId);
                 if (role) {
                     counts[role.team]++;
                 }
             });
-            
+
             // Update count displays and styling
             ['townsfolk', 'outsider', 'minion', 'demon'].forEach(team => {
                 const countEl = document.getElementById(`${team}Count`);
                 const targetEl = document.getElementById(`${team}Target`);
-                
+
                 countEl.textContent = counts[team];
                 targetEl.textContent = targetDistribution[team];
-                
+
                 // Update styling based on match
                 const headerEl = countEl.closest('.team-header');
                 headerEl.classList.remove('distribution-match', 'distribution-over', 'distribution-under');
-                
+
                 if (counts[team] === targetDistribution[team]) {
                     headerEl.classList.add('distribution-match');
                 } else if (counts[team] > targetDistribution[team]) {
@@ -2841,24 +2872,24 @@ Steph</textarea>
                     headerEl.classList.add('distribution-under');
                 }
             });
-            
+
             // Update overall status
             updateSelectionStatus(counts);
         }
-        
+
         function updateSelectionStatus(counts) {
             const statusEl = document.getElementById('currentSelectionStatus');
             const totalSelected = Object.values(counts).reduce((a, b) => a + b, 0);
             const totalTarget = Object.values(targetDistribution).reduce((a, b) => a + b, 0);
-            
+
             let statusText = `Selected: ${totalSelected}/${totalTarget} roles`;
             let statusClass = 'status ';
-            
+
             if (totalSelected === totalTarget) {
                 const isExactMatch = ['townsfolk', 'outsider', 'minion', 'demon'].every(
                     team => counts[team] === targetDistribution[team]
                 );
-                
+
                 if (isExactMatch) {
                     statusText += ' - Perfect match! ✓';
                     statusClass += 'connected';
@@ -2869,18 +2900,18 @@ Steph</textarea>
             } else {
                 statusClass += 'disconnected';
             }
-            
+
             statusEl.textContent = statusText;
             statusEl.className = statusClass;
         }
-        
+
         function randomlySelectRoles() {
             // Clear current selection
             selectedRoles = [];
             document.querySelectorAll('.role-selection-card.selected').forEach(card => {
                 card.classList.remove('selected');
             });
-            
+
             // Select roles randomly based on distribution
             const rolesByTeam = {
                 townsfolk: getScriptRoles(currentScript).filter(r => r.team === 'townsfolk'),
@@ -2888,23 +2919,23 @@ Steph</textarea>
                 minion: getScriptRoles(currentScript).filter(r => r.team === 'minion'),
                 demon: getScriptRoles(currentScript).filter(r => r.team === 'demon')
             };
-            
+
             Object.entries(targetDistribution).forEach(([team, count]) => {
                 const availableRoles = [...rolesByTeam[team]];
-                
+
                 for (let i = 0; i < count && availableRoles.length > 0; i++) {
                     const randomIndex = Math.floor(Math.random() * availableRoles.length);
                     const selectedRole = availableRoles.splice(randomIndex, 1)[0];
                     selectedRoles.push(selectedRole.id);
-                    
+
                     const roleCard = document.querySelector(`[data-role-id="${selectedRole.id}"]`);
                     roleCard.classList.add('selected');
                 }
             });
-            
+
             updateSelectionCounts();
         }
-        
+
         function clearAllRoles() {
             selectedRoles = [];
             document.querySelectorAll('.role-selection-card.selected').forEach(card => {
@@ -2912,7 +2943,7 @@ Steph</textarea>
             });
             updateSelectionCounts();
         }
-        
+
         function goBackToSetup() {
             document.getElementById('roleSelectionScreen').classList.add('hidden');
             document.getElementById('setupScreen').classList.remove('hidden');
@@ -2922,28 +2953,28 @@ Steph</textarea>
             if (selectedRoles.length === 0 || players.length === 0) {
                 return;
             }
-            
+
             // Create array of selected role objects
-            const rolesToDistribute = selectedRoles.map(roleId => 
+            const rolesToDistribute = selectedRoles.map(roleId =>
                 getScriptRoles(currentScript).find(role => role.id === roleId)
             ).filter(role => role); // Remove any undefined roles
-            
+
             // Shuffle the roles
             for (let i = rolesToDistribute.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [rolesToDistribute[i], rolesToDistribute[j]] = [rolesToDistribute[j], rolesToDistribute[i]];
             }
-            
+
             // Shuffle the players
             const shuffledPlayers = [...players];
             for (let i = shuffledPlayers.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
             }
-            
+
             // Clear existing assignments
             initializePlayerRoles();
-            
+
             // Assign roles to players
             for (let i = 0; i < Math.min(shuffledPlayers.length, rolesToDistribute.length); i++) {
                 playerRoles[shuffledPlayers[i]] = rolesToDistribute[i].id;
@@ -2951,13 +2982,13 @@ Steph</textarea>
 
 	    console.log('Roles distributed:', playerRoles); // Debug line
         }
-        
+
         function proceedWithSelectedRoles() {
             if (selectedRoles.length === 0) {
                 alert('Please select at least one role');
                 return;
             }
-            
+
             // Hide the role selection screen
             document.getElementById('roleSelectionScreen').classList.add('hidden');
 
@@ -2968,7 +2999,7 @@ Steph</textarea>
             setTimeout(() => {
                 updatePlayersList();
             }, 100);
-          
+
             // Populate target player dropdown for new games
             const targetSelect = document.getElementById('targetPlayer');
             targetSelect.innerHTML = '<option value="">Select player...</option>';
@@ -2978,7 +3009,7 @@ Steph</textarea>
                 option.textContent = player;
                 targetSelect.appendChild(option);
             });
-            
+
             switchToGameScreen();
 
             // Broadcast the role assignments
@@ -3004,7 +3035,7 @@ Steph</textarea>
 
             // Check for roles with believesToBe property
             const playersWithMisimpressions = [];
-            
+
             players.forEach(player => {
                 const roleId = playerRoles[player];
                 if (roleId) {
@@ -3022,7 +3053,7 @@ Steph</textarea>
             // Check for duplicate role assignments
             const roleAssignments = {};
             const duplicateRoles = [];
-            
+
             players.forEach(player => {
                 const roleId = playerRoles[player];
                 if (roleId) {
@@ -3042,47 +3073,47 @@ Steph</textarea>
                     }
                 }
             });
-            
+
             // If there are duplicate roles, show confirmation
             if (duplicateRoles.length > 0) {
-                const duplicateList = duplicateRoles.map(d => 
+                const duplicateList = duplicateRoles.map(d =>
                     `• ${d.roleName}: ${d.players.join(', ')}`
                 ).join('\n');
-                
+
                 const confirmMessage = `WARNING: The following roles are assigned to multiple players:\n\n${duplicateList}\n\nThis is usually a mistake. Are you sure you want to distribute roles with duplicates?`;
-                
+
                 if (!confirm(confirmMessage)) {
                     return; // Cancel distribution
                 }
             }
-            
-            
+
+
             // If there are players with misimpressions, show confirmation
             if (playersWithMisimpressions.length > 0) {
-                const playerList = playersWithMisimpressions.map(p => 
+                const playerList = playersWithMisimpressions.map(p =>
                     `• ${p.player} (actually ${p.actualRole}, believes to be ${p.believesToBe})`
                 ).join('\n');
-                
+
                 const confirmMessage = `WARNING: The following players have roles where they should NOT know their true identity:\n\n${playerList}\n\nThese players should receive tokens for roles they believe they have, not their actual roles. Are you sure you want to distribute roles now?`;
-                
+
                 if (!confirm(confirmMessage)) {
                     return; // Cancel distribution
                 }
             }
 
-            
 
-            
+
+
             let sentCount = 0;
-            
+
             players.forEach(player => {
                 const roleId = playerRoles[player];
                 if (roleId) {
                     const role = getRoleById(roleId);
                     if (role) {
                         // Determine team alignment
-                        const teamAlignment = (role.team === 'townsfolk' || role.team === 'outsider') 
-                            ? 'You are good.' 
+                        const teamAlignment = (role.team === 'townsfolk' || role.team === 'outsider')
+                            ? 'You are good.'
                             : 'You are evil.';
 
                         const message = {
@@ -3095,21 +3126,21 @@ Steph</textarea>
                             templateData: { role: roleId },
                             timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
                         };
-                        
+
                         // Display locally first (as "sending")
                         displayMessage(message, true);
                         sentMessages.set(message.timestamp, true);
-                        
+
                         pubnub.publish({
                             channel: currentRoom,
                             message: message
                         });
-                        
+
                         sentCount++;
                     }
                 }
             });
-            
+
             if (sentCount > 0) {
                 alert(`Sent role assignments to ${sentCount} players`);
             } else {
@@ -3117,18 +3148,89 @@ Steph</textarea>
             }
         }
 
+        function distributeMinionAndDemonInfo() {
+            let sentCount = 0;
+            let demon = '';
+            let minions = [];
+
+            players.forEach(player => {
+                const roleId = playerRoles[player];
+                if (roleId) {
+                    const role = getRoleById(roleId);
+                    if (role?.team === 'demon') {
+                        demon = player
+                    } else if (role?.team === 'minion') {
+                        minions.push(player)
+                    }
+                }
+            });
+
+            // Send Demon Message
+            const demonMessage = minions.length === 1 ? 'Your minion is ' : 'Your minions are '
+            const message = {
+                gameId: currentGameId,
+                type: 'private_message',
+                messageType: 'info',
+                from: currentUser,
+                to: demon,
+                content: `${demonMessage} ${minions.join(', ')}.`,
+                timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
+            };
+
+            // Display locally first (as "sending")
+            displayMessage(message, true);
+            sentMessages.set(message.timestamp, true);
+
+            pubnub.publish({
+                channel: currentRoom,
+                message: message
+            });
+
+            sentCount++;
+
+            // Send Minion Messages
+            minions.forEach(minion => {
+                const message = {
+                    gameId: currentGameId,
+                    type: 'private_message',
+                    messageType: 'info',
+                    from: currentUser,
+                    to: minion,
+                    content: `The demon is ${demon}.`,
+                    timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
+                };
+
+                // Display locally first (as "sending")
+                displayMessage(message, true);
+                sentMessages.set(message.timestamp, true);
+
+                pubnub.publish({
+                    channel: currentRoom,
+                    message: message
+                });
+
+                sentCount++;
+            })
+
+            if (sentCount > 0) {
+                alert(`Sent minion/demon info to ${sentCount} players`);
+            } else {
+                alert('No minion/demon info to distribute');
+            }
+        }
+
         function showChangeRoleModal() {
             if (!selectedPlayerForRole) return;
-            
+
             const modal = document.getElementById('changeRoleModal');
             const title = document.getElementById('changeRoleTitle');
             const roleSelect = document.getElementById('roleSelect');
-            
+
             title.textContent = `Change Role for ${selectedPlayerForRole}`;
-            
+
             // Populate role dropdown (same logic as before)
             roleSelect.innerHTML = '<option value="">No role assigned</option>';
-            
+
             if (currentScript) {
                 const rolesByTeam = {
                     townsfolk: [],
@@ -3136,59 +3238,59 @@ Steph</textarea>
                     minion: [],
                     demon: []
                 };
-                
+
                 getScriptRoles(currentScript).forEach(role => {
                     rolesByTeam[role.team].push(role);
                 });
-                
+
                 const teamNames = {
                     townsfolk: '👥 Townsfolk',
-                    outsider: '🚪 Outsiders', 
+                    outsider: '🚪 Outsiders',
                     minion: '😈 Minions',
                     demon: '👹 Demons'
                 };
-                
+
                 Object.entries(rolesByTeam).forEach(([team, roles]) => {
                     if (roles.length > 0) {
                         const optgroup = document.createElement('optgroup');
                         optgroup.label = teamNames[team];
-                        
+
                         roles.forEach(role => {
                             const option = document.createElement('option');
                             option.value = role.id;
                             option.textContent = role.name;
                             optgroup.appendChild(option);
                         });
-                        
+
                         roleSelect.appendChild(optgroup);
                     }
                 });
             }
-            
+
             // Set current role if any
             if (playerRoles[selectedPlayerForRole]) {
                 roleSelect.value = playerRoles[selectedPlayerForRole];
             }
-            
+
             // Hide main modal and show change role modal
             document.getElementById('roleAssignmentModal').classList.add('hidden');
             modal.classList.remove('hidden');
         }
-        
+
         function closeChangeRoleModal() {
             document.getElementById('changeRoleModal').classList.add('hidden');
             document.getElementById('roleAssignmentModal').classList.remove('hidden');
         }
-        
+
         function confirmRoleChange() {
             if (!selectedPlayerForRole) return;
-            
+
             const roleSelect = document.getElementById('roleSelect');
             const selectedRole = roleSelect.value || null;
-            
+
             // Update local state
             playerRoles[selectedPlayerForRole] = selectedRole;
-            
+
             // Broadcast role assignment
             pubnub.publish({
                 channel: currentRoom,
@@ -3199,52 +3301,52 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-            
+
             updatePlayersList();
             closeChangeRoleModal();
             closeRoleAssignmentModal();
         }
-        
+
         function showAddReminderModal() {
             if (!selectedPlayerForRole) return;
-            
+
             const modal = document.getElementById('addReminderModal');
             const title = document.getElementById('addReminderTitle');
             const textArea = document.getElementById('reminderText');
-            
+
             title.textContent = `Add Reminder for ${selectedPlayerForRole}`;
             textArea.value = '';
-            
+
             // Hide main modal and show add reminder modal
             document.getElementById('roleAssignmentModal').classList.add('hidden');
             modal.classList.remove('hidden');
             textArea.focus();
         }
-        
+
         function closeAddReminderModal() {
             document.getElementById('addReminderModal').classList.add('hidden');
             document.getElementById('roleAssignmentModal').classList.remove('hidden');
         }
-        
+
         function confirmAddReminder() {
             if (!selectedPlayerForRole) return;
-            
+
             const textArea = document.getElementById('reminderText');
             const reminderText = textArea.value.trim();
-            
+
             if (!reminderText) {
                 alert('Please enter a reminder note');
                 return;
             }
-            
+
             // Initialize reminders array if it doesn't exist
             if (!playerReminders[selectedPlayerForRole]) {
                 playerReminders[selectedPlayerForRole] = [];
             }
-            
+
             // Add reminder
             playerReminders[selectedPlayerForRole].push(reminderText);
-            
+
             // Broadcast reminder update
             pubnub.publish({
                 channel: currentRoom,
@@ -3255,27 +3357,27 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-            
+
             updatePlayersList();
             closeAddReminderModal();
             closeRoleAssignmentModal();
         }
-        
+
         function showRemoveReminderModal() {
             if (!selectedPlayerForRole) return;
-            
+
             const reminders = playerReminders[selectedPlayerForRole] || [];
             if (reminders.length === 0) {
                 alert('No reminders to remove for this player');
                 return;
             }
-            
+
             const modal = document.getElementById('removeReminderModal');
             const title = document.getElementById('removeReminderTitle');
             const select = document.getElementById('reminderSelect');
-            
+
             title.textContent = `Remove Reminder for ${selectedPlayerForRole}`;
-            
+
             // Populate reminder dropdown
             select.innerHTML = '<option value="">Select reminder...</option>';
             reminders.forEach((reminder, index) => {
@@ -3284,33 +3386,33 @@ Steph</textarea>
                 option.textContent = reminder.length > 50 ? reminder.substring(0, 50) + '...' : reminder;
                 select.appendChild(option);
             });
-            
+
             // Hide main modal and show remove reminder modal
             document.getElementById('roleAssignmentModal').classList.add('hidden');
             modal.classList.remove('hidden');
         }
-        
+
         function closeRemoveReminderModal() {
             document.getElementById('removeReminderModal').classList.add('hidden');
             document.getElementById('roleAssignmentModal').classList.remove('hidden');
         }
-        
+
         function confirmRemoveReminder() {
             if (!selectedPlayerForRole) return;
-            
+
             const select = document.getElementById('reminderSelect');
             const reminderIndex = parseInt(select.value);
-            
+
             if (isNaN(reminderIndex)) {
                 alert('Please select a reminder to remove');
                 return;
             }
-            
+
             // Remove reminder
             if (playerReminders[selectedPlayerForRole]) {
                 playerReminders[selectedPlayerForRole].splice(reminderIndex, 1);
             }
-            
+
             // Broadcast reminder update
             pubnub.publish({
                 channel: currentRoom,
@@ -3321,7 +3423,7 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-            
+
             updatePlayersList();
             closeRemoveReminderModal();
             closeRoleAssignmentModal();
@@ -3385,7 +3487,7 @@ In case its not clear, I do want this to be a single page web app that I can jus
      F: I'm really happy with your help with this app I'm making. One problem I've noticed (or maybe its deliberate): Each message is showing up twice in a senders view. Its seen once on the recipients view. I assume this is something where the code is probably adding the text to the local buffer based on it being locally typed, and then adding it again when it shows up in the pubnub service. Does that sound plausible? See attached. Also, please show your suggestions on how to change this as diffs against the code.
 
 
-     F: I don't necessarily want to remove the immediate local display. Could we consider detecting the echo and rendering some kind of annotation on the message showing that it made it to the pubnub service, like a little checkmark or something in the rendering near the timestamp?     
+     F: I don't necessarily want to remove the immediate local display. Could we consider detecting the echo and rendering some kind of annotation on the message showing that it made it to the pubnub service, like a little checkmark or something in the rendering near the timestamp?
 
      F: Look at this code, especially the todo list at the top of the file.
 
