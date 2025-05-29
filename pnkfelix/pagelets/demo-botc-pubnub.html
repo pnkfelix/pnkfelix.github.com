@@ -609,7 +609,7 @@ Steph</textarea>
             </div>
 
             <div class="input-group">
-                <label>Script: <span id="displayScript"></span> | Room: <span id="displayRoom"></span></label>
+                <label>Script: <span id="displayScript"></span> | Room: <span id="displayRoom"></span> | <span id="displayTime"></span></label>
             </div>
 
             <button id="scriptViewerToggle" onclick="toggleScriptViewer()">📜 View Script</button>
@@ -754,7 +754,7 @@ Steph</textarea>
         let currentGameId = null;
         let playerReminders = {}; // Track reminders for each player
         let isNightTime = true; // Game starts at night
-
+        let dayNightCounter = 1; // Game starts on night 1
 
         // Embedded script definitions
         const ROLES = {
@@ -1649,13 +1649,6 @@ Steph</textarea>
                     timestamp: Date.now()
                 }
             });
-
-            // Apply the change locally for storyteller
-            if (newPhase === 'daybreak') {
-                setDayPhase();
-            } else {
-                setNightPhase();
-            }
         }
 
         function handleIncomingMessage(message, isFromHistory = false) {
@@ -1759,6 +1752,7 @@ Steph</textarea>
             document.getElementById('gameScreen').classList.remove('hidden');
 
             document.getElementById('displayRoom').textContent = currentRoom;
+            document.getElementById('displayTime').textContent = 'Night 1';
 
             if (currentScript) {
                 document.getElementById('displayScript').textContent = currentScript.name;
@@ -2490,6 +2484,7 @@ Steph</textarea>
 
         function setNightPhase() {
             isNightTime = true;
+            dayNightCounter++;
             updatePhaseUI();
             updatePlayerMessageVisibility();
         }
@@ -2501,6 +2496,11 @@ Steph</textarea>
                 button.style.background = isNightTime ?
                     'linear-gradient(45deg, #ffd93d, #f39c12)' :
                     'linear-gradient(45deg, #4a90e2, #357abd)';
+            }
+
+            const timeSpan = document.getElementById('displayTime');
+            if (timeSpan) {
+                timeSpan.textContent = `${isNightTime ? 'Night' : 'Day'} ${dayNightCounter}`
             }
         }
 
