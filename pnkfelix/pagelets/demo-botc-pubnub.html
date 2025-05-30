@@ -492,8 +492,8 @@
                  <div class="input-group">
                     <label for="gameRoom">Game Room ID:</label>
                     <input type="text" id="gameRoom" placeholder="Enter or create room ID"
-			   value="botc_ddt"
-			   >
+               value="botc_ddt"
+               >
                     <button type="button" id="generateRoomBtn" onclick="generateRoomId()">Generate New Room</button>
                 </div>
 
@@ -521,8 +521,8 @@ Steph</textarea>
                 <div class="input-group">
                     <label for="gameRoomPlayer">Game Room ID:</label>
                     <input type="text" id="gameRoomPlayer" placeholder="Enter room ID from Storyteller"
-			   value="botc_ddt"
-			   >
+               value="botc_ddt"
+               >
                     <button type="button" onclick="checkRoom()">Check Room</button>
                 </div>
 
@@ -832,7 +832,7 @@ Steph</textarea>
                 ability: 'Each night*, choose a player (not yourself): they are safe from the Demon tonight.',
                 firstNight: false,
                 otherNights: true,
-	        nightActionTemplates: [['Choose a player to protect tonight.', 'I choose to protect {player1}.']],
+                nightActionTemplates: [['Choose a player to protect tonight.', 'I choose to protect {player1}.']],
             },
             'ravenkeeper': {
                 id: 'ravenkeeper',
@@ -840,7 +840,7 @@ Steph</textarea>
                 team: 'townsfolk',
                 ability: 'If you die at night, you are woken to choose a player: you learn their character.',
                 firstNight: false,
-                otherNights: false,
+                otherNights: true,
                 nightActionTemplates: [
                     ['Choose a player to learn their character.', 'I choose {player1}.'],
                     ['You learn that {player1} is the {role}.']
@@ -935,7 +935,8 @@ Steph</textarea>
                 team: 'minion',
                 ability: 'If there are 5 or more players alive & the Demon dies, you become the Demon.',
                 firstNight: false,
-                otherNights: false,
+                otherNights: true,
+                nightActionTemplates: [['You are the {demon_role}.']]
             },
             'baron': {
                 id: 'baron',
@@ -953,7 +954,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['These three roles are not in play: {bluff_role1}, {bluff_role2}, {bluff_role3}.'],
                     ['Choose a player to kill tonight. Choose yourself to make one of your minions the new Imp.', 'I choose to kill {player1}.']
                 ],
             },
@@ -1027,7 +1028,7 @@ Steph</textarea>
                 firstNight: true,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Do you wish to use your once-per-game ability?', 'I choose {yesno}.'],
                     ['Choose a character.', 'I choose {role}.'],
                 ],
             },
@@ -1039,7 +1040,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Do you wish to use your once-per-game ability?', 'I choose {yesno}.'],
                     ['Choose a dead player.', 'I choose {player}.'],
                 ],
             },
@@ -1081,7 +1082,8 @@ Steph</textarea>
                 team: 'outsider',
                 ability: 'Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment.',
                 firstNight: false,
-                otherNights: false,
+                otherNights: true,
+                nightActionTemplates: [['You are {goodevil}.']]
             },
             'lunatic': {
                 id: 'lunatic',
@@ -1091,6 +1093,9 @@ Steph</textarea>
                 believesToBe: 'demon',
                 firstNight: true,
                 otherNights: true,
+                nightActionTemplates: [
+                    ['These three roles are not in play: {good_role1}, {good_role2}, {good_role3}.'],
+                ]
             },
             'tinker': {
                 id: 'tinker',
@@ -1134,7 +1139,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['Do you wish to use your once-per-game power?', 'I choose {yesno}.'],
+                    ['Do you wish to use your once-per-game ability?', 'I choose {yesno}.'],
                     ['Choose a player.', 'I choose {player}.'],
                 ],
             },
@@ -1142,7 +1147,7 @@ Steph</textarea>
                 id: 'mastermind',
                 name: 'Mastermind',
                 team: 'minion',
-                ability: 'If the Demon dies by execution (not 3rd day), play for 1 more day. If a player is then executed, evil wins.',
+                ability: 'If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, evil wins.',
                 firstNight: false,
                 otherNights: false,
             },
@@ -1154,7 +1159,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['These three roles are not in play: {bluff_role1}, {bluff_role2}, {bluff_role3}.'],
                     ['Choose a player to kill tonight.', 'I choose to kill {player1}.']
                 ],
             },
@@ -1166,7 +1171,7 @@ Steph</textarea>
                 firstNight: true,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['These three roles are not in play: {bluff_role1}, {bluff_role2}, {bluff_role3}.'],
                     ['Choose a player to poison tonight and kill tomorrow.', 'I choose {player1}.']
                 ],
             },
@@ -1178,7 +1183,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['These three roles are not in play: {bluff_role1}, {bluff_role2}, {bluff_role3}.'],
                     ['Choose two players.', 'I choose {player1} and {player2}.']
                 ],
             },
@@ -1190,7 +1195,7 @@ Steph</textarea>
                 firstNight: false,
                 otherNights: true,
                 nightActionTemplates: [
-                    ['These three roles are not in play: {bluff1_role}, {bluff2_role}, {bluff3_role}.'],
+                    ['These three roles are not in play: {bluff_role1}, {bluff_role2}, {bluff_role3}.'],
                     ['Choose a player.', 'I choose {player}.'],
                     ['Choose three players.', 'I choose {player1}, {player2}, and {player3}.'],
                 ],
@@ -1438,7 +1443,7 @@ Steph</textarea>
                     const playerCount = players.length;
                     if (currentScript.setup && currentScript.setup[playerCount]) {
                         targetDistribution = currentScript.setup[playerCount];
-	  	        currentGameId = generateGameId(currentRoom);
+                        currentGameId = generateGameId(currentRoom);
                         showRoleSelectionScreen();
                         return; // Don't proceed to game yet
                     } else {
@@ -1483,7 +1488,7 @@ Steph</textarea>
 
         function initializePlayerRoles() {
             playerRoles = {};
-	    playerReminders = {};
+        playerReminders = {};
             players.forEach(player => {
                 playerRoles[player] = null;
                 playerReminders[player] = [];
@@ -1619,7 +1624,7 @@ Steph</textarea>
 
 
         function sendGameSetup() {
-	  console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
+          console.log('sendGameSetup called, currentScript:', currentScript); // Add this line
           const setupMessage = {
                 gameId: currentGameId,
                 type: 'game_setup',
@@ -1662,7 +1667,7 @@ Steph</textarea>
                 to: message.to,
                 currentUser: currentUser
             };
-		    // console.log('handleIncomingMessage called:', debug_payload);
+            // console.log('handleIncomingMessage called:', debug_payload);
 
 
             if (message.type === 'game_setup') {
@@ -1672,7 +1677,7 @@ Steph</textarea>
                     // Update our current game ID if we don't have one or this is newer
                     if (!currentGameId || message.timestamp > mostRecentSetupTimestamp) {
                         currentGameId = message.gameId;
-					    console.log('Updated currentGameId to:', currentGameId);
+                        console.log('Updated currentGameId to:', currentGameId);
                     }
 
                     mostRecentSetupTimestamp = message.timestamp;
@@ -1725,13 +1730,13 @@ Steph</textarea>
             } else if (message.type === 'private_message' &&
                        (message.gameId === currentGameId || (userType === 'player' && !currentGameId))) {
 
-			  console.log('Processing private message:', message);
+              console.log('Processing private message:', message);
 
-			  // If player doesn't have gameId yet, adopt it from this message
-			  if (userType === 'player' && !currentGameId && message.gameId) {
-				currentGameId = message.gameId;
-				console.log('Player adopted gameId from message:', currentGameId);
-			  }
+              // If player doesn't have gameId yet, adopt it from this message
+              if (userType === 'player' && !currentGameId && message.gameId) {
+                currentGameId = message.gameId;
+                console.log('Player adopted gameId from message:', currentGameId);
+              }
 
                 // Check if this is an echo of our own message
                 if (message.from === currentUser && sentMessages.has(message.timestamp)) {
@@ -1743,7 +1748,7 @@ Steph</textarea>
                 // If it's not our message or not in sent messages, display normally
                 displayMessage(message);
             } else {
-			    console.log('Message rejected - no matching condition');
+                console.log('Message rejected - no matching condition');
             }
         }
 
@@ -1796,7 +1801,7 @@ Steph</textarea>
 
                     roleDiv.innerHTML = role ?
                         `<span class="role-${role.team}">${role.name}</span>` :
-				      '<span class="role-none">No role</span>';
+                        '<span class="role-none">No role</span>';
                     playerCard.appendChild(roleDiv);
 
                     // Show reminders if any
@@ -2125,12 +2130,10 @@ Steph</textarea>
                     // Map common field names to types
                     if (fieldName.startsWith('player')) {
                         fieldType = 'player';
-                    } else if (fieldName === 'role') {
-                        fieldType = 'role';
-                    } else if (fieldName === 'number') {
-                        fieldType = 'number';
-                    } else if (fieldName === 'yesno') {
-                        fieldType = 'yesno';
+                    } else if (fieldName.startsWith('bluff_role')) {
+                        fieldType = 'bluff_role';
+                    } else if (fieldName.startsWith('good_role')) {
+                        fieldType = 'good_role';
                     }
 
                     fields.push({ name: fieldName, type: fieldType });
@@ -2141,7 +2144,7 @@ Steph</textarea>
         }
 
         function is_role(fieldType) {
-            return fieldType === 'role' || fieldType.endsWith('_role');
+            return fieldType === 'role' || fieldType.includes('_role');
         }
 
         function useSimpleTemplate(template, fieldType) {
@@ -2255,6 +2258,7 @@ Steph</textarea>
                     fieldHtml += '<option value="">Select role...</option>';
                     if (currentScript) {
                         let availableRoles = getScriptRoles(currentScript);
+                        const defaultGoodTeamRoles = ['townsfolk', 'outsider']
 
                         // Filter roles based on field type
                         if (field.type === 'townsfolk_role') {
@@ -2265,7 +2269,11 @@ Steph</textarea>
                             availableRoles = availableRoles.filter(role => role.team === 'minion');
                         } else if (field.type === 'demon_role') {
                             availableRoles = availableRoles.filter(role => role.team === 'demon');
-                        } else if (['bluff1_role', 'bluff2_role', 'bluff3_role'].includes(field.type)) {
+                        } else if (field.type === 'good_role') {
+                            availableRoles = availableRoles.filter((role) => {
+                                return defaultGoodTeamRoles.includes(role.team);
+                            });
+                        } else if (field.type === 'bluff_role') {
                             availableRoles = availableRoles.filter((role) => {
                                 let inPlayGoodRoles = []
                                 const defaultGoodTeamRoles = ['townsfolk', 'outsider']
@@ -2284,7 +2292,6 @@ Steph</textarea>
                             })
                         }
                         // field.type === 'role' shows all roles (no filtering)
-
                         availableRoles.forEach(role => {
                             fieldHtml += `<option value="${role.id}">${role.name}</option>`;
                         });
@@ -2298,7 +2305,12 @@ Steph</textarea>
                     fieldHtml += '<option value="Yes">Yes</option>';
                     fieldHtml += '<option value="No">No</option>';
                     fieldHtml += '</select>';
-
+                } else if (field.type === 'goodevil') {
+                    fieldHtml = '<select id="field_' + field.name + '" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;">';
+                    fieldHtml += '<option value="">Choose...</option>';
+                    fieldHtml += '<option value="Good">Good</option>';
+                    fieldHtml += '<option value="Evil">Evil</option>';
+                    fieldHtml += '</select>';
                 } else if (field.type === 'number') {
                     fieldHtml = `<input type="number" id="field_${field.name}" placeholder="${field.name}" style="margin: 0 5px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 80px;">`;
 
@@ -2980,7 +2992,7 @@ Steph</textarea>
                 playerRoles[shuffledPlayers[i]] = rolesToDistribute[i].id;
             }
 
-	    console.log('Roles distributed:', playerRoles); // Debug line
+        console.log('Roles distributed:', playerRoles); // Debug line
         }
 
         function proceedWithSelectedRoles() {
@@ -3023,7 +3035,7 @@ Steph</textarea>
                         timestamp: Date.now()
                     }
                 });
-	    }, 1000);
+        }, 1000);
         }
 
         function distributeAllRoles() {
@@ -3166,14 +3178,15 @@ Steph</textarea>
             });
 
             // Send Demon Message
-            const demonMessage = minions.length === 1 ? 'Your minion is ' : 'Your minions are '
+            let messageForDemon = minions.length === 1 ? 'Your minion is ' : 'Your minions are '
+            messageForDemon += `${minions.join(', ')}.`;
             const message = {
                 gameId: currentGameId,
                 type: 'private_message',
                 messageType: 'info',
                 from: currentUser,
                 to: demon,
-                content: `${demonMessage} ${minions.join(', ')}.`,
+                content: messageForDemon,
                 timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
             };
 
@@ -3190,13 +3203,23 @@ Steph</textarea>
 
             // Send Minion Messages
             minions.forEach(minion => {
+                let messageForMinions = `The demon is ${demon}.`
+
+                if (minions.length > 1) {
+                    messageForMinions += minions.length === 2 ? ' The other minion is ' : ' The other minions are '
+
+                    const otherMinions = minions.filter(innerMinion => minion !== innerMinion)
+
+                    messageForMinions += `${otherMinions.join(', ')}.`
+                }
+
                 const message = {
                     gameId: currentGameId,
                     type: 'private_message',
                     messageType: 'info',
                     from: currentUser,
                     to: minion,
-                    content: `The demon is ${demon}.`,
+                    content: messageForMinions,
                     timestamp: Date.now() + sentCount // Slight offset to prevent timestamp collisions
                 };
 
