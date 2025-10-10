@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Winter 2026 Trip Pitch Deck</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="presentation-panel">
+            <div class="slide-controls">
+                <button id="prevSlide">Previous</button>
+                <span id="slideCounter">1 / 1</span>
+                <button id="nextSlide">Next</button>
+            </div>
+            <div id="slideContent" class="slide-content"></div>
+        </div>
+        
+        <div class="chat-panel">
+            <div class="claude-avatar">
+                <div id="claudeAvatar">🤖</div>
+            </div>
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Ask Claude about the trip...">
+                    <button id="sendMessage">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="presentation.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
