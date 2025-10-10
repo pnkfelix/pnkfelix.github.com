@@ -22,7 +22,22 @@
             <div class="claude-avatar">
                 <div id="claudeAvatar">🤖</div>
             </div>
-            <div class="chat-container">
+            <div class="api-key-setup" id="apiKeySetup">
+                <div class="api-key-form">
+                    <h4>Connect to Claude</h4>
+                    <p>Enter your Claude API key to enable real chat:</p>
+                    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+                    <button id="connectButton">Connect</button>
+                    <div class="api-help">
+                        <small>Get your API key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></small>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-container" id="chatContainer" style="display: none;">
+                <div class="chat-header">
+                    <span class="connection-status">🟢 Connected to Claude</span>
+                    <button id="disconnectButton" class="disconnect-btn">Disconnect</button>
+                </div>
                 <div id="chatMessages" class="chat-messages"></div>
                 <div class="chat-input">
                     <input type="text" id="messageInput" placeholder="Ask Claude about the trip...">
