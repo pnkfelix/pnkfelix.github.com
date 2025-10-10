@@ -5,43 +5,26 @@ class PitchDeckPresentation {
         this.init();
     }
 
-    async init() {
-        await this.loadMarkdownContent();
+    init() {
+        this.loadMarkdownContent();
         this.setupEventListeners();
         this.renderCurrentSlide();
     }
 
-    async loadMarkdownContent() {
-        try {
-            const response = await fetch('pitch-content.md');
-            const markdownText = await response.text();
-            
-            // Split markdown into slides based on horizontal rules (---)
-            const slideTexts = markdownText.split(/^---$/m);
-            
-            this.slides = slideTexts.map(slideText => ({
-                content: marked.parse(slideText.trim()),
-                raw: slideText.trim()
-            }));
-            
-            this.updateSlideCounter();
-        } catch (error) {
-            // Fallback content if markdown file doesn't exist yet
-            this.slides = [{
-                content: marked.parse(`# Family Winter 2026 Trip
-
-## Welcome to Our Pitch Deck!
-
-This is a placeholder slide. Create \`pitch-content.md\` to add your real content.
-
-### Sample Slide Structure:
-- Use \`---\` to separate slides
-- Write in markdown format
-- Claude will be able to discuss each slide!`),
-                raw: '# Family Winter 2026 Trip\n\n## Welcome to Our Pitch Deck!'
-            }];
-            this.updateSlideCounter();
-        }
+    loadMarkdownContent() {
+        // Load markdown content from embedded script tag
+        const embeddedContent = document.getElementById('embedded-content');
+        const markdownText = embeddedContent ? embeddedContent.textContent : '';
+        
+        // Split markdown into slides based on horizontal rules (---)
+        const slideTexts = markdownText.split(/^---$/m);
+        
+        this.slides = slideTexts.map(slideText => ({
+            content: marked.parse(slideText.trim()),
+            raw: slideText.trim()
+        }));
+        
+        this.updateSlideCounter();
     }
 
     setupEventListeners() {
